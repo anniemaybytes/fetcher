@@ -1,0 +1,17 @@
+# Set all text files to be LF
+* text eol=lf
+*.* text eol=lf
+*.php text eol=lf
+*.txt text eol=lf
+*.css text eol=lf
+
+# Denote all files that are truly binary and should not be modified.
+*.png binary
+*.jpg binary
+*.gif binary
+*.ico binary
+*.mkv binary
+*.mp4 binary
+*.otf binary
+*.ttf binary
+*.PNG binary

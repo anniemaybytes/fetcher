@@ -1,0 +1,32 @@
+{
+  "state_db": "../dldir/state.ldb",
+  "storage_dir": "../dldir/storage/",
+  "torrent_dir": "../dldir/torrents/",
+  "tracker_url": "https://tracker.example.com/announce",
+  "tracker_user": "Example",
+  "tracker_pass": "hunter2",
+  "shows_file": "../dldir/shows.json",
+  "shows_uri": "https://example.com/airing_shows.json",
+
+  "http_port": 8080,
+  "debug": true,
+
+  "irc_networks": {
+    "rizon": {
+      "host": "irc.rizon.net",
+      "port": 6667,
+      "nick": "example"
+    },
+    "ab": {
+      "host": "irc.animebytes.tv",
+      "port": 6667,
+      "nick": "example",
+      "nickserv_password": "hunter2"
+    }
+  },
+
+  "irc_control": {
+    "network": "ab",
+    "channel": "##test"
+  }
+}

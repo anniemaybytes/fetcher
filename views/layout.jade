@@ -1,0 +1,15 @@
+html
+  head
+    title fetcher2
+
+    link(href='//fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,300italic,400italic,600italic', rel='stylesheet', type='text/css')
+    link(href='/style.css', rel='stylesheet', type='text/css')
+
+  body
+    ul.breadcrumb
+      each segment in path
+        li: a(href=segment.uri)= segment.title
+
+    div#content
+      block content
+

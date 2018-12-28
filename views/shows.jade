@@ -1,0 +1,10 @@
+extends ./layout.jade
+
+block content
+  table
+    each show, title in shows
+      tr
+        td
+          a(href="/shows/" + encodeURI(title))= title
+          |  (#{show.latest.meta.episode})
+        td= show.latest.meta.mtime

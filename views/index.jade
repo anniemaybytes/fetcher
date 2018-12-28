@@ -1,0 +1,18 @@
+extends ./layout.jade
+
+block content
+  nav
+    a(href='/shows') view shows
+
+  - any = false
+  each files, state in shows
+    - any = true
+    .row: h2 #{state}:
+    table
+      each file in files
+        tr
+          td= file.meta.file
+          td= file.meta.err
+
+  if !any
+    .row: h2.center no pending transfers
