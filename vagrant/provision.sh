@@ -12,8 +12,8 @@ apt-get -y --force-yes install apt-transport-https
 echo
 echo Adding repositories
 cat << EOF > /etc/apt/sources.list.d/nodesource.list
-deb https://deb.nodesource.com/node_5.x wheezy main
-deb-src https://deb.nodesource.com/node_5.x wheezy main
+deb https://deb.nodesource.com/node_8.x buster main
+deb-src https://deb.nodesource.com/node_8.x buster main
 EOF
 apt-key add /vagrantroot/nodesource.gpg.key
 
