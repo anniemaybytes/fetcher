@@ -64,7 +64,7 @@ module.exports.upload = async (media, torrent, meta) ->
     release_group_name: meta.group
     subbing: meta.form.subbing || 'Softsubs'
     remaster: 'on'
-    mediainfo_desc: "[mediainfo]\n#{media.text}\n[/mediainfo]"
+    mediainfo_desc: "#{media.text}"
   }
 
   console.log('>> uploading:', meta.file)

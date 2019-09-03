@@ -70,6 +70,7 @@ unparseableCache = {}
 attachFeed = (group, feed, fetchercls) ->
   feed.on 'new', (item, meta) ->
     throw new Error("missing group (feed is broken)") unless meta.group
+    return unless item.title
 
     if item.title.endsWith('.torrent')
       item.title = item.title.substr(0, item.title.length - 8)
