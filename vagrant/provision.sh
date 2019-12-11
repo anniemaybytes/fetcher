@@ -4,18 +4,17 @@ set -e
 export DEBIAN_FRONTEND=noninteractive
 
 echo
-echo Updating apt cache
+echo Installing required base components
 apt-get update
-
-apt-get -y --force-yes install apt-transport-https
+apt-get -y install apt-transport-https dirmngr curl htop iotop
 
 echo
 echo Adding repositories
 cat << EOF > /etc/apt/sources.list.d/nodesource.list
-deb https://deb.nodesource.com/node_8.x buster main
-deb-src https://deb.nodesource.com/node_8.x buster main
+deb https://deb.nodesource.com/node_11.x buster main
+deb-src https://deb.nodesource.com/node_11.x buster main
 EOF
-apt-key add /vagrantroot/nodesource.gpg.key
+curl -sSL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add -
 
 echo
 echo Updating apt cache
@@ -23,7 +22,7 @@ apt-get update
 
 echo
 echo Installing packages...
-apt-get -y --force-yes install build-essential nodejs
+apt-get -y install build-essential nodejs
 
 echo
 echo Installing node packages

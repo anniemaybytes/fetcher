@@ -5,7 +5,7 @@ pad = (n, width) ->
   new Array(width - n.length + 1).join('0') + n
 
 crcRegex = /(..+)([a-f\d]{8}|[A-F\d]{8})(.*)/
-episodeRegex = /.*[^\w](?:EP|E|S\d+E)?(\d{2,3})(v0?\d)?([^\w]|$)/i
+episodeRegex = /.*[^\w](?:EP|E|S\d+E)?(\d{2,3}|(?<=Episode\s)\d{1,3})(v0?\d)?(?:[^\w]|$)/i
 
 splice = (filename, substring) ->
   index = filename.indexOf(substring)

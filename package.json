@@ -1,24 +1,26 @@
 {
   "name": "fetcher",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "a media downloader",
-  "main": "fetcher.js",
+  "scripts": {
+    "fetcher": "node ./run.js"
+  },
   "author": "AnimeBytes",
   "dependencies": {
-    "asyncawait": "^1.0.6",
+    "asyncawait": "^3.0.0",
     "bluebird": "^2.11.0",
     "coffeescript": "^1.12.7",
-    "crc": "^3.4.0",
-    "express": "^4.12.3",
+    "crc": "^3.8.0",
+    "express": "^4.17.1",
     "feedparser": "^2.2.9",
     "irc": "^0.5.2",
     "jade": "^1.11.0",
-    "level": "^4.0.0",
-    "request": "^2.82.0",
-    "sanitize-filename": "^1.5.3",
-    "tough-cookie": "^2.2.1",
-    "underscore": "^1.8.3",
-    "webtorrent": "^0.102.4",
-    "xml2js": "^0.4.15"
+    "level": "^6.0.0",
+    "request": "^2.88.0",
+    "sanitize-filename": "^1.6.3",
+    "tough-cookie": "^3.0.1",
+    "underscore": "^1.9.1",
+    "webtorrent": "^0.107.17",
+    "xml2js": "^0.4.22"
   }
 }
