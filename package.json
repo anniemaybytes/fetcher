@@ -9,7 +9,7 @@
   "dependencies": {
     "asyncawait": "3.0.0",
     "bluebird": "2.11.0",
-    "coffeescript": "1.12.7",
+    "coffeescript": "2.5.0",
     "crc": "3.8.0",
     "express": "4.17.1",
     "feedparser": "2.2.9",
