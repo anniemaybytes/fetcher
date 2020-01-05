@@ -21,13 +21,13 @@ module.exports.auth = async ->
   return if response.statusCode == 303 # Already authenticated.
   assertStatus(200, response, 'upload server unavailable')
 
-  csrfi = body.match(/_CSRF_INDEX"\s+value="(.*)"/)[1]
-  csrfx = body.match(/_CSRF_TOKEN"\s+value="(.*)"/)[1]
+  csrfi = body.match(/_CSRF_INDEX"\s+value="(.*)"\s\/></)[1]
+  csrfx = body.match(/_CSRF_TOKEN"\s+value="(.*)"\s\/>/)[1]
 
   opts = {
     uri: 'https://animebytes.tv/user/login'
     method: 'post'
-    form: {username, password, keeplogged_sent: 'true', keeplogged: 'on', _CSRF_INDEX: csrfi, _CSRF_TOKEN: csrfx}
+    form: {username, password, keeplogged: 'on', _CSRF_INDEX: csrfi, _CSRF_TOKEN: csrfx}
     followRedirect: false
     jar
   }
