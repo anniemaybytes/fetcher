@@ -21,6 +21,6 @@
     "tough-cookie": "3.0.1",
     "underscore": "1.9.1",
     "webtorrent": "0.107.17",
-    "xml2js": "0.4.22"
+    "xml2js": "0.4.23"
   }
 }
