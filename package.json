@@ -19,7 +19,7 @@
     "request": "2.88.0",
     "sanitize-filename": "1.6.3",
     "tough-cookie": "3.0.1",
-    "underscore": "1.9.1",
+    "underscore": "1.9.2",
     "webtorrent": "0.107.17",
     "xml2js": "0.4.23"
   }
