@@ -56,7 +56,7 @@ exports.parseFilename = (filename) ->
 
   lastDot = filename.lastIndexOf('.')
 
-  if lastDot != -1
+  if lastDot != -1 && filename.substr(lastDot + 1).indexOf(' ') == -1
     parsed.container = filename.substr(lastDot + 1)
     filename = filename.substr(0, lastDot)
 

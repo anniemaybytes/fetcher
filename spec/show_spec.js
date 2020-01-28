@@ -20,7 +20,6 @@ describe('filename handling', function() {
 
       files.forEach(function(file) {
         expect(parseFilename(file)).toEqual({
-          //name: 'Some アニメ',
           episode: 1,
           version: 1,
           res: '720p',
@@ -84,15 +83,10 @@ describe('filename handling', function() {
       expect(parseFilename(file).episode).toEqual(1);
     });
 
-    /*
-    it("should be influenced by the releaser for confusing input", function() {
-      var file = "[Something] [12345678] Some アニメ - 01 [720p].mkv";
-      expect(parseFilename(file, 'something').crc).toBeUndefined();
-
-      file = "[Something] [12345678] Some アニメ - 01 [720p][123A4BC5].mkv";
-      expect(parseFilename(file, 'something').crc).toEqual('123A4BC5');
+    it("should not match container with whitespaces", function() {
+      var file = "[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv v2";
+      expect(parseFilename(file).container).toBeUndefined();
     });
-    */
   });
 });
 
