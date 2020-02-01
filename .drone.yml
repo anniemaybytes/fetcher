@@ -1,5 +1,5 @@
 kind: pipeline
-name: default
+name: node-v10
 type: docker
 
 platform:
@@ -7,13 +7,24 @@ platform:
     arch: amd64
 
 steps:
-    -   name: node-v10
+    -   name: tests
         image: node:10
         commands:
-            - npm i --no-save
+            - npm i --no-save --quiet --no-optional
             - npm run test
-    -   name: node-v12
+
+---
+kind: pipeline
+name: node-v12
+type: docker
+
+platform:
+    os: linux
+    arch: amd64
+
+steps:
+    -   name: tests
         image: node:12
         commands:
-            - npm i --no-save
+            - npm i --no-save --quiet --no-optional
             - npm run test
