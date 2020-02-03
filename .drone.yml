@@ -13,6 +13,10 @@ steps:
             - npm i --no-save --quiet --no-optional
             - npm run test
 
+trigger:
+    branch:
+        - master
+
 ---
 kind: pipeline
 name: node-v12
@@ -28,3 +32,7 @@ steps:
         commands:
             - npm i --no-save --quiet --no-optional
             - npm run test
+
+trigger:
+    branch:
+        - master
