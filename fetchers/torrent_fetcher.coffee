@@ -1,9 +1,9 @@
 {Fetcher} = require '../core/fetcher'
 WebTorrent = require 'webtorrent'
+config = require '../config.coffee'
 _ = require 'underscore'
 
-#5 minutes
-noPeerTimeout = 5 * 60 * 1000
+noPeerTimeout = 5 * 60 * 1000 # 5 minutes
 maxActiveDownloads = 5
 
 activeDownloads = 0
@@ -45,7 +45,7 @@ class exports.TorrentFetcher extends Fetcher
       
 
   addTorrent: (stream) ->
-    @torrent = client.add(@torrentid)
+    @torrent = client.add(@torrentid, {path: config.webtorrent_dir})
     @torrent.on 'error', (err) =>
     	activeDownloads--
     	@emit('error', err)
@@ -66,7 +66,7 @@ class exports.TorrentFetcher extends Fetcher
     @startDate = Date.now()
 
     torrent.on 'noPeers', (announceType) =>
-      #Take into account global number of peers, including DHT if enabled
+      # Take into account global number of peers, including DHT if enabled
       if (Date.now() - @startDate) >= noPeerTimeout && torrent.numPeers == 0 && torrent.progress < 1
         activeDownloads--
         @emit('error', new Error('torrent has no peers'))
@@ -88,4 +88,3 @@ class exports.TorrentFetcher extends Fetcher
     file = torrent.files[0]
     input = file.createReadStream()
     input.pipe(output)
-

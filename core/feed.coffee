@@ -10,4 +10,3 @@ class exports.Feed extends EventEmitter
 
   @register: (@type) ->
     Feed.types[@type] = this
-

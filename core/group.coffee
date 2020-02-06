@@ -25,4 +25,3 @@ class exports.Group
     if _.size(@shows)
       feed.fetch() for feed in @feeds
     return
-

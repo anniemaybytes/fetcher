@@ -39,4 +39,3 @@ class exports.Fetcher extends EventEmitter
 
   toJSON: ->
     {type: @constructor.type, args: @args}
-

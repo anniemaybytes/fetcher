@@ -14,7 +14,7 @@ class exports.IRCNetwork extends EventEmitter
 
     options = _.defaults(options, {
       userName: @targetNick
-      realName: @targetNick + ' ' + @targetNick # rizon needs this...
+      realName: @targetNick + '/' + @targetNick # rizon needs this...
     })
 
     options = _.omit(options, 'nick', 'nickserv_password')

@@ -78,4 +78,3 @@ exports.parseFilename = (filename) ->
     parsed.version = parseInt(match[2].substr(1), 10) if match[2]
 
   parsed
-

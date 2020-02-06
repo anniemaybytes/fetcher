@@ -111,4 +111,3 @@ class exports.State extends EventEmitter
     st.on 'error', (err) -> reject(err)
     st.on 'data', (data) -> files.push(data.value)
     st.on 'end', -> resolve(files)
-

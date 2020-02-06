@@ -15,7 +15,7 @@ module.exports = async (file) ->
 
   result = await parseString(xml)
 
-  files = result.Mediainfo.File
+  files = result.MediaInfo.media
   throw new Error('non-singular number of files ' + files.length) if files.length != 1
   tracks = files[0].track
 
@@ -33,7 +33,7 @@ module.exports = async (file) ->
         if audio.toLowerCase().indexOf('ac-3') > -1
           audio = 'AC3'
 
-        channels = track.Channel_s_[0].replace(/ |channels|ch/g, '')
+        channels = track.Channels[0].replace(/ |channels|ch/g, '')
         if channels in ['5.1', '6']
           audiochannels = '5.1'
         else if channels in ['6.1', '7']
@@ -64,4 +64,3 @@ module.exports = async (file) ->
           codec += ' 10-bit'
 
   {text, result, audio, audiochannels, codec}
-

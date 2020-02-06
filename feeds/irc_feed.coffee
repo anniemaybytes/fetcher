@@ -48,4 +48,3 @@ class exports.IRCFeed extends Feed
 
   inChannel: (c) ->
     c.toLowerCase() in @channels
-

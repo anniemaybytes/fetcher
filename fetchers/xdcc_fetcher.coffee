@@ -83,4 +83,3 @@ class exports.XDCCFetcher extends Fetcher
 
     stream.on 'finish', =>
       @finished()
-

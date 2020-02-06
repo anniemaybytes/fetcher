@@ -30,4 +30,3 @@ class exports.HTTPFetcher extends Fetcher
       @finished()
 
     @req.pipe(stream)
-

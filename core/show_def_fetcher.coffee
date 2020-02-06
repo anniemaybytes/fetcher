@@ -27,4 +27,3 @@ module.exports.loadShows = (showfn, callback) ->
   .catch (err) ->
     console.log('error fetching shows, continuing with cache:', err)
     fs.readFile showsFile, 'utf8', process
-

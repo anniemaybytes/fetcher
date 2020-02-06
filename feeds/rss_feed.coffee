@@ -81,4 +81,3 @@ class exports.HTTPRSSFeed extends exports.RSSFeed
         return @emit('error', new Error('Status code not OK - received ' + res.statusCode))
 
       cb(this)
-

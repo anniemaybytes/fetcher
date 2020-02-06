@@ -1,10 +1,11 @@
 {execFile} = require 'child_process'
 Promise = require 'bluebird'
 fs = require 'fs'
+config = require '../config.coffee'
 
 module.exports = (file, output, tracker) ->
   new Promise (resolve, reject) ->
-    cmd = ['mktorrent', '-l', '19', '-p', '-a', tracker, file, '-o', output, '-s', 'animebytes.tv']
+    cmd = ['mktorrent', '-l', '19', '-p', '-a', tracker, file, '-o', output, '-s', config.tracker_source]
 
     retry = ->
       execFile '/usr/bin/env', cmd, (err, stdout, stderr) ->
@@ -18,4 +19,3 @@ module.exports = (file, output, tracker) ->
         reject(err)
       else
         resolve()
-

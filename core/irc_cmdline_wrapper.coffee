@@ -12,4 +12,3 @@ class exports.IRCCmdlineWrapper extends EventEmitter
 
   output: (line) =>
     @network.say(@channel, line)
-

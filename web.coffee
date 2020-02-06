@@ -55,4 +55,3 @@ module.exports.boot = (state) ->
   server = app.listen config.http_port, ->
     {address, port} = server.address()
     console.log('HTTP listening on http://%s:%s', address, port)
-
