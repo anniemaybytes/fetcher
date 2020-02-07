@@ -4,7 +4,7 @@ _ = require('underscore')
 
 app = express()
 
-app.set('view engine', 'jade')
+app.set('view engine', 'pug')
 
 segments = (path) ->
   arr = _.compact(path.split('/'))
