@@ -11,7 +11,6 @@ steps:
         image: node:10
         commands:
             - npm i --no-save --quiet --no-optional
-            - npm run test
     -   name: tests
         image: node:10
         commands:
@@ -39,7 +38,6 @@ steps:
         image: node:12
         commands:
             - npm i --no-save --quiet --no-optional
-            - npm run test
     -   name: tests
         image: node:12
         commands:
