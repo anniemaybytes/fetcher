@@ -1,9 +1,9 @@
-# Set all text files to be LF
-* text eol=lf
-*.* text eol=lf
-*.php text eol=lf
-*.txt text eol=lf
-*.css text eol=lf
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# Declare files that will always have LF line endings on checkout.
+*.sh text eol=lf
+/vagrant/** text eol=lf
 
 # Denote all files that are truly binary and should not be modified.
 *.png binary
@@ -14,4 +14,6 @@
 *.mp4 binary
 *.otf binary
 *.ttf binary
+*.TTF binary
 *.PNG binary
+*.webm binary

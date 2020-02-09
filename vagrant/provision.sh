@@ -22,10 +22,9 @@ apt-get update
 
 echo
 echo Installing packages...
-apt-get -y install build-essential nodejs
+apt-get -y install build-essential nodejs mktorrent mediainfo
 
 echo
 echo Installing node packages
-su vagrant
 cd /code
-npm install
+sudo -u vagrant npm i --no-save
