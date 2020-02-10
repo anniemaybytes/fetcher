@@ -2,17 +2,22 @@
 {parseString} = require 'xml2js'
 Promise = require 'bluebird'
 {async, await} = require 'asyncawait'
+_ = require 'underscore'
 
 execFile = Promise.promisify(execFile)
 parseString = Promise.promisify(parseString)
 
-module.exports = async (file) ->
+module.exports.fromFile = async (file) ->
   [stdout, stderr] = await execFile('/usr/bin/env', ['mediainfo', file])
   text = stdout || ''
 
   [stdout, stderr] = await execFile('/usr/bin/env', ['mediainfo', '--Output=XML', file])
   xml = stdout || ''
 
+  result = (await module.exports.parseXml(xml))
+  return _.extend({text: text}, result)
+
+module.exports.parseXml = async (xml) ->
   result = await parseString(xml)
 
   files = result.MediaInfo.media
@@ -33,15 +38,21 @@ module.exports = async (file) ->
         if audio.toLowerCase().indexOf('ac-3') > -1
           audio = 'AC3'
 
-        channels = track.Channels[0].replace(/ |channels|ch/g, '')
-        if channels in ['5.1', '6']
-          audiochannels = '5.1'
+        channels = track.Channels[0]
+        if channels in ['7.1']
+          audiochannels = '7.1'
         else if channels in ['6.1', '7']
           audiochannels = '6.1'
-        else if channels in ['2.1', '3']
-          audiochannels = '2.1'
+        else if channels in ['5.1', '6']
+          audiochannels = '5.1'
         else if channels in ['5.0', '5']
           audiochannels = '5.0'
+        else if channels in ['2.1', '3']
+          audiochannels = '2.1'
+        else if channels in ['2.0', '2']
+          audiochannels = '2.0'
+        else if channels in ['1.0', '1']
+          audiochannels = '1.0'
 
       when 'Video'
         codec = track.Format[0]
@@ -60,7 +71,7 @@ module.exports = async (file) ->
         if codec.toLowerCase().indexOf('hevc') > -1
           codec = 'h265'
 
-        if track.Bit_depth?[0] == '10 bits' && (codec == 'h264' || codec == 'h265')
+        if track.BitDepth?[0] == '10' && (codec == 'h264' || codec == 'h265')
           codec += ' 10-bit'
 
-  {text, result, audio, audiochannels, codec}
+  {result, audio, audiochannels, codec}

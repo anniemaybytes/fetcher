@@ -54,15 +54,15 @@ module.exports.upload = async (media, torrent, meta) ->
     file_input: fs.createReadStream(torrent)
     downmultiplier: '0'
     upmultiplier: '1'
-    media: meta.form.media || 'TV'
+    media: meta.form.media
     containers: meta.container.toUpperCase()
-    codecs: media.codec || 'h264'
+    codecs: media.codec
     resolution: res
-    audio: media.audio || 'AAC'
-    audiochannels: media.audiochannels || '2.0'
+    audio: media.audio
+    audiochannels: media.audiochannels
     sequence: meta.episode
     release_group_name: meta.group
-    subbing: meta.form.subbing || 'Softsubs'
+    subbing: meta.form.subbing
     remaster: 'on'
     mediainfo_desc: "#{media.text}"
   }

@@ -7,7 +7,7 @@ mktorrent = require './core/mktorrent'
 ab = require './ab'
 
 module.exports = async (meta) ->
-  info = await mediainfo(meta.path)
+  info = await mediainfo.fromFile(meta.path)
   info.text = info.text.replace(meta.path, meta.file)
 
   torrentFile = path.join(config.torrent_dir, meta.file + '.torrent')
