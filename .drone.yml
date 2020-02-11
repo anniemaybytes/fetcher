@@ -1,3 +1,4 @@
+---
 kind: pipeline
 name: node-v10
 type: docker
@@ -7,14 +8,46 @@ platform:
     arch: amd64
 
 steps:
+    -   name: restore-cache
+        image: meltwater/drone-cache
+        failure: ignore
+        settings:
+            backend: "filesystem"
+            restore: true
+            cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_node-v10'
+            archive_format: "gzip"
+            mount:
+                - 'node_modules'
+        volumes:
+            -   name: drone-cache
+                path: /tmp/cache
+        depends_on: [ clone ]
     -   name: install
         image: node:10
         commands:
+            - node -v
+            - npm -v
             - npm i --no-save --quiet --no-optional
+        depends_on: [ restore-cache ]
     -   name: tests
         image: node:10
         commands:
             - npm run test
+        depends_on: [ install ]
+    -   name: rebuild-cache
+        image: meltwater/drone-cache
+        failure: ignore
+        settings:
+            backend: "filesystem"
+            rebuild: true
+            cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_node-v10'
+            archive_format: "gzip"
+            mount:
+                - 'node_modules'
+        volumes:
+            -   name: drone-cache
+                path: /tmp/cache
+        depends_on: [ install ]
 
 trigger:
     branch:
@@ -23,6 +56,11 @@ trigger:
     event:
         exclude:
             - cron
+
+volumes:
+    -   name: drone-cache
+        host:
+            path: /var/lib/cache
 
 ---
 kind: pipeline
@@ -34,14 +72,46 @@ platform:
     arch: amd64
 
 steps:
+    -   name: restore-cache
+        image: meltwater/drone-cache
+        failure: ignore
+        settings:
+            backend: "filesystem"
+            restore: true
+            cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_node-v12'
+            archive_format: "gzip"
+            mount:
+                - 'node_modules'
+        volumes:
+            -   name: drone-cache
+                path: /tmp/cache
+        depends_on: [ clone ]
     -   name: install
         image: node:12
         commands:
+            - node -v
+            - npm -v
             - npm i --no-save --quiet --no-optional
+        depends_on: [ restore-cache ]
     -   name: tests
         image: node:12
         commands:
             - npm run test
+        depends_on: [ install ]
+    -   name: rebuild-cache
+        image: meltwater/drone-cache
+        failure: ignore
+        settings:
+            backend: "filesystem"
+            rebuild: true
+            cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_node-v12'
+            archive_format: "gzip"
+            mount:
+                - 'node_modules'
+        volumes:
+            -   name: drone-cache
+                path: /tmp/cache
+        depends_on: [ install ]
 
 trigger:
     branch:
@@ -50,6 +120,11 @@ trigger:
     event:
         exclude:
             - cron
+
+volumes:
+    -   name: drone-cache
+        host:
+            path: /var/lib/cache
 
 ---
 kind: pipeline
@@ -61,11 +136,27 @@ platform:
     arch: amd64
 
 steps:
+    -   name: restore-cache
+        image: meltwater/drone-cache
+        failure: ignore
+        settings:
+            backend: "filesystem"
+            restore: true
+            cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_deps'
+            archive_format: "gzip"
+            mount:
+                - 'node_modules'
+        volumes:
+            -   name: drone-cache
+                path: /tmp/cache
+        depends_on: [ clone ]
     -   name: install
         image: node:12
         commands:
+            - node -v
+            - npm -v
             - npm i --no-save --quiet --no-optional
-        depends_on: [ clone ]
+        depends_on: [ restore-cache ]
     -   name: audit
         image: node:12
         commands:
@@ -76,7 +167,32 @@ steps:
         commands:
             - npm run check-outdated
         depends_on: [ install ]
+    -   name: rebuild-cache
+        image: meltwater/drone-cache
+        failure: ignore
+        settings:
+            backend: "filesystem"
+            rebuild: true
+            cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_deps'
+            archive_format: "gzip"
+            mount:
+                - 'node_modules'
+        volumes:
+            -   name: drone-cache
+                path: /tmp/cache
+        depends_on: [ install ]
 
 trigger:
     branch:
         - master
+        - drone
+
+volumes:
+    -   name: drone-cache
+        host:
+            path: /var/lib/cache
+---
+kind: signature
+hmac: 9bebb1b467f24e7a37dcf758a1bf9894850bac2c6ff8dd3f4194856bef58949b
+
+...
