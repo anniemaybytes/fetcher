@@ -11,16 +11,22 @@ steps:
     -   name: restore-cache
         image: meltwater/drone-cache
         failure: ignore
+        environment:
+            AWS_ACCESS_KEY_ID:
+                from_secret: aws_access_key_id
+            AWS_SECRET_ACCESS_KEY:
+                from_secret: aws_secret_access_key
+            PLUGIN_PATH_STYLE: true
         settings:
-            backend: "filesystem"
+            endpoint:
+                from_secret: aws_endpoint
+            region: ab-1
+            bucket: drone-cache
             restore: true
             cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_node-v10'
-            archive_format: "gzip"
+            archive_format: gzip
             mount:
-                - 'node_modules'
-        volumes:
-            -   name: drone-cache
-                path: /tmp/cache
+                - ./node_modules
         depends_on: [ clone ]
     -   name: install
         image: node:10
@@ -37,16 +43,22 @@ steps:
     -   name: rebuild-cache
         image: meltwater/drone-cache
         failure: ignore
+        environment:
+            AWS_ACCESS_KEY_ID:
+                from_secret: aws_access_key_id
+            AWS_SECRET_ACCESS_KEY:
+                from_secret: aws_secret_access_key
+            PLUGIN_PATH_STYLE: true
         settings:
-            backend: "filesystem"
+            endpoint:
+                from_secret: aws_endpoint
+            region: ab-1
+            bucket: drone-cache
             rebuild: true
             cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_node-v10'
-            archive_format: "gzip"
+            archive_format: gzip
             mount:
-                - 'node_modules'
-        volumes:
-            -   name: drone-cache
-                path: /tmp/cache
+                - ./node_modules
         depends_on: [ install ]
 
 trigger:
@@ -56,11 +68,6 @@ trigger:
     event:
         exclude:
             - cron
-
-volumes:
-    -   name: drone-cache
-        host:
-            path: /var/lib/cache
 
 ---
 kind: pipeline
@@ -75,16 +82,22 @@ steps:
     -   name: restore-cache
         image: meltwater/drone-cache
         failure: ignore
+        environment:
+            AWS_ACCESS_KEY_ID:
+                from_secret: aws_access_key_id
+            AWS_SECRET_ACCESS_KEY:
+                from_secret: aws_secret_access_key
+            PLUGIN_PATH_STYLE: true
         settings:
-            backend: "filesystem"
+            endpoint:
+                from_secret: aws_endpoint
+            region: ab-1
+            bucket: drone-cache
             restore: true
             cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_node-v12'
-            archive_format: "gzip"
+            archive_format: gzip
             mount:
-                - 'node_modules'
-        volumes:
-            -   name: drone-cache
-                path: /tmp/cache
+                - ./node_modules
         depends_on: [ clone ]
     -   name: install
         image: node:12
@@ -101,16 +114,22 @@ steps:
     -   name: rebuild-cache
         image: meltwater/drone-cache
         failure: ignore
+        environment:
+            AWS_ACCESS_KEY_ID:
+                from_secret: aws_access_key_id
+            AWS_SECRET_ACCESS_KEY:
+                from_secret: aws_secret_access_key
+            PLUGIN_PATH_STYLE: true
         settings:
-            backend: "filesystem"
+            endpoint:
+                from_secret: aws_endpoint
+            region: ab-1
+            bucket: drone-cache
             rebuild: true
             cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_node-v12'
-            archive_format: "gzip"
+            archive_format: gzip
             mount:
-                - 'node_modules'
-        volumes:
-            -   name: drone-cache
-                path: /tmp/cache
+                - ./node_modules
         depends_on: [ install ]
 
 trigger:
@@ -120,11 +139,6 @@ trigger:
     event:
         exclude:
             - cron
-
-volumes:
-    -   name: drone-cache
-        host:
-            path: /var/lib/cache
 
 ---
 kind: pipeline
@@ -139,16 +153,22 @@ steps:
     -   name: restore-cache
         image: meltwater/drone-cache
         failure: ignore
+        environment:
+            AWS_ACCESS_KEY_ID:
+                from_secret: aws_access_key_id
+            AWS_SECRET_ACCESS_KEY:
+                from_secret: aws_secret_access_key
+            PLUGIN_PATH_STYLE: true
         settings:
-            backend: "filesystem"
+            endpoint:
+                from_secret: aws_endpoint
+            region: ab-1
+            bucket: drone-cache
             restore: true
             cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_deps'
-            archive_format: "gzip"
+            archive_format: gzip
             mount:
-                - 'node_modules'
-        volumes:
-            -   name: drone-cache
-                path: /tmp/cache
+                - ./node_modules
         depends_on: [ clone ]
     -   name: install
         image: node:12
@@ -170,16 +190,22 @@ steps:
     -   name: rebuild-cache
         image: meltwater/drone-cache
         failure: ignore
+        environment:
+            AWS_ACCESS_KEY_ID:
+                from_secret: aws_access_key_id
+            AWS_SECRET_ACCESS_KEY:
+                from_secret: aws_secret_access_key
+            PLUGIN_PATH_STYLE: true
         settings:
-            backend: "filesystem"
+            endpoint:
+                from_secret: aws_endpoint
+            region: ab-1
+            bucket: drone-cache
             rebuild: true
             cache_key: '{{ checksum "package.json" }}_{{ checksum "package-lock.json" }}_deps'
-            archive_format: "gzip"
+            archive_format: gzip
             mount:
-                - 'node_modules'
-        volumes:
-            -   name: drone-cache
-                path: /tmp/cache
+                - ./node_modules
         depends_on: [ install ]
 
 trigger:
@@ -187,12 +213,8 @@ trigger:
         - master
         - drone
 
-volumes:
-    -   name: drone-cache
-        host:
-            path: /var/lib/cache
 ---
 kind: signature
-hmac: 9bebb1b467f24e7a37dcf758a1bf9894850bac2c6ff8dd3f4194856bef58949b
+hmac: 2454b41351d0241afc72a6450fcb2624fee568d9edef2d8edc2fcfd19301cb5e
 
 ...
