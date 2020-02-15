@@ -2,6 +2,7 @@
 
 class exports.Cmdline
   constructor: (@state) ->
+    undefined
 
   attach: (impl) ->
     impl.on 'input', (line) => @perform(line, impl.output)
@@ -10,4 +11,4 @@ class exports.Cmdline
     @usage(output)
 
   usage: (output) ->
-    output('hello.')
+    output('')

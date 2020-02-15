@@ -40,7 +40,8 @@ class exports.IRCFeed extends Feed
   detach: ->
     @network.removeListener 'message', @messageHandler
 
-  fetch: -> # noop
+  fetch: ->
+    undefined
 
   match: (message) ->
     for {re, args} in @matchers when match = message.match(re)

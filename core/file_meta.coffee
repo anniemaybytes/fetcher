@@ -34,7 +34,7 @@ resolutions =
   '720p': 0
   '1080p': 0
 
-exports.formatFilename = (meta)->
+exports.formatFilename = (meta) ->
   extra = ""
   extra += "[#{res}]" if res = meta.res
   extra += "[#{group}]" if group = meta.group

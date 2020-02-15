@@ -1,11 +1,6 @@
----
 kind: pipeline
 name: node-v10
 type: docker
-
-platform:
-    os: linux
-    arch: amd64
 
 steps:
     -   name: install
@@ -13,18 +8,15 @@ steps:
         commands:
             - node -v
             - npm -v
-            - npm i --no-save --quiet --no-optional
+            - npm i --no-save --quiet --no-optional --no-audit
     -   name: tests
         image: node:10
         commands:
             - npm run test
-
-trigger:
-    branch:
-        - master
-    event:
-        exclude:
-            - cron
+    -   name: linter
+        image: node:10
+        commands:
+            - npm run lint
 
 ---
 kind: pipeline
@@ -41,27 +33,20 @@ steps:
         commands:
             - node -v
             - npm -v
-            - npm i --no-save --quiet --no-optional
+            - npm i --no-save --quiet --no-optional --no-audit
     -   name: tests
         image: node:12
         commands:
             - npm run test
-
-trigger:
-    branch:
-        - master
-    event:
-        exclude:
-            - cron
+    -   name: linter
+        image: node:12
+        commands:
+            - npm run lint
 
 ---
 kind: pipeline
 name: deps
 type: docker
-
-platform:
-    os: linux
-    arch: amd64
 
 steps:
     -   name: install
@@ -69,7 +54,7 @@ steps:
         commands:
             - node -v
             - npm -v
-            - npm i --no-save --quiet --no-optional
+            - npm i --no-save --quiet --no-optional --no-audit
         depends_on: [ clone ]
     -   name: audit
         image: node:12
@@ -81,12 +66,3 @@ steps:
         commands:
             - npm run check-outdated
         depends_on: [ install ]
-
-trigger:
-    branch:
-        - master
----
-kind: signature
-hmac: 954738fdd9cecf7fdaa6b6f10c0f4c33b869dfb1176cb7fb2f8f5fc923ff1fb8
-
-...

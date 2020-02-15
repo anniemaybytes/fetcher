@@ -1,7 +1,9 @@
 {execFile} = require 'child_process'
 {parseString} = require 'xml2js'
 Promise = require 'bluebird'
+# coffeelint: disable=coffeescript_error
 {async, await} = require 'asyncawait'
+# coffeelint: enable=coffeescript_error
 _ = require 'underscore'
 
 execFile = Promise.promisify(execFile)

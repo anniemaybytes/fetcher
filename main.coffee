@@ -84,7 +84,9 @@ attachFeed = (group, feed, fetchercls) ->
     return if unparseableCache[item.title] # OVAs and other non-serial releases
 
     if !meta.container || !meta.episode
+      # coffeelint: disable=max_line_length
       console.log('>> release missing container or episode:', item.title, '(container:', meta.container, ', episode:', meta.episode, ')')
+      # coffeelint: enable=max_line_length
       unparseableCache[item.title] = true
       return
 
@@ -133,21 +135,21 @@ groups = {}
 
 refreshFeeds = ->
   if Object.keys(groups).length > 1
-  	count = Math.max(Object.keys(groups).length, 1)
-  	# time which each request must take at least
-  	minrate = 1500
-  	desired = 60000
-  	# pick whatever will take longer, either one minute or minimum request rate per second
-  	interval = Math.max(desired / count, minrate)
-  	# next fetch will be after all tasks finish, plus five minutes
-  	nextfetch = interval * count + 60000 * 5
-  	delay = 0
-  	for k, g of groups
-    	fetch = -> this.fetch()
-    	setTimeout(fetch.bind(g), delay)
-    	delay += interval
-  	console.log('fetching feeds, interval is ' + interval + ', next fetch in ' + nextfetch)
-  	setTimeout(refreshFeeds, nextfetch)
+    count = Math.max(Object.keys(groups).length, 1)
+    # time which each request must take at least
+    minrate = 1500
+    desired = 60000
+    # pick whatever will take longer, either one minute or minimum request rate per second
+    interval = Math.max(desired / count, minrate)
+    # next fetch will be after all tasks finish, plus five minutes
+    nextfetch = interval * count + 60000 * 5
+    delay = 0
+    for k, g of groups
+      fetch = -> this.fetch()
+      setTimeout(fetch.bind(g), delay)
+      delay += interval
+    console.log('fetching feeds, interval is ' + interval + ', next fetch in ' + nextfetch)
+    setTimeout(refreshFeeds, nextfetch)
   else
     console.log('sleeping on refreshFeeds for 30s while waiting for groups to be fetched')
     setTimeout(refreshFeeds, 30*1000)

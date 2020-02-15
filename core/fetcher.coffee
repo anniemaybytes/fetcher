@@ -1,6 +1,6 @@
 {EventEmitter} = require 'events'
 
-EventEmitter.defaultMaxListeners = 0;
+EventEmitter.defaultMaxListeners = 0
 
 # Represents a generic fetcher
 # Fires events:

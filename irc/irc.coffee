@@ -18,4 +18,6 @@ class IRCManager extends EventEmitter
       net.disconnect() for key, net of @networks
     return
 
+
+
 module.exports = new IRCManager()

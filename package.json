@@ -1,10 +1,11 @@
 {
   "name": "fetcher",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "a media downloader",
   "scripts": {
     "fetcher": "node ./run.js",
     "test": "jasmine --color",
+    "lint": "coffeelint --color=always .",
     "check-outdated": "check-outdated --ignore-pre-releases --ignore-dev-dependencies --ignore-packages coffeescript,bluebird"
   },
   "author": "AnimeBytes",
@@ -26,6 +27,7 @@
     "xml2js": "0.4.23"
   },
   "devDependencies": {
+    "coffeelint": "2.1.0",
     "check-outdated": "1.4.2",
     "jasmine": "3.5.0"
   }

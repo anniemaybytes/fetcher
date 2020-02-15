@@ -7,7 +7,7 @@ class exports.HTTPFetcher extends Fetcher
 
   constructor: ({link}) ->
     @url = link
-    super
+    super(...arguments)
 
   fetch: (stream) ->
     throw new Error('Fetch already started') if @req
@@ -28,5 +28,6 @@ class exports.HTTPFetcher extends Fetcher
 
     stream.on 'finish', =>
       @finished()
+
 
     @req.pipe(stream)

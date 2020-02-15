@@ -3,7 +3,9 @@ fs = require 'fs'
 {Fetcher} = require './fetcher'
 path = require 'path'
 levelup = require 'level'
+# coffeelint: disable=coffeescript_error
 {async, await} = require 'asyncawait'
+# coffeelint: enable=coffeescript_error
 Promise = require 'bluebird'
 
 class exports.State extends EventEmitter

@@ -1,5 +1,7 @@
 request = require 'request'
+# coffeelint: disable=coffeescript_error
 {async, await} = require 'asyncawait'
+# coffeelint: enable=coffeescript_error
 Promise = require 'bluebird'
 config = require './config'
 _ = require 'underscore'

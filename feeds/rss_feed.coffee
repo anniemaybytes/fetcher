@@ -43,7 +43,7 @@ class exports.RSSFeed extends Feed
       meta = _.defaults({title}, @options.meta)
       @emit('new', {title, link}, meta)
 
-    handleNew = (item) =>
+    handleNew = (item) ->
       if item.enclosures?.length
         for f in item.enclosures
           linkpath = url.parse(f.url).path
@@ -59,6 +59,7 @@ class exports.RSSFeed extends Feed
 
     return
 
+
 class exports.HTTPRSSFeed extends exports.RSSFeed
   @register('rss')
 
@@ -68,6 +69,7 @@ class exports.HTTPRSSFeed extends exports.RSSFeed
     super(@openHTTP, options)
 
   detach: ->
+    undefined
 
   openHTTP: (cb) ->
     req = request(@url)
@@ -76,8 +78,8 @@ class exports.HTTPRSSFeed extends exports.RSSFeed
       @emit('error', err)
 
     req.on 'response', (res) ->
-      if res.statusCode != 200
-        # emits on the request object
+      if res.statusCode != 200 # emits on the request object
         return @emit('error', new Error('Status code not OK - received ' + res.statusCode))
+
 
       cb(this)

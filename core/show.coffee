@@ -12,7 +12,7 @@ class exports.Show
 
     @releasers = _.mapObject options.releasers, (rel) ->
       regex: new RegExp(rel.regex, 'i')
-      form: { media: rel.media, subbing: rel.subbing }
+      form: {media: rel.media, subbing: rel.subbing}
 
   wantFile: (meta) ->
     _.contains(@formats, meta.res)

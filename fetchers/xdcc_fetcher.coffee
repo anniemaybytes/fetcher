@@ -27,7 +27,7 @@ class exports.XDCCFetcher extends Fetcher
 
   constructor: (@options) ->
     @command = "XDCC SEND #{@options.id}"
-    super
+    super(options)
 
   fetch: (stream) ->
     network = irc.connect(@options.network)
@@ -78,7 +78,7 @@ class exports.XDCCFetcher extends Fetcher
       stream.end()
       @emit('error', err)
 
-    client.on 'end', =>
+    client.on 'end', ->
       stream.end()
 
     stream.on 'finish', =>

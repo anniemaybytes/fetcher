@@ -31,7 +31,7 @@ class exports.TorrentFetcher extends Fetcher
 
   constructor: ({link}) ->
     @torrentid = link
-    super
+    super(...arguments)
 
   fetch: (stream) ->
     throw new Error('Fetch already started') if @torrent
@@ -47,8 +47,8 @@ class exports.TorrentFetcher extends Fetcher
   addTorrent: (stream) ->
     @torrent = client.add(@torrentid, {path: config.webtorrent_dir})
     @torrent.on 'error', (err) =>
-    	activeDownloads--
-    	@emit('error', err)
+      activeDownloads--
+      @emit('error', err)
 
     if @torrent.ready
       @processTorrent(stream, @torrent)

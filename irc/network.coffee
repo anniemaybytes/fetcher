@@ -72,7 +72,7 @@ class exports.IRCNetwork extends EventEmitter
       fn() for fn in sb
       return
 
-    @client.on 'error', (msg) =>
+    @client.on 'error', (msg) ->
       console.log('error (irc):', msg)
 
   disconnect: ->

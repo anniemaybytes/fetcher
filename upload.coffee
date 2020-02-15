@@ -1,5 +1,7 @@
 config = require './config.coffee'
+# coffeelint: disable=coffeescript_error
 {async, await} = require 'asyncawait'
+# coffeelint: enable=coffeescript_error
 path = require 'path'
 
 mediainfo = require './core/mediainfo'
