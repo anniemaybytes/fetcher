@@ -1,25 +1,4 @@
 kind: pipeline
-name: node-v10
-type: docker
-
-steps:
-    -   name: install
-        image: node:10
-        commands:
-            - node -v
-            - npm -v
-            - npm i --no-save --quiet --no-optional --no-audit
-    -   name: tests
-        image: node:10
-        commands:
-            - npm run test
-    -   name: linter
-        image: node:10
-        commands:
-            - npm run lint
-
----
-kind: pipeline
 name: node-v12
 type: docker
 

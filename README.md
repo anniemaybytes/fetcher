@@ -13,7 +13,7 @@ Following fetchers are available:
 
 ## Installation
 
-Isla requires NodeJS. Version 10 or 12 is recommended.
+Isla requires NodeJS. Version 12 is recommended.
 Additionally you need these external tools present in PATH:
 - `mktorrent` >= 1.1
 - `MediaInfo` CLI + Lib >= 17.10
