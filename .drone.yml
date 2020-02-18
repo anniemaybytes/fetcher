@@ -1,70 +1,37 @@
 kind: pipeline
-name: node-v12
+name: compliance
 type: docker
 
 steps:
-    -   name: restore-cache
-        image: meltwater/drone-cache
-        failure: ignore
-        environment:
-            AWS_ACCESS_KEY_ID:
-                from_secret: aws_access_key_id
-            AWS_SECRET_ACCESS_KEY:
-                from_secret: aws_secret_access_key
-            PLUGIN_PATH_STYLE: true
-        settings:
-            endpoint:
-                from_secret: aws_endpoint
-            region: ab-1
-            bucket: drone-cache
-            restore: true
-            cache_key: '{{ .Commit.Branch }}-v12'
-            archive_format: gzip
-            mount:
-                - ./node_modules
-        depends_on: [ clone ]
-    -   name: install
-        image: node:12
-        commands:
-            - node -v
-            - npm -v
-            - npm i --no-save --quiet --no-optional --no-audit
-        depends_on: [ restore-cache ]
-    -   name: tests
-        image: node:12
-        commands:
-            - npm run test
-        depends_on: [ install ]
     -   name: linter
         image: node:12
         commands:
+            - npm i --no-save --quiet --no-optional --no-audit
             - npm run lint
-        depends_on: [ install ]
-    -   name: rebuild-cache
-        image: meltwater/drone-cache
-        failure: ignore
-        environment:
-            AWS_ACCESS_KEY_ID:
-                from_secret: aws_access_key_id
-            AWS_SECRET_ACCESS_KEY:
-                from_secret: aws_secret_access_key
-            PLUGIN_PATH_STYLE: true
-        settings:
-            endpoint:
-                from_secret: aws_endpoint
-            region: ab-1
-            bucket: drone-cache
-            rebuild: true
-            cache_key: '{{ .Commit.Branch }}-v12'
-            archive_format: gzip
-            mount:
-                - ./node_modules
-        depends_on: [ install ]
 
 trigger:
     event:
         exclude:
             - cron
+            - promote
+
+---
+kind: pipeline
+name: tests
+type: docker
+
+steps:
+    -   name: tests
+        image: node:12
+        commands:
+            - npm i --no-save --quiet --no-optional --no-audit
+            - npm run test
+
+trigger:
+    event:
+        exclude:
+            - cron
+            - promote
 
 ---
 kind: pipeline
@@ -72,33 +39,6 @@ name: deps
 type: docker
 
 steps:
-    -   name: restore-cache
-        image: meltwater/drone-cache
-        failure: ignore
-        environment:
-            AWS_ACCESS_KEY_ID:
-                from_secret: aws_access_key_id
-            AWS_SECRET_ACCESS_KEY:
-                from_secret: aws_secret_access_key
-            PLUGIN_PATH_STYLE: true
-        settings:
-            endpoint:
-                from_secret: aws_endpoint
-            region: ab-1
-            bucket: drone-cache
-            restore: true
-            cache_key: '{{ .Commit.Branch }}-deps'
-            archive_format: gzip
-            mount:
-                - ./node_modules
-        depends_on: [ clone ]
-    -   name: install
-        image: node:12
-        commands:
-            - node -v
-            - npm -v
-            - npm i --no-save --quiet --no-optional --no-audit
-        depends_on: [ restore-cache ]
     -   name: audit
         image: node:12
         commands:
@@ -107,25 +47,53 @@ steps:
     -   name: outdated
         image: node:12
         commands:
+            - npm i --no-save --quiet --no-optional --no-audit
             - npm run check-outdated
-        depends_on: [ install ]
-    -   name: rebuild-cache
-        image: meltwater/drone-cache
-        failure: ignore
-        environment:
-            AWS_ACCESS_KEY_ID:
-                from_secret: aws_access_key_id
-            AWS_SECRET_ACCESS_KEY:
-                from_secret: aws_secret_access_key
-            PLUGIN_PATH_STYLE: true
+        depends_on: [ clone ]
+
+trigger:
+    branch:
+        - master
+    event:
+        exclude:
+            - promote
+
+---
+kind: pipeline
+name: artifacts
+type: docker
+
+steps:
+    -   name: collect
+        image: node:12
+        commands:
+            - npm i --no-save --quiet --no-optional --no-audit --production
+    -   name: upload
+        image: plugins/s3-cache
         settings:
+            rebuild: true
+            path: artifacts/${DRONE_REPO_NAME}/${DRONE_COMMIT}/
+            mount:
+                - node_modules
+            access_key:
+                from_secret: aws_access_key_id
+            secret_key:
+                from_secret: aws_secret_access_key
             endpoint:
                 from_secret: aws_endpoint
-            region: ab-1
-            bucket: drone-cache
-            rebuild: true
-            cache_key: '{{ .Commit.Branch }}-deps'
-            archive_format: gzip
-            mount:
-                - ./node_modules
-        depends_on: [ install ]
+    -   name: flush
+        image: plugins/s3-cache
+        settings:
+            flush: true
+            flush_age: 14
+            flush_path: artifacts/${DRONE_REPO_NAME}/
+            access_key:
+                from_secret: aws_access_key_id
+            secret_key:
+                from_secret: aws_secret_access_key
+            endpoint:
+                from_secret: aws_endpoint
+
+trigger:
+    event:
+        - promote
