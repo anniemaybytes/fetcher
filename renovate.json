@@ -4,5 +4,9 @@
   ],
   "ignorePaths": [
     ".drone.yml"
-  ]  
+  ],
+  "ignoreDeps": [
+    "coffeescript",
+    "bluebird"
+  ]
 }
