@@ -4,9 +4,10 @@ type: docker
 
 steps:
     -   name: linter
-        image: node:12
+        image: node:12-alpine
         commands:
-            - npm i --no-save --quiet --no-optional --no-audit
+            - apk add git tar
+            - npm i --quiet --no-save --no-optional --no-audit
             - npm run lint
 
 trigger:
@@ -22,9 +23,10 @@ type: docker
 
 steps:
     -   name: tests
-        image: node:12
+        image: node:12-alpine
         commands:
-            - npm i --no-save --quiet --no-optional --no-audit
+            - apk add git tar
+            - npm i --quiet --no-save --no-optional --no-audit
             - npm run test
 
 trigger:
@@ -40,14 +42,15 @@ type: docker
 
 steps:
     -   name: audit
-        image: node:12
+        image: node:12-alpine
         commands:
             - npm audit
         depends_on: [ clone ]
     -   name: outdated
-        image: node:12
+        image: node:12-alpine
         commands:
-            - npm i --no-save --quiet --no-optional --no-audit
+            - apk add git tar
+            - npm i --quiet --no-save --no-optional --no-audit
             - npm run check-outdated
         depends_on: [ clone ]
 
@@ -65,9 +68,10 @@ type: docker
 
 steps:
     -   name: collect
-        image: node:12
+        image: node:12-alpine
         commands:
-            - npm i --no-save --quiet --no-optional --no-audit --production
+            - apk add build-base git tar
+            - npm i --quiet --no-save --no-audit --production
     -   name: upload
         image: plugins/s3-cache
         settings:
