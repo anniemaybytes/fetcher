@@ -13,7 +13,6 @@ steps:
 trigger:
     event:
         exclude:
-            - cron
             - promote
 
 ---
@@ -30,33 +29,6 @@ steps:
             - npm run test
 
 trigger:
-    event:
-        exclude:
-            - cron
-            - promote
-
----
-kind: pipeline
-name: dependencies
-type: docker
-
-steps:
-    -   name: audit
-        image: node:12-alpine
-        commands:
-            - npm audit
-        depends_on: [ clone ]
-    -   name: outdated
-        image: node:12-alpine
-        commands:
-            - apk add git tar
-            - npm i --quiet --no-save --no-optional --no-audit
-            - npm run check-outdated
-        depends_on: [ clone ]
-
-trigger:
-    branch:
-        - master
     event:
         exclude:
             - promote
