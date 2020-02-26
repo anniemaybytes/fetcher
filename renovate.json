@@ -8,5 +8,8 @@
   "ignoreDeps": [
     "coffeescript",
     "bluebird"
-  ]
+  ],
+  "lockFileMaintenance": {
+    "enabled": true
+  }
 }
