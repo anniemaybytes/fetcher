@@ -2,14 +2,15 @@
   "extends": [
     "config:base"
   ],
-  "ignorePaths": [
-    ".drone.yml"
-  ],
+  "ignorePaths": [],
   "ignoreDeps": [
     "coffeescript",
     "bluebird"
   ],
   "lockFileMaintenance": {
     "enabled": true
+  },
+  "node": {
+    "supportPolicy": ["lts_latest"]
   }
 }
