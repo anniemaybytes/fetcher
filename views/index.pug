@@ -2,7 +2,7 @@ extends ./layout.pug
 
 block content
   nav
-    a(href='/shows') view shows
+    a(href=path + '/shows') view shows
 
   - any = false
   each files, state in shows

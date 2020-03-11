@@ -17,7 +17,8 @@ segments = (path) ->
   arr
 
 app.use (req, res, next) ->
-  res.locals.path = segments(req.path)
+  res.locals.segments = segments(req.path)
+  res.locals.path = config.http_path
   res.locals._ = _
   next()
 
@@ -52,6 +53,6 @@ app.use(express.static('static'))
 module.exports.boot = (state) ->
   app.state = state
 
-  server = app.listen config.http_port, ->
+  server = app.listen config.http_port, config.http_bind, ->
     {address, port} = server.address()
     console.log('HTTP listening on http://%s:%s', address, port)

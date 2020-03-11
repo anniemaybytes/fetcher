@@ -5,6 +5,6 @@ block content
     each show, title in shows
       tr
         td
-          a(href="/shows/" + encodeURI(title))= title
+          a(href=path + '/shows/' + encodeURI(title))= title
           |  (#{show.latest.meta.episode})
         td= show.latest.meta.mtime

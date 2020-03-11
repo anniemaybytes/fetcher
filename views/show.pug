@@ -4,7 +4,7 @@ block content
   table
     each file in show
       tr
-        td: a(href='/files/' + encodeURI(file.meta.file))= file.meta.file
+        td: a(href=path + '/files/' + encodeURI(file.meta.file))= file.meta.file
         td= file.fetcher.type
         td= file.meta.state
         td= file.meta.mtime

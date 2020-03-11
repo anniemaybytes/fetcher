@@ -31,7 +31,7 @@ class exports.TorrentFetcher extends Fetcher
 
   constructor: ({link}) ->
     @torrentid = link
-    super(...arguments)
+    super arguments...
 
   fetch: (stream) ->
     throw new Error('Fetch already started') if @torrent

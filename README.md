@@ -56,7 +56,9 @@ Configuration is done via `config.json` file. Example file:
   "shows_file": "../dldir/shows.json",
   "shows_uri": "https://example.com/airing_shows.json",
 
+  "http_bind": "::"
   "http_port": 8080,
+  "http_path": "",
   "debug": true,
 
   "irc_networks": {
@@ -91,7 +93,9 @@ Configuration is done via `config.json` file. Example file:
 - `tracker_source` - Content of `source` flag to insert into torrent file when building using `mktorrent`
 - `shows_file` - Location where cached JSON file with shows definition should be stored
 - `shows_uri` - URL from which Isla will fetch new shows definition JSON regularly. In case it's inaccessible local cached copy will be used
+- `http_bind` - IP address to bind to, use `127.0.0.1` or `::1` if you want to proxy web interface and protect it with password
 - `http_port` - HTTP port on which simple control interface will be exposed
+- `http_path` - base path to use if server if not on top-level of domain, example: `/bar`, `/foo/bar`
 - `debug` - Whether to enable debugging mode
 - `irc_networks` - Array of IRC networks Isla will connect to, possible values are: `host`, `port`, `nick`, `nickserv_password` as well as rest of options from [node-irc](https://node-irc.readthedocs.io/en/latest/API.html#client)
 - `irc_control` - Controls to which IRC network (from defined above) Isla should announce its state. Possible array keys are `network` and `channel`.
