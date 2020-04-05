@@ -1,0 +1,20 @@
+doctype html
+html
+  head
+    title fetcher2
+
+    link(href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,300italic,400italic,600italic', rel='stylesheet', type='text/css')
+    link(href=basePath + '/style.css', rel='stylesheet', type='text/css')
+
+  body
+    ul.breadcrumb
+      each segment in breadcrumbs
+        li: a(href=segment.uri)= segment.title
+
+    div#content
+      block content
+
+      hr
+      .row: h2 raw json
+      div.json
+        pre= JSON.stringify(input, null, 2)

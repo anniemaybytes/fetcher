@@ -1,0 +1,5 @@
+# Built TS
+dist/
+
+**/*.yml
+**/*.yaml

@@ -1,0 +1,25 @@
+extends ./layout.pug
+
+block content
+  nav
+    a(href=basePath + '/shows') view shows
+
+  - any = false
+  each files, state in input
+    - any = true
+    .row: h2 #{state}:
+    table
+      tr
+        th Name
+        th Progress
+        th Last Modified
+        th Error
+      each file in files
+        tr
+          td= file.saveFileName
+          td= file.progress
+          td= file.modified
+          td= file.error
+
+  if !any
+    .row: h2.center no pending transfers

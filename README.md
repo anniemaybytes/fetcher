@@ -1,37 +1,41 @@
-# Isla
+# fetcher2
 
-Isla is our bot for fetching and uploading airing show.
+fetcher is our bot for fetching and uploading airing show.
 
 Support is present for these types of downloaders:
-- Torrent (via webtorrent)
+
+- Torrent (via webtorrent, both `.torrent` and magnet links)
 - HTTP
-- XDCC
 
 Following fetchers are available:
+
 - IRC
 - RSS
 
 ## Installation
 
-Isla requires NodeJS. Version 12 is recommended.
-Additionally you need these external tools present in PATH:
-- `mktorrent` >= 1.1
-- `MediaInfo` CLI + Lib >= 17.10
+fetcher requires NodeJS version 12.10 or later and [Yarn package manager](https://classic.yarnpkg.com/).
+Additionally you need these external tools present in `PATH`:
 
-```
-$ npm i
-$ npm run fetcher
+- `mktorrent` >= 1.1
+- `MediaInfo` CLI + Lib >= 18.03
+
+```sh
+yarn && yarn build
+node dist/index.js
 ```
 
 Example systemd unit file:
-```
+
+```systemd
 [Unit]
-Description=Fetcher module for Isla
+Description=fetcher2
 After=network.target
 
 [Service]
+Environment="LOG_LEVEL=info"
 WorkingDirectory=/opt/fetcher
-ExecStart=/usr/bin/npm run fetcher
+ExecStart=/usr/bin/node dist/index.js
 RestartSec=10s
 Restart=always
 User=fetcher
@@ -42,62 +46,58 @@ WantedBy=default.target
 
 ## Configuration
 
-Configuration is done via `config.json` file. Example file:
-```
+Configuration is done via `config.json` file with the following format:
+
+```json
 {
-  "state_db": "../dldir/state.ldb",
-  "storage_dir": "../dldir/storage/",
-  "torrent_dir": "../dldir/torrents/",
-  "webtorrent_dir": "/tmp/webtorrent",
-  "tracker_url": "https://tracker.example.com/announce",
-  "tracker_user": "example",
-  "tracker_pass": "hunter2",
-  "tracker_source": "example.com",
-  "shows_file": "../dldir/shows.json",
-  "shows_uri": "https://example.com/airing_shows.json",
+  "state_db": "state.ldb",
+  "storage_dir": "",
+  "torrent_dir": "",
+  "temporary_dir": "/tmp/fetcher",
+  "tracker_url": "",
+  "tracker_source": "",
+  "tracker_user": "",
+  "tracker_pass": "",
+  "shows_file": "shows.json",
+  "shows_uri": "",
 
-  "http_bind": "::"
-  "http_port": 8080,
+  "http_bind": "::",
+  "http_port": 3004,
   "http_path": "",
-  "debug": true,
 
-  "irc_networks": {
-    "rizon": {
-      "host": "irc.rizon.net",
-      "port": 6667,
-      "nick": "example"
-    },
-    "ab": {
-      "host": "irc.animebytes.tv",
-      "port": 7000,
-      "secure": true,
-      "nick": "example",
-      "nickserv_password": "hunter2"
-    }
-  },
+  "irc_networks": {},
 
-  "irc_control": {
-    "network": "ab",
-    "channel": "#airing"
-  }
+  "irc_control": {}
 }
 ```
 
-- `state_db` - Directory where LevelDB database with all previously fetched shows and their state is saved
-- `storage_dir` - Directory where completed files will be moved to
-- `torrent_dir` - Directory where new torrent files will be create by `mktorrent`
-- `webtorrent_dir` - Directory where webtorrent downloads files to, must be cleaned by user manually on regular basis
-- `tracker_url` - Tracker URL used when creating new torrents
-- `tracker_user` - Username used to log in to AnimeBytes, used for fetching shows and uploading new torrents
-- `tracker_pass` - Password for user provided above
-- `tracker_source` - Content of `source` flag to insert into torrent file when building using `mktorrent`
-- `shows_file` - Location where cached JSON file with shows definition should be stored
-- `shows_uri` - URL from which Isla will fetch new shows definition JSON regularly. In case it's inaccessible local cached copy will be used
+- `state_db` - directory where LevelDB database with all previously fetched shows and their state is saved
+- `storage_dir` - directory where completed files will be moved to
+- `torrent_dir` - directory where new torrent files will be created by `mktorrent`
+- `temporary_dir` - temporary data directory for in-progress downloads
+- `tracker_url` - tracker URL used when creating new torrents
+- `tracker_source` - content of `source` flag to insert into torrent file when building using `mktorrent`
+- `tracker_user` - username used to log in to AnimeBytes, used for fetching shows and uploading new torrents
+- `tracker_pass` - password for user provided above
+- `shows_file` - location where cached JSON file with shows definition should be stored
+- `shows_uri` - URL from which bot will fetch new shows definition JSON regularly; in case it's inaccessible local cached copy will be used
 - `http_bind` - IP address to bind to, use `127.0.0.1` or `::1` if you want to proxy web interface and protect it with password
-- `http_port` - HTTP port on which simple control interface will be exposed
+- `http_port` - HTTP port on which simple monitoring interface will be exposed
 - `http_path` - base path to use if server if not on top-level of domain, example: `/bar`, `/foo/bar`
-- `debug` - Whether to enable debugging mode
-- `irc_networks` - Array of IRC networks Isla will connect to, possible values are: `host`, `port`, `nick`, `nickserv_password` as well as rest of options from [node-irc](https://node-irc.readthedocs.io/en/latest/API.html#client)
-- `irc_control` - Controls to which IRC network (from defined above) Isla should announce its state. Possible array keys are `network` and `channel`.
+- `irc_networks` - array of IRC networks bot will connect to
+    - `host` - address of IRC server to connect to
+    - `port` - port of the IRC server
+    - `ssl` - whether to use SSL or not when connecting to IRC server
+    - `verify_certificate` - whether to verify IRC server certificate
+    - `nick` - nickname, realname and username to be used on IRC server; `$` will be replaced by random character
+    - `nickserv_password` - optional, if present the bot will attempt to authenticate with `NickServ` upon joining
+- `irc_control` - controls to which IRC network (from `irc_networks`) bot should announce its state
+    - `network` - valid network name
+    - `channel` - channel name
 
-At least one IRC network outside of `irc_control` should be present.
+Additionally the bot expects `LOG_LEVEL` environment variable to be set to one of:
+- `trace`
+- `debug` (default if not provided)
+- `info`
+- `warn`
+- `error`

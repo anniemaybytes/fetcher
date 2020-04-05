@@ -44,7 +44,3 @@ desktop.ini
 /state.ldb
 shows.json
 config.json
-*.torrent
-
-# Production scripts
-provision.sh

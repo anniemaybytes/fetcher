@@ -1,0 +1,17 @@
+extends ./layout.pug
+
+block content
+  table
+    tr
+      th File Name
+      th Fetch Type
+      th State (progress)
+      th Last Modified
+      th Creation Time
+    each file in input
+      tr
+        td= file.saveFileName
+        td= file.fetchType
+        td= file.progress
+        td= file.created
+        td= file.modified

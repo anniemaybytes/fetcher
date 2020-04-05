@@ -6,9 +6,9 @@ steps:
     -   name: linter
         image: node:12-alpine
         commands:
-            - apk add git tar
-            - npm i --quiet --no-save --no-optional --no-audit
-            - npm run lint
+            - yarn --frozen-lockfile --non-interactive
+            - yarn lint
+            - yarn build
 
 ---
 kind: pipeline
@@ -19,6 +19,39 @@ steps:
     -   name: tests
         image: node:12-alpine
         commands:
-            - apk add git tar
-            - npm i --quiet --no-save --no-optional --no-audit
-            - npm run test
+            - yarn --frozen-lockfile --non-interactive
+            - yarn test
+
+---
+kind: pipeline
+name: docker
+type: docker
+
+platform:
+    arch: amd64
+
+steps:
+    -   name: build
+        image: plugins/docker
+        privileged: true
+        environment:
+            DOCKER_REGISTRY:
+                from_secret: docker_registry
+        settings:
+            username:
+                from_secret: docker_username
+            password:
+                from_secret: docker_password
+            tags:
+                - "${DRONE_DEPLOY_TO}"
+        commands:
+            - export PLUGIN_REPO=$DOCKER_REGISTRY/fetcher
+            - /usr/local/bin/dockerd-entrypoint.sh /bin/drone-docker
+
+trigger:
+    event:
+        - promote
+
+depends_on:
+    - compliance
+    - tests

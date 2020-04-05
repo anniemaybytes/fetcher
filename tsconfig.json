@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "outDir": "./dist/",
+    "rootDir": "./src/",
+    "moduleResolution": "node",
+    "module": "commonjs",
+    "declaration": false,
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "listFiles": false,
+    "traceResolution": false,
+    "strictNullChecks": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": false,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowUnreachableCode": false,
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "sourceMap": true,
+    "types": [
+      "node",
+      "mocha"
+    ],
+    "baseUrl": "."
+  },
+  "include": [
+    "**/*.ts"
+  ],
+  "exclude": [
+    "node_modules/**"
+  ],
+  "compileOnSave": false
+}

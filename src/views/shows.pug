@@ -1,0 +1,13 @@
+extends ./layout.pug
+
+block content
+  table
+    tr
+      th Show (Latest Fetched Episode Number)
+      th Last Modified
+    each show, title in input
+      tr
+        td
+          a(href=basePath + "/shows/" + encodeURI(title))= title
+          |  (#{show.latestEpisode})
+        td= show.lastModified
