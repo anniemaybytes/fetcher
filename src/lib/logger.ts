@@ -17,7 +17,7 @@ if (process.env.LOG_LEVEL) {
   logLevel = process.env.LOG_LEVEL as log.LogLevelDesc;
 } else {
   // eslint-disable-next-line no-console
-  console.error(colors.WARN(`Warning: Environment variable LOG_LEVEL is not set and has been defaulted to ${logLevel}`));
+  console.error(colors.WARN(`Environment variable LOG_LEVEL is not set and has been defaulted to ${logLevel}`));
 }
 
 export function getLogger(name: string) {

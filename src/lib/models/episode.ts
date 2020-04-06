@@ -47,7 +47,7 @@ export class Episode {
     } catch (e) {
       // Ignore NotFoundError (new item)
       if (e.type === 'NotFoundError') return false;
-      logger.error(`Error checking leveldb for ${this.formattedName()}. Can't determine state:`, e);
+      logger.error(`Error checking LevelDB for ${this.formattedName()}; can't determine state:`, e);
       return true;
     }
   }
@@ -68,7 +68,7 @@ export class Episode {
       await promise;
 
       // Fetch is complete, get mediainfo, create torrent, and upload
-      logger.info(`Finished fetch for ${this.saveFileName}; Gathering metadata and uploading`);
+      logger.info(`Finished fetch for ${this.saveFileName}; gathering metadata and uploading`);
       await this.saveToState('uploading');
       const mediaInfo = await getMediaInfo(this.getStoragePath(), this.saveFileName);
       await makeTorrentFile(this);

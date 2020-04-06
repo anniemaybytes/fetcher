@@ -17,7 +17,7 @@ export async function makeTorrentFile(episode: Episode, retry = true): Promise<v
     await execAsync('/usr/bin/env', cmd);
   } catch (e) {
     if (retry && e?.message?.match(/file exists/i)) {
-      logger.warn(`Torrent ${torrentPath} already exists. Deleting and re-creating`);
+      logger.warn(`Torrent ${torrentPath} already exists; deleting and re-creating`);
       await unlinkAsync(torrentPath);
       return makeTorrentFile(episode, false);
     }

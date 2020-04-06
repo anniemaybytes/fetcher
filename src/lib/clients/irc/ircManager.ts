@@ -1,13 +1,15 @@
 import { IRCNetwork } from './ircNetwork';
 import { Config } from '../config';
-import { sleep } from '../../utils';
+import { sleep, timeoutPromise } from '../../utils';
 import { getLogger } from '../../logger';
 import { MessageEvent } from '../../../types';
 const logger = getLogger('IRCManagerClient');
 
+const ircRegistrationTimeout = 1000 * 30; // 30 seconds
+
 export class IRCManager {
   public static networks: { [key: string]: IRCNetwork } = {};
-  public static controlNetwork: IRCNetwork;
+  public static controlNetwork?: IRCNetwork;
   public static controlChannel: string;
 
   public static async initialize() {
@@ -15,15 +17,24 @@ export class IRCManager {
     await Promise.all(
       Object.entries(Config.getConfig().irc_networks || {}).map(async ([key, options]) => {
         const network = new IRCNetwork(key, options);
-        await network.waitUntilRegistered();
-        IRCManager.networks[key] = network;
+        try {
+          // if failed to connect/register within timeout period, ignore this network
+          await timeoutPromise(network.waitUntilRegistered(), ircRegistrationTimeout, new Error('IRC connect/register timed out'));
+          IRCManager.networks[key] = network;
+        } catch (e) {
+          logger.error(`Failed to join IRC network ${key}:`, e);
+          network.disconnect();
+        }
       })
     );
     // Configure the control network settings
     const controlNetworkSettings = Config.getConfig().irc_control;
-    if (!IRCManager.networks[controlNetworkSettings.network]) throw new Error(`Control network ${controlNetworkSettings.network} doesn't exist`);
     IRCManager.controlNetwork = IRCManager.networks[controlNetworkSettings.network];
     IRCManager.controlChannel = controlNetworkSettings.channel;
+    if (!IRCManager.controlNetwork)
+      return logger.error(
+        `IRC control network ${controlNetworkSettings.network} either didn't connect or doesn't exist in config. Will not use control network`
+      );
     try {
       await IRCManager.controlNetwork.joinRoom(IRCManager.controlChannel);
     } catch (e) {
@@ -43,6 +54,7 @@ export class IRCManager {
   }
 
   public static controlAnnounce(message: string) {
+    if (!IRCManager.controlNetwork) return logger.warn('Tried to send message to unconnected IRC control network');
     try {
       IRCManager.controlNetwork.message(IRCManager.controlChannel, message);
     } catch (e) {

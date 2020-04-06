@@ -31,7 +31,6 @@ nav {
 }
 
 table {
-  font-weight: 500;
   border-collapse: collapse;
   border-spacing: 0;
   width: 100%;
@@ -39,7 +38,7 @@ table {
 }
 
 table th {
-  font-weight: 800;
+  font-weight: bold;
   margin: 0;
   padding: .7em 1em;
 }
@@ -55,7 +54,6 @@ table td {
 
 .breadcrumb {
   font-size: 14px;
-  font-weight: 300;
   margin: 0;
   padding: 0;
   background: #323b43;
@@ -80,7 +78,6 @@ table td {
 
 .breadcrumb li:after {
   color: #59626a;
-  font-weight: 600;
   content: '/';
   position: relative;
   left: 0.4em;
@@ -91,7 +88,7 @@ table td {
   border: 1px solid #d5d5d5;
   padding: 0 10px 0 10px;
   width: 95%;
-  margin: 10px auto 10px auto;
+  margin: 10px auto 0 auto;
 }
 
 .json pre {
@@ -107,4 +104,12 @@ table td {
 hr {
   width: 95%;
   margin-top: 25px;
+}
+
+.hidden {
+  display: none;
+}
+
+#content {
+  margin-bottom: 25px
 }

@@ -24,7 +24,7 @@ describe('IRCManager', () => {
     let fakeConfig: any;
 
     beforeEach(() => {
-      fakeNetwork = { waitUntilRegistered: sandbox.stub(), joinRoom: sandbox.stub() };
+      fakeNetwork = { waitUntilRegistered: sandbox.stub().resolves(undefined), joinRoom: sandbox.stub(), disconnect: sandbox.stub() };
       fakeCreateNetwork = sandbox.stub(ircNetworkModule, 'IRCNetwork').returns(fakeNetwork);
       fakeConfig = {
         irc_networks: { networkKey: { some: 'options' } },
@@ -52,12 +52,16 @@ describe('IRCManager', () => {
       await IRCManager.initialize();
     });
 
-    it('throws if control network does not exist in network definitions', async () => {
+    it('does not throw if control network does not exist in network definitions', async () => {
       fakeConfig.irc_control.network = 'badnetwork';
-      try {
-        await IRCManager.initialize();
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      await IRCManager.initialize();
+    });
+
+    it('does not throw if joining a network fails, and disconnects from said network', async () => {
+      fakeNetwork.waitUntilRegistered.throws('could not join');
+      await IRCManager.initialize();
+      expect(IRCManager.networks.networkKey).to.be.undefined;
+      assert.calledOnce(fakeNetwork.disconnect);
     });
   });
 

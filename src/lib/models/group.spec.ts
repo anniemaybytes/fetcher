@@ -63,6 +63,20 @@ describe('Group', () => {
         expect.fail('did not throw');
       } catch (e) {} // eslint-disable-line no-empty
     });
+
+    it('does not throw if there was an error creating a source', () => {
+      createSourceStub.throws(new Error('An error'));
+      Group.loadGroups({
+        somegroup: {
+          name: 'Some Group',
+          sources: [
+            {
+              'a+b': { some: 'options' },
+            },
+          ],
+        },
+      } as any);
+    });
   });
 
   describe('findShow', () => {

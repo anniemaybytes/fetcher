@@ -216,13 +216,13 @@ describe('IRCNetwork', () => {
       expect(fakeIRCClient.on.getCall(0).args[0]).to.equal('privmsg');
     });
 
-    it('calls provided callback is matching message for chan is emitted', (done) => {
+    it('calls provided callback when matching message for channel is emitted', (done) => {
       network
         .addChannelWatcher('chan', () => {
           done();
         })
         .then(() => {
-          fakeIRCClient.emit('privmsg', { target: 'chan' });
+          fakeIRCClient.emit('privmsg', { target: 'chan', message: 'msg' });
         });
     });
   });

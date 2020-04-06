@@ -1,4 +1,5 @@
 import * as irc from 'irc-framework';
+import { stripColorsAndStyle } from 'irc-colors';
 import { sleep } from '../../utils';
 import { getLogger } from '../../logger';
 import { IRCNetworkConfig, MessageEvent } from '../../../types';
@@ -32,10 +33,10 @@ export class IRCNetwork {
       rejectUnauthorized: options.verify_certificate === undefined ? true : options.verify_certificate,
     };
     this.bot.on('nick in use', () =>
-      logger.error(`Error: Attempted IRC nickname ${this.connectOptions.nick} is currently in use on ${this.name}; will retry`)
+      logger.error(`Attempted IRC nickname ${this.connectOptions.nick} is currently in use on ${this.name}; will retry`)
     );
     this.bot.on('close', () => {
-      if (this.registered && !this.shuttingDown) logger.error(`Error! Disconnected from IRC server ${this.name}`);
+      if (this.registered && !this.shuttingDown) logger.error(`Disconnected from IRC server ${this.name}`);
       this.registered = false;
     });
     this.bot.on('registered', async () => {
@@ -127,7 +128,10 @@ export class IRCNetwork {
     const channelLower = channel.toLowerCase();
     await this.joinRoom(channelLower);
     const onMessage = (event: MessageEvent) => {
-      if (event.target.toLowerCase() === channelLower) callback(event);
+      if (event.target.toLowerCase() === channelLower) {
+        event.message = stripColorsAndStyle(event.message);
+        callback(event);
+      }
     };
     this.bot.on('privmsg', onMessage);
     return () => this.bot.removeListener('privmsg', onMessage);

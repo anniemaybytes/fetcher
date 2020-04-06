@@ -1,6 +1,8 @@
 import { Show } from './show';
 import { Source } from './sources/source';
+import { getLogger } from '../logger';
 import { Releasers, ReleaserDef } from '../../types';
+const logger = getLogger('GroupModel');
 
 export class Group {
   // Used for global storage of groups
@@ -19,7 +21,11 @@ export class Group {
       Object.entries(source).forEach(([type, options]) => {
         const [sourceType, fetchType] = type.split('+');
         if (!sourceType || !fetchType) throw new Error(`Missing source or fetch type ${sourceType} ${fetchType}`);
-        Source.createSource(sourceType, this, fetchType, options);
+        try {
+          Source.createSource(sourceType, this, fetchType, options);
+        } catch (e) {
+          logger.error(`Error creating ${sourceType.toUpperCase()} source for ${this.name} group:`, e);
+        }
       });
     });
   }

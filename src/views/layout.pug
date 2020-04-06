@@ -3,8 +3,8 @@ html
   head
     title fetcher2
 
-    link(href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,300,400,600,700,900,300italic,400italic,600italic', rel='stylesheet', type='text/css')
     link(href=basePath + '/style.css', rel='stylesheet', type='text/css')
+    script(src=basePath + '/jquery.js')
 
   body
     ul.breadcrumb
@@ -15,6 +15,9 @@ html
       block content
 
       hr
-      .row: h2 raw json
-      div.json
+      div.row
+        h2
+          | raw json&nbsp;
+          a(href="#" onclick="$('.json').toggle(200); return false;")= "[toggle]"
+      div.json.hidden
         pre= JSON.stringify(input, null, 2)

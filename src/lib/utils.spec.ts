@@ -20,4 +20,20 @@ describe('utils', () => {
       expect(Date.now() - 9).to.be.gte(now);
     });
   });
+
+  describe('timeoutPromise', () => {
+    it('rejects with provided error if provided promise does not resolve within timeout', async () => {
+      const longPromise = new Promise((resolve) => setTimeout(resolve, 5000));
+      try {
+        await utils.timeoutPromise(longPromise, 1, 'my error');
+      } catch (e) {
+        expect(e).to.equal('my error');
+      }
+    });
+
+    it('returns value from provided promise if it resolves before the timeout', async () => {
+      const shortPromise = new Promise((resolve) => setTimeout(() => resolve('my return'), 1));
+      expect(await utils.timeoutPromise(shortPromise, 10, 'err')).to.equal('my return');
+    });
+  });
 });

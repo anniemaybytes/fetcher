@@ -7,7 +7,7 @@ block content
   - any = false
   each files, state in input
     - any = true
-    .row: h2 #{state}:
+    div.row: h2 #{state}:
     table
       tr
         th Name
@@ -22,4 +22,4 @@ block content
           td= file.error
 
   if !any
-    .row: h2.center no pending transfers
+    div.row: h2.center no pending transfers
