@@ -65,6 +65,9 @@ export class IRCNetwork {
     } else {
       this.registered = true;
       logger.info(`Successfully connected to IRC server ${this.name}`);
+      if (!this.connectOptions.rejectUnauthorized && this.connectOptions.ssl) {
+        logger.warn(`Connection was established on secure channel without TLS peer verification`);
+      }
     }
     // Reconnect to previously joined channels
     const previousChannels = this.joinedChannels;
