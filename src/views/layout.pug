@@ -3,8 +3,10 @@ html
   head
     title fetcher2
 
-    link(href=basePath + '/style.css', rel='stylesheet', type='text/css')
-    script(src=basePath + '/jquery.js')
+    link(href=basePath + '/css/style.css', rel='stylesheet', type='text/css')
+
+    script(src=basePath + '/js/bundle.vendor.js')
+    script(src=basePath + '/js/bundle.js')
 
   body
     ul.breadcrumb
@@ -17,7 +19,8 @@ html
       hr
       div.row
         h2
-          | raw json&nbsp;
-          a(href="#" onclick="$('.json').toggle(200); return false;")= "[toggle]"
+          | raw json
+          |
+          a(href='#' class='toggle' data-toggle-target='div.json')= '[toggle]'
       div.json.hidden
         pre= JSON.stringify(input, null, 2)
