@@ -1,4 +1,4 @@
-import { SinonSandbox, createSandbox, SinonStub, assert, useFakeTimers } from 'sinon';
+import { SinonSandbox, createSandbox, SinonStub, assert, useFakeTimers, match } from 'sinon';
 import { expect } from 'chai';
 import { Config } from '../config';
 import * as ircNetworkModule from './ircNetwork';
@@ -24,7 +24,7 @@ describe('IRCManager', () => {
     let fakeConfig: any;
 
     beforeEach(() => {
-      fakeNetwork = { waitUntilRegistered: sandbox.stub().resolves(undefined), joinRoom: sandbox.stub(), disconnect: sandbox.stub() };
+      fakeNetwork = { waitUntilRegistered: sandbox.stub().resolves(undefined), addChannelWatcher: sandbox.stub(), disconnect: sandbox.stub() };
       fakeCreateNetwork = sandbox.stub(ircNetworkModule, 'IRCNetwork').returns(fakeNetwork);
       fakeConfig = {
         irc_networks: { networkKey: { some: 'options' } },
@@ -40,15 +40,15 @@ describe('IRCManager', () => {
       expect(IRCManager.networks.networkKey).to.equal(fakeNetwork);
     });
 
-    it('assigns static control network and joins specified room', async () => {
+    it('assigns static control network and adds channel watcher for control room', async () => {
       await IRCManager.initialize();
       expect(IRCManager.controlNetwork).to.equal(fakeNetwork);
       expect(IRCManager.controlChannel).to.equal('channel');
-      assert.calledOnceWithExactly(fakeNetwork.joinRoom, 'channel');
+      assert.calledOnceWithExactly(fakeNetwork.addChannelWatcher, 'channel', match.any);
     });
 
-    it('does not throw if joining control room fails', async () => {
-      fakeNetwork.joinRoom.throws('borked');
+    it('does not throw if adding channel watcher (joining) control room fails', async () => {
+      fakeNetwork.addChannelWatcher.throws('borked');
       await IRCManager.initialize();
     });
 

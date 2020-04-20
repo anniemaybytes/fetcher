@@ -1,4 +1,5 @@
 import { IRCNetwork } from './ircNetwork';
+import { handleControlMessage } from './ircControl';
 import { Config } from '../config';
 import { sleep, timeoutPromise } from '../../utils';
 import { getLogger } from '../../logger';
@@ -36,7 +37,7 @@ export class IRCManager {
         `IRC control network ${controlNetworkSettings.network} either didn't connect or doesn't exist in config; will not use control network`
       );
     try {
-      await IRCManager.controlNetwork.joinRoom(IRCManager.controlChannel);
+      await IRCManager.addChannelWatcher(controlNetworkSettings.network, IRCManager.controlChannel, handleControlMessage);
     } catch (e) {
       logger.error(`Unable to join control channel ${IRCManager.controlChannel} on ${IRCManager.controlNetwork.name}`);
     }

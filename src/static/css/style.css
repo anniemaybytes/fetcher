@@ -19,7 +19,9 @@ a {
   text-align: center;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   margin: 1em 0 0.2em 0;
 }
 
@@ -40,7 +42,7 @@ table {
 table th {
   font-weight: bold;
   margin: 0;
-  padding: .7em 1em;
+  padding: 0.7em 1em;
 }
 
 table tr:nth-child(2n) {
@@ -49,7 +51,7 @@ table tr:nth-child(2n) {
 
 table td {
   margin: 0;
-  padding: .7em 1em;
+  padding: 0.7em 1em;
 }
 
 .breadcrumb {
@@ -72,11 +74,11 @@ table td {
 }
 
 .breadcrumb a {
-  color: #ced7df; /*76b852*/
+  color: #ced7df;
   text-decoration: none;
 }
 
-.breadcrumb li:after {
+.breadcrumb li::after {
   color: #59626a;
   content: '/';
   position: relative;
@@ -94,7 +96,7 @@ table td {
 .json pre {
   white-space: pre-wrap;
   word-break: break-all;
-  font-family: Consolas, monospace; 
+  font-family: Consolas, monospace;
   font-size: 13px;
   line-height: 1.42em;
   -webkit-user-select: all;
@@ -111,5 +113,5 @@ hr {
 }
 
 #content {
-  margin-bottom: 25px
+  margin-bottom: 25px;
 }

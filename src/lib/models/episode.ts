@@ -129,7 +129,7 @@ export class Episode {
   public getProgressString() {
     if (!this.state) return 'pending';
     let message = this.state;
-    if (this.state !== 'fetching' || !this.fetcher || !this.fetcher.fetched || !this.fetcher.length) return message;
+    if (this.state !== 'fetching' || !this.fetcher || !this.fetcher.length) return message;
     const fetchedMB = (this.fetcher.fetched / 1024 / 1024).toFixed(1);
     const lengthMB = (this.fetcher.length / 1024 / 1024).toFixed(1);
     const percent = ((this.fetcher.fetched / this.fetcher.length) * 100).toFixed(2);

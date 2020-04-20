@@ -12,6 +12,17 @@ Following fetchers are available:
 - IRC
 - RSS
 
+## Usage
+The format of `shows.json` is currently undocumented.
+
+Following commands are available to anyone in IRC control channel:
+- `!reload` - instantly reloads `shows.json` from remote
+- `!fetch` - instantly refreshes all sources and releasers
+
+In addition, HTTP server is available on port specified in config.
+The interface should be protected by access control; fetcher does not implement any kind of security on it.
+The web interface can be currently used only to view detailed information about fetcher database.
+
 ## Installation
 
 fetcher requires NodeJS version 12.10 or later and [Yarn package manager](https://classic.yarnpkg.com/).

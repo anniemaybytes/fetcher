@@ -1,16 +1,28 @@
 {
-  "extends": [
-    "config:base"
-  ],
-  "ignorePresets": [
-    ":prHourlyLimit2"
-  ],
+  "extends": ["config:base"],
+  "labels": ["kind/deps"],
+  "vulnerabilityAlerts": {
+    "labels": ["kind/security"]
+  },
+  "stabilityDays": 1,
+  "semanticCommits": false,
   "ignorePaths": [],
   "ignoreDeps": [],
   "lockFileMaintenance": {
-    "enabled": true
+    "enabled": true,
+    "schedule": ["before 3am on tuesday"]
   },
   "node": {
     "supportPolicy": ["lts_latest"]
-  }
+  },
+  "packageRules": [
+    {
+      "depTypeList": ["devDependencies"],
+      "extends": ["schedule:weekends"]
+    },
+    {
+      "packagePatterns": ["^@types/"],
+      "groupName": "type definitions"
+    }
+  ]
 }
