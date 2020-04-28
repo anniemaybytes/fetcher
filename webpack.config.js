@@ -5,12 +5,12 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 module.exports = {
   mode: 'none',
   entry: {
-    'js/bundle.js': [path.resolve(__dirname, 'src/static/js/index.js')],
+    bundle: ['./src/static/js/index.js'],
   },
-  devtool: 'eval-source-map',
+  devtool: 'source-map',
   output: {
     path: path.resolve(__dirname, 'dist/static'),
-    filename: '[name]'
+    filename: '[name].js'
   },
   module: {
     rules: [
@@ -26,7 +26,6 @@ module.exports = {
           {
             loader: 'css-loader',
             options: {
-              url: false,
               importLoaders: 1,
               sourceMap: true,
             },
@@ -44,9 +43,11 @@ module.exports = {
   plugins: [
     new webpack.ProvidePlugin({
       $: 'jquery',
+      jQuery: 'jquery',
     }),
     new MiniCssExtractPlugin({
-      filename: 'css/style.css',
+      filename: '[name].css',
+      chunkFilename: '[id].css',
     }),
   ],
   optimization: {
@@ -54,7 +55,7 @@ module.exports = {
       cacheGroups: {
         commons: {
           test: /[\\/]node_modules[\\/]/,
-          name: 'js/bundle.vendor.js',
+          name: 'vendor',
           chunks: 'all',
         },
       },
