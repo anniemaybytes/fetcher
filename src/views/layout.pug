@@ -11,7 +11,7 @@ html
   body
     ul.breadcrumb
       each segment in breadcrumbs
-        li: a(href=segment.uri)= segment.title
+        li: a(href=segment.uri)= decodeURIComponent(segment.title)
 
     div#content
       block content

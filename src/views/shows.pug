@@ -8,6 +8,6 @@ block content
     each show, title in input
       tr
         td
-          a(href=basePath + "/shows/" + encodeURI(title))= title
+          a(href=basePath + "/shows/" + encodeURIComponent(title))= title
           |  (#{show.latestEpisode})
         td= show.lastModified
