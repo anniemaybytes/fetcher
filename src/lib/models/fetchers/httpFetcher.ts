@@ -9,6 +9,7 @@ import { HTTPFetchOptions } from '../../../types';
 export class HTTPFetcher extends Fetcher {
   public static nodefetch = fetch; // For testing purposes
   url: string;
+  abort?: () => void;
 
   constructor(path: string, options: HTTPFetchOptions) {
     super('http', path);
@@ -35,13 +36,14 @@ export class HTTPFetcher extends Fetcher {
           // Set up error detector
           let lastFetched = this.fetched;
           let interval: NodeJS.Timeout | undefined = undefined;
+          this.abort = () => {
+            if (interval) clearInterval(interval);
+            interval = undefined;
+            abortController.abort();
+            body.destroy();
+          };
           const abortChecking = () => {
-            if (lastFetched === this.fetched) {
-              if (interval) clearInterval(interval);
-              interval = undefined;
-              abortController.abort();
-              body.destroy();
-            }
+            if (lastFetched === this.fetched) this.abort?.();
             lastFetched = this.fetched;
           };
           interval = setInterval(abortChecking, 10000); // If http request doesn't get any new bytes for 10 seconds, consider it a failure
@@ -52,16 +54,20 @@ export class HTTPFetcher extends Fetcher {
           });
           body.on('error', (err) => {
             if (interval) clearInterval(interval);
+            this.abort = undefined;
             writeStream.destroy();
             reject(new Error(`Error fetching from ${this.url} ${err}`));
           });
           body.on('close', () => {
             if (interval) clearInterval(interval);
+            this.abort = undefined;
             writeStream.end(() => {
+              if (this.aborted) return reject(new Error('Fetch aborted'));
               if (this.length < this.fetched) return reject(new Error(`Fetched past EOF from ${this.url}`));
               if (this.length > this.fetched) return reject(new Error(`Unexpected EOF from ${this.url}`));
               // Move completed file to final destination
               fs.rename(tempFilePath, this.path, (err) => {
+                if (this.aborted) return reject(new Error('Fetch aborted'));
                 if (err) reject(err);
                 else resolve();
               });
@@ -71,6 +77,11 @@ export class HTTPFetcher extends Fetcher {
         })
         .catch(reject);
     });
+  }
+
+  public async abortFetch() {
+    this.aborted = true;
+    this.abort?.();
   }
 }
 

@@ -14,9 +14,11 @@ export class IRCNetwork {
   nickservPassword?: string;
   registered = false;
   shuttingDown = false;
+  previouslyJoinedChannels: Set<string>;
   joinedChannels: string[];
 
   constructor(name: string, options: IRCNetworkConfig) {
+    this.previouslyJoinedChannels = new Set();
     this.joinedChannels = [];
     this.name = name;
     this.nickservPassword = options.nickserv_password;
@@ -47,6 +49,7 @@ export class IRCNetwork {
 
   // public for testing purposes only
   public async postConnect() {
+    this.joinedChannels = [];
     if (this.nickservPassword) {
       const nicservNoticeHandler = (event: any) => {
         if (event.nick.toLowerCase() === 'nickserv') {
@@ -69,10 +72,9 @@ export class IRCNetwork {
         logger.warn(`Connection was established on secure channel without TLS peer verification`);
       }
     }
+    await this.waitUntilRegistered();
     // Reconnect to previously joined channels
-    const previousChannels = this.joinedChannels;
-    this.joinedChannels = [];
-    for (const channel of previousChannels) {
+    for (const channel of this.previouslyJoinedChannels) {
       try {
         await this.joinRoom(channel);
       } catch (e) {
@@ -103,14 +105,16 @@ export class IRCNetwork {
   // Join a room with normal JOIN and detect/throw for failure
   public async joinRoom(channel: string) {
     this.checkIfRegistered();
-    if (this.joinedChannels.includes(channel.toLowerCase())) return;
+    const lowercaseChannel = channel.toLowerCase();
+    if (this.joinedChannels.includes(lowercaseChannel)) return;
     return new Promise<void>((resolve, reject) => {
       // If joining takes longer than 5 seconds, consider it a failure
       const timeout = setTimeout(() => reject(new Error(`Unable to join IRC channel ${channel} on ${this.name}`)), 5000);
       const channelUserListHandler = (event: any) => {
-        if (event.channel.toLowerCase() === channel.toLowerCase()) {
+        if (event.channel.toLowerCase() === lowercaseChannel) {
           clearTimeout(timeout);
-          this.joinedChannels.push(channel.toLowerCase());
+          this.joinedChannels.push(lowercaseChannel);
+          this.previouslyJoinedChannels.add(lowercaseChannel);
           logger.info(`Joined ${channel} on ${this.name}`);
           resolve();
         }

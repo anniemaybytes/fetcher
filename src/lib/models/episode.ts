@@ -59,32 +59,45 @@ export class Episode {
     if (await this.isAlreadyComplete()) return;
     // Actually fetch the episode
     try {
-      logger.info(`Starting fetch for ${this.saveFileName}`);
+      logger.info(`Starting fetch for ${this.formattedName()}`);
       this.fetcher = Fetcher.createFetcher(this.fetchType, this.getStoragePath(), this.fetchOptions);
       const promise = this.fetcher.fetch();
       Episode.fetchingEpisodesCache[this.saveFileName] = this;
       await this.saveToState('fetching');
-      IRCManager.controlAnnounce(`AIRING | fetching: ${this.saveFileName}`);
+      IRCManager.controlAnnounce(`AIRING | fetching: ${this.formattedName()}`);
       await promise;
 
       // Fetch is complete, get mediainfo, create torrent, and upload
-      logger.info(`Finished fetch for ${this.saveFileName}; gathering metadata and uploading`);
+      logger.info(`Finished fetch for ${this.formattedName()}; gathering metadata and uploading`);
       await this.saveToState('uploading');
       const mediaInfo = await getMediaInfo(this.getStoragePath(), this.saveFileName);
       await makeTorrentFile(this);
       await AnimeBytes.upload(this, mediaInfo);
 
       // Upload is complete, finish up
-      logger.info(`Upload complete for ${this.saveFileName}`);
+      logger.info(`Upload complete for ${this.formattedName()}`);
       delete Episode.fetchingEpisodesCache[this.saveFileName];
       await this.saveToState('complete');
-      IRCManager.controlAnnounce(`AIRING | completed: ${this.saveFileName}`);
+      IRCManager.controlAnnounce(`AIRING | completed: ${this.formattedName()}`);
     } catch (e) {
-      logger.error(`Failed to fetch or upload ${this.saveFileName}`, e);
       delete Episode.fetchingEpisodesCache[this.saveFileName];
+      if (this.fetcher?.aborted) return; // If the fetch was aborted, we do not want to save failed state
+      logger.error(`Failed to fetch or upload ${this.formattedName()}`, e);
       await this.saveToState('failed', String(e));
-      IRCManager.controlAnnounce(`AIRING | errored: ${this.saveFileName} - ${e}`);
+      IRCManager.controlAnnounce(`AIRING | errored: ${this.formattedName()} - ${e}`);
     }
+  }
+
+  // Note that this will fail for an episode in the 'uploading' state as it is not currently possible to abort at this stage
+  public async abortAndDelete() {
+    // if fetcher exists on this instance, it may need to be aborted before deleting from state
+    if (this.fetcher) {
+      if (this.state === 'uploading') throw new Error('Cannot abort fetching episode in uploading state');
+      logger.info(`Aborting fetch for ${this.formattedName()}`);
+      await this.fetcher.abortFetch();
+    }
+    logger.info(`Deleting state for ${this.formattedName()}`);
+    await this.deleteFromState();
   }
 
   public getStoragePath() {
@@ -97,17 +110,41 @@ export class Episode {
 
   public formattedName() {
     if (this.formattedFileName) return this.formattedFileName;
-    let formatted = `${this.showName} - ${this.episode.toString().padStart(2, '0')}`;
-    if (this.version > 1) formatted += `v${this.version}`;
-    formatted += ` [${this.resolution}][${this.groupName}]`;
-    if (this.crc) formatted += `[${this.crc}]`;
-    formatted += `.${this.container}`;
-    this.formattedFileName = formatted;
+    this.formattedFileName = Episode.episodeFormattedName(
+      this.showName,
+      this.episode,
+      this.version,
+      this.resolution,
+      this.groupName,
+      this.container,
+      this.crc
+    );
     return this.formattedFileName;
+  }
+
+  public static episodeFormattedName(
+    showName: string,
+    episode: number,
+    version: number,
+    resolution: string,
+    groupName: string,
+    container: string,
+    crc?: string
+  ) {
+    let formatted = `${showName} - ${episode.toString().padStart(2, '0')}`;
+    if (version > 1) formatted += `v${version}`;
+    formatted += ` [${resolution}][${groupName}]`;
+    if (crc) formatted += `[${crc}]`;
+    formatted += `.${container}`;
+    return formatted;
   }
 
   public levelDBKey() {
     return `file::${this.formattedName()}`;
+  }
+
+  public async deleteFromState() {
+    await LevelDB.delete(this.levelDBKey());
   }
 
   public async saveToState(status: fetchStatus, error?: string) {

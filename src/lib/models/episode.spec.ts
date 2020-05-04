@@ -90,6 +90,7 @@ describe('Source', () => {
       Episode.fetchingEpisodesCache = {};
       episode = new Episode();
       episode.saveFileName = 'saveFileName';
+      sandbox.stub(episode, 'formattedName').returns('formattedName');
       sandbox.stub(episode, 'isAlreadyComplete').resolves(false);
       saveStateStub = sandbox.stub(episode, 'saveToState');
       sandbox.stub(episode, 'getStoragePath').returns('storagepath');
@@ -230,6 +231,22 @@ describe('Source', () => {
 
     it('returns expected key', () => {
       expect(episode.levelDBKey()).to.equal('file::formattedName');
+    });
+  });
+
+  describe('deleteFromState', () => {
+    let deleteMock: SinonStub;
+    let episode: Episode;
+
+    beforeEach(() => {
+      deleteMock = sandbox.stub(LevelDB, 'delete');
+      episode = new Episode();
+      sandbox.stub(episode, 'levelDBKey').returns('dbkey');
+    });
+
+    it('calls delete on db', async () => {
+      await episode.deleteFromState();
+      assert.calledOnceWithExactly(deleteMock, 'dbkey');
     });
   });
 

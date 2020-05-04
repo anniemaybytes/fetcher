@@ -14,12 +14,18 @@ block content
         th Progress
         th Last Modified
         th Error
+        th Action
       each file in files
         tr
-          td= file.saveFileName
+          td
+            span(title=file.saveFileName)= file.formatted
           td= file.progress
           td= file.modified
           td= file.error
+          td
+            a(
+              href='#' class='ajax' data-ajax-method='delete' data-ajax-target=basePath + '/episode/' + encodeURIComponent(file.formatted)
+            )= '[RM]'
 
   if !any
     div.row: h2.center no pending transfers

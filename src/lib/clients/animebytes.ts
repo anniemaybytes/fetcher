@@ -76,7 +76,7 @@ export class AnimeBytes {
       remaster: 'on',
       mediainfo_desc: mediaInfo.text,
     };
-    logger.info(`Uploading: ${episode.saveFileName} torrent to AnimeBytes`);
+    logger.info(`Uploading: ${episode.formattedName()} torrent to AnimeBytes`);
     await AnimeBytes.ensureLoggedIn();
     const requestBody = new FormData();
     Object.entries(formData).forEach(([key, value]) => requestBody.append(key, value));
@@ -84,10 +84,10 @@ export class AnimeBytes {
     const body = await response.text();
     // Check result
     if (response.status === 409) {
-      logger.warn(`Upload Conflict: ${episode.saveFileName}`);
+      logger.warn(`Upload Conflict: ${episode.formattedName()}`);
       return;
     } else if (body.match(/torrent file already exists/i)) {
-      logger.warn(`Upload Exists: ${episode.saveFileName}`);
+      logger.warn(`Upload Exists: ${episode.formattedName()}`);
       return;
     } else if (response.status !== 200) {
       throw new Error(`Upload failed with HTTP status ${response.status}`);
@@ -96,7 +96,7 @@ export class AnimeBytes {
       const err = errMatch ? errMatch[1].replace(/<br.*?>/g, ' ') : 'unknown reason';
       throw new Error(`Upload failed: ${err}`);
     }
-    logger.info(`Uploaded ${episode.saveFileName} torrent to AnimeBytes`);
+    logger.info(`Uploaded ${episode.formattedName()} torrent to AnimeBytes`);
   }
 
   // Returns raw buffer of the return body so it can be properly hashed and written to disk without modification

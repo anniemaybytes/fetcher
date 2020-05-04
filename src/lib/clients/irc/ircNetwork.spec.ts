@@ -82,6 +82,7 @@ describe('IRCNetwork', () => {
       network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       network.registered = false;
       network.joinedChannels = [];
+      network.previouslyJoinedChannels = new Set();
     });
 
     it('sets registered to true when no nickserv password defined', async () => {
@@ -113,14 +114,14 @@ describe('IRCNetwork', () => {
 
     it('attempts to join previous channels if they exist', async () => {
       const joinStub = sandbox.stub(network, 'joinRoom');
-      network.joinedChannels = ['chan'];
+      network.previouslyJoinedChannels.add('chan');
       await network.postConnect();
       assert.calledOnceWithExactly(joinStub, 'chan');
     });
 
     it('does not throw if rejoining channel fails', async () => {
       const joinStub = sandbox.stub(network, 'joinRoom').throws('broken');
-      network.joinedChannels = ['chan'];
+      network.previouslyJoinedChannels.add('chan');
       await network.postConnect();
       assert.calledOnceWithExactly(joinStub, 'chan');
     });
@@ -154,9 +155,10 @@ describe('IRCNetwork', () => {
       assert.notCalled(fakeIRCClient.join);
     });
 
-    it('resolves and adds chan to join list if userlist event for channnel is receieved', (done) => {
+    it('resolves and adds chan to join lists if userlist event for channnel is receieved', (done) => {
       network.joinRoom('chan').then(() => {
         expect(network.joinedChannels).to.deep.equal(['chan']);
+        expect(network.previouslyJoinedChannels.has('chan')).to.be.true;
         done();
       });
       fakeIRCClient.emit('userlist', { channel: 'chan' });

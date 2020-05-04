@@ -1,4 +1,4 @@
-import { SinonSandbox, createSandbox, useFakeTimers } from 'sinon';
+import { SinonSandbox, createSandbox, useFakeTimers, assert } from 'sinon';
 import { expect } from 'chai';
 import streamBuffers from 'stream-buffers';
 import mock from 'mock-fs';
@@ -95,6 +95,25 @@ describe('HTTPFetcher', () => {
       }, 5);
       await promise;
       expect(await readFileAsync('/path/file.ok', 'utf8')).to.equal('data');
+    });
+  });
+
+  describe('abortFetch', () => {
+    let fetcher: HTTPFetcher;
+
+    beforeEach(() => {
+      fetcher = new HTTPFetcher('/path/file.ok', { url: 'url' });
+    });
+
+    it('sets aborted on the fetcher', async () => {
+      await fetcher.abortFetch();
+      expect(fetcher.aborted).to.be.true;
+    });
+
+    it('calls abort function if it exists', async () => {
+      fetcher.abort = sandbox.stub() as any;
+      await fetcher.abortFetch();
+      assert.calledOnce(fetcher.abort as any);
     });
   });
 });

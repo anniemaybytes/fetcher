@@ -144,4 +144,23 @@ describe('TorrentFetcher', () => {
       clock.tick(100000);
     });
   });
+
+  describe('abortFetch', () => {
+    let fetcher: TorrentFetcher;
+
+    beforeEach(() => {
+      fetcher = new TorrentFetcher('/finalPath', { uri: 'torrentURI' });
+    });
+
+    it('sets aborted on the fetcher', async () => {
+      await fetcher.abortFetch();
+      expect(fetcher.aborted).to.be.true;
+    });
+
+    it('calls abort function if it exists', async () => {
+      fetcher.abort = sandbox.stub() as any;
+      await fetcher.abortFetch();
+      assert.calledOnce(fetcher.abort as any);
+    });
+  });
 });

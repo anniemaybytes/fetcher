@@ -1,13 +1,15 @@
 {
   "name": "fetcher",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "a media downloader",
   "engines": {
     "node": ">=12.10.0"
   },
   "scripts": {
     "start-dev": "yarn build && node dist/index.js",
-    "build": "rm -rf dist/ && tsc && cp -r src/views/ dist/ && webpack --color",
+    "build": "yarn clean && run-p --aggregate-output build:*",
+    "build:ts": "tsc",
+    "build:frontend": "mkdir -p dist/ && cp -r src/views/ dist/ && webpack --color",
     "lint": "run-p --aggregate-output --continue-on-error lint:*",
     "lint:eslint": "eslint --ext .ts --format unix src/",
     "lint:prettier": "prettier --check 'src/**/*.{ts,js}'",
@@ -47,8 +49,8 @@
     "@types/stream-buffers": "3.0.3",
     "@types/webtorrent": "0.107.2",
     "@types/xml2js": "0.4.5",
-    "@typescript-eslint/eslint-plugin": "2.29.0",
-    "@typescript-eslint/parser": "2.29.0",
+    "@typescript-eslint/eslint-plugin": "2.30.0",
+    "@typescript-eslint/parser": "2.30.0",
     "chai": "4.2.0",
     "check-outdated": "2.0.0",
     "css-loader": "3.5.3",
