@@ -132,7 +132,7 @@ export class Episode {
     crc?: string
   ) {
     let formatted = `${showName} - ${episode.toString().padStart(2, '0')}`;
-    if (version > 1) formatted += `v${version}`;
+    if (version !== 1) formatted += `v${version}`;
     formatted += ` [${resolution}][${groupName}]`;
     if (crc) formatted += `[${crc}]`;
     formatted += `.${container}`;

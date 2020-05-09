@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v2.3.1
+### Fixed
+- `EpisodeParser` not allowing episodes with version 0
+
 ## v2.3.0
 ### Added
 - Support for aborting and removing episodes from state database

@@ -94,10 +94,28 @@ describe('episodeParser', () => {
       if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
       expect(episode.version).to.equal(2);
 
+      // should be able to properly parse with a leading 0 in the version
+      file = '[TerribleSubs] Some アニメ - 01v02 [720p].mkv';
+      episode = episodeParser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      expect(episode.version).to.equal(2);
+
+      // 20 out of range; should be converted to 1
       file = '[TerribleSubs] Some アニメ - 01v20 [720p].mkv';
       episode = episodeParser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
       if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
       expect(episode.version).to.equal(1);
+
+      // 0 is in range
+      file = '[TerribleSubs] Some アニメ - 01v0 [720p].mkv';
+      episode = episodeParser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      expect(episode.version).to.equal(0);
+
+      // negative number should be an error
+      file = '[TerribleSubs] Some アニメ - 01v-1 [720p].mkv';
+      episode = episodeParser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      expect(episode).to.be.undefined;
     });
 
     it('should detect a bunch of valid resolutions', () => {

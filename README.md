@@ -21,7 +21,8 @@ Following commands are available to anyone in IRC control channel:
 
 In addition, HTTP server is available on port specified in config.
 The interface should be protected by access control; fetcher does not implement any kind of security on it.
-The web interface can be currently used only to view detailed information about fetcher database.
+The web interface can be used to view detailed information about database and to abort current 
+downloads as well as to remove state information for specific episodes.
 
 ## Installation
 
@@ -32,7 +33,7 @@ Additionally you need these external tools present in `PATH`:
 - `MediaInfo` CLI + Lib >= 18.03
 
 ```sh
-yarn && yarn build
+yarn --frozen-lockfile && yarn build
 node dist/index.js
 ```
 
