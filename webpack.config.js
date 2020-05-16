@@ -1,6 +1,8 @@
 const webpack = require('webpack');
 const path = require('path');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const ManifestReplacePlugin = require('webpack-manifest-replace-plugin');
 
 module.exports = {
   mode: 'none',
@@ -10,7 +12,8 @@ module.exports = {
   devtool: 'source-map',
   output: {
     path: path.resolve(__dirname, 'dist/static'),
-    filename: '[name].js'
+    filename: '[name].[chunkhash].js',
+    hashDigestLength: 10,
   },
   module: {
     rules: [
@@ -41,16 +44,22 @@ module.exports = {
     ],
   },
   plugins: [
+    new ManifestReplacePlugin({
+      include: './src/views',
+      test: /\.pug$/,
+      outputDir: path.resolve(__dirname, 'dist/views'),
+    }),
+    new CleanWebpackPlugin(),
     new webpack.ProvidePlugin({
       $: 'jquery',
       jQuery: 'jquery',
     }),
     new MiniCssExtractPlugin({
-      filename: '[name].css',
-      chunkFilename: '[id].css',
+      filename: '[name].[contenthash].css',
     }),
   ],
   optimization: {
+    moduleIds: 'hashed',
     splitChunks: {
       cacheGroups: {
         commons: {
