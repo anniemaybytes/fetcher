@@ -54,21 +54,21 @@ describe('Source', () => {
 
   describe('getFetcherOptions', () => {
     it('returns valid fetcher options for torrent type', () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const source = new Source('type', 'torrent');
       expect(source.getFetcherOptions('thing')).to.deep.equal({ uri: 'thing' });
     });
 
     it('returns valid fetcher options for http type', () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const source = new Source('type', 'http');
       expect(source.getFetcherOptions('thing')).to.deep.equal({ url: 'thing' });
     });
 
     it('throws an error if fetcher type is not handled', () => {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const source = new Source('type', 'unhandled');
       try {
