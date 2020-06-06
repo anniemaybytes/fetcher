@@ -1,4 +1,4 @@
-import { SinonSandbox, createSandbox, useFakeTimers, assert } from 'sinon';
+import { SinonSandbox, createSandbox, assert } from 'sinon';
 import { expect } from 'chai';
 import streamBuffers from 'stream-buffers';
 import mock from 'mock-fs';
@@ -28,69 +28,47 @@ describe('HTTPFetcher', () => {
   });
 
   describe('fetch', () => {
-    let fakeFetch: any;
+    let fakeGot: any;
     let fetchCmd: any;
     let fakeSocket: streamBuffers.ReadableStreamBuffer;
-    let clock: any;
 
     beforeEach(() => {
       fakeSocket = new streamBuffers.ReadableStreamBuffer();
-      fakeFetch = sandbox.stub().resolves({
-        ok: true,
-        headers: {
-          get: () => '4', // fake content length
-        },
-        body: fakeSocket,
-      });
-      HTTPFetcher.nodefetch = fakeFetch;
+      fakeGot = sandbox.stub().returns(fakeSocket);
+      HTTPFetcher.got.stream = fakeGot;
       const httpFetcher = new HTTPFetcher('/path/file.ok', { url: 'url' });
       fetchCmd = httpFetcher.fetch.bind(httpFetcher);
       sandbox.stub(Config, 'getConfig').returns({ temporary_dir: '/dir' } as any);
-      clock = undefined;
       mock({ '/path': {}, '/dir': {} });
     });
 
     afterEach(() => {
-      if (clock) clock.restore();
       mock.restore();
     });
 
-    it('throws if fetch response is not ok', async () => {
-      fakeFetch.resolves({ ok: false });
-      try {
-        await fetchCmd();
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+    it('throws if fetch response is not ok', (done) => {
+      fetchCmd().catch(() => done());
+      fakeSocket.emit('response', { statusCode: 400, request: fakeSocket });
     });
 
     it('throws if content-length is not provided', (done) => {
-      fakeFetch.resolves({ ok: true, headers: { get: () => undefined } });
       fetchCmd().catch(() => done());
-    });
-
-    it('throws an error if it takes too long to get data', (done) => {
-      clock = useFakeTimers({ shouldAdvanceTime: true });
-      fetchCmd().catch(() => done());
-      // emulate timeout
-      setTimeout(() => {
-        clock.tick(20000);
-      }, 1);
+      fakeSocket.emit('response', { statusCode: 200, headers: { 'content-length': undefined }, request: fakeSocket });
     });
 
     it('throws an error if request body has an error', (done) => {
       fetchCmd().catch(() => done());
-      // so this isn't thrown before listeners are set up
-      setTimeout(() => fakeSocket.destroy(new Error('error')), 1);
+      fakeSocket.emit('error', new Error());
     });
 
     it('writes request body to disk and moves to path on completion', async () => {
       const promise = fetchCmd();
+      fakeSocket.emit('response', { statusCode: 200, headers: { 'content-length': 4 }, request: fakeSocket });
       // so this isn't resolved before the listener
       setTimeout(() => {
         fakeSocket.put('data');
         setTimeout(() => {
           fakeSocket.stop();
-          fakeSocket.emit('close');
         }, 1);
       }, 5);
       await promise;
@@ -103,11 +81,6 @@ describe('HTTPFetcher', () => {
 
     beforeEach(() => {
       fetcher = new HTTPFetcher('/path/file.ok', { url: 'url' });
-    });
-
-    it('sets aborted on the fetcher', async () => {
-      await fetcher.abortFetch();
-      expect(fetcher.aborted).to.be.true;
     });
 
     it('calls abort function if it exists', async () => {

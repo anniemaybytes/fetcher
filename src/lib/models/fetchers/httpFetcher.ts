@@ -1,13 +1,13 @@
 import path from 'path';
 import fs from 'fs';
-import fetch from 'node-fetch';
-import AbortController from 'abort-controller';
+import { pipeline } from 'stream';
+import got, { Response } from 'got';
 import { Fetcher } from './fetcher';
 import { Config } from '../../clients/config';
 import { HTTPFetchOptions } from '../../../types';
 
 export class HTTPFetcher extends Fetcher {
-  public static nodefetch = fetch; // For testing purposes
+  public static got = got; // For testing purposes
   url: string;
   abort?: () => void;
 
@@ -19,68 +19,41 @@ export class HTTPFetcher extends Fetcher {
   public async fetch() {
     return new Promise<void>((resolve, reject) => {
       // Make initial http request
-      const abortController = new AbortController();
-      HTTPFetcher.nodefetch(this.url, { signal: abortController.signal, timeout: 10000 })
-        .then((response) => {
-          if (!response.ok) return reject(new Error(`Error fetching HTTP content from ${this.url} - HTTP status ${response.status}`));
-          const body = response.body as NodeJS.ReadStream;
+      this.fetched = 0;
+      HTTPFetcher.got
+        .stream(this.url, { timeout: { lookup: 10000, connect: 10000, secureConnect: 10000, socket: 10000, send: 10000, response: 10000 } })
+        .on('data', (data) => (this.fetched += data.length))
+        .once('error', reject)
+        .once('response', (response: Response) => {
+          const end = (err?: any) => {
+            this.abort = undefined;
+            if (err) reject(err);
+            response.request.destroy();
+            resolve();
+          };
+          this.abort = () => {
+            this.aborted = true;
+            end(new Error('Fetch aborted'));
+          };
 
-          // Reject if content-length is not provided
-          this.length = parseInt(response.headers.get('Content-Length') || '', 10);
-          if (!this.length) return reject(new Error(`No content-length provided by ${this.url}`));
-          this.fetched = 0;
+          if (Math.floor(response.statusCode / 100) !== 2)
+            return end(new Error(`Error fetching HTTP content from ${this.url} - HTTP status ${response.statusCode}`));
+          this.length = parseInt(response.headers['content-length'] || '', 10);
+          if (!this.length) return end(new Error(`No content-length provided by ${this.url}`));
           // Create writestream to temporary file location
           const tempFilePath = path.resolve(Config.getConfig().temporary_dir || '/tmp', path.basename(this.path));
-          const writeStream = fs.createWriteStream(tempFilePath, { mode: 0o644 });
-
-          // Set up error detector
-          let lastFetched = this.fetched;
-          let interval: NodeJS.Timeout | undefined = undefined;
-          this.abort = () => {
-            if (interval) clearInterval(interval);
-            interval = undefined;
-            abortController.abort();
-            body.destroy();
-          };
-          const abortChecking = () => {
-            if (lastFetched === this.fetched) this.abort?.();
-            lastFetched = this.fetched;
-          };
-          interval = setInterval(abortChecking, 10000); // If http request doesn't get any new bytes for 10 seconds, consider it a failure
-
-          // Set up listeners on request body to write and resolve file
-          body.on('data', (data) => {
-            this.fetched += data.length;
+          pipeline(response.request, fs.createWriteStream(tempFilePath, { mode: 0o644 }), (err) => {
+            if (this.aborted) return;
+            this.abort = undefined; // Can no longer abort once we get to this point
+            if (err) return end(err);
+            // Move completed file download to final location
+            fs.rename(tempFilePath, this.path, end);
           });
-          body.on('error', (err) => {
-            if (interval) clearInterval(interval);
-            this.abort = undefined;
-            writeStream.destroy();
-            reject(new Error(`Error fetching from ${this.url} ${err}`));
-          });
-          body.on('close', () => {
-            if (interval) clearInterval(interval);
-            this.abort = undefined;
-            writeStream.end(() => {
-              if (this.aborted) return reject(new Error('Fetch aborted'));
-              if (this.length < this.fetched) return reject(new Error(`Fetched past EOF from ${this.url}`));
-              if (this.length > this.fetched) return reject(new Error(`Unexpected EOF from ${this.url}`));
-              // Move completed file to final destination
-              fs.rename(tempFilePath, this.path, (err) => {
-                if (this.aborted) return reject(new Error('Fetch aborted'));
-                if (err) reject(err);
-                else resolve();
-              });
-            });
-          });
-          body.pipe(writeStream, { end: false });
-        })
-        .catch(reject);
+        });
     });
   }
 
   public async abortFetch() {
-    this.aborted = true;
     this.abort?.();
   }
 }

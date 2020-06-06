@@ -13,15 +13,17 @@ Following fetchers are available:
 - RSS
 
 ## Usage
+
 The format of `shows.json` is currently undocumented.
 
 Following commands are available to anyone in IRC control channel:
+
 - `!reload` - instantly reloads `shows.json` from remote
 - `!fetch` - instantly refreshes all sources and releasers
 
 In addition, HTTP server is available on port specified in config.
 The interface should be protected by access control; fetcher does not implement any kind of security on it.
-The web interface can be used to view detailed information about database and to abort current 
+The web interface can be used to view detailed information about database and to abort current
 downloads as well as to remove state information for specific episodes.
 
 ## Installation
@@ -97,17 +99,18 @@ Configuration is done via `config.json` file with the following format:
 - `http_port` - HTTP port on which simple monitoring interface will be exposed
 - `http_path` - base path to use if server if not on top-level of domain, example: `/bar`, `/foo/bar`
 - `irc_networks` - array of IRC networks bot will connect to
-    - `host` - address of IRC server to connect to
-    - `port` - port of the IRC server
-    - `ssl` - whether to use SSL or not when connecting to IRC server
-    - `verify_certificate` - whether to verify IRC server certificate
-    - `nick` - nickname, realname and username to be used on IRC server; `$` will be replaced by random character
-    - `nickserv_password` - optional, if present the bot will attempt to authenticate with `NickServ` upon joining
+  - `host` - address of IRC server to connect to
+  - `port` - port of the IRC server
+  - `ssl` - whether to use SSL or not when connecting to IRC server
+  - `verify_certificate` - whether to verify IRC server certificate
+  - `nick` - nickname, realname and username to be used on IRC server; `$` will be replaced by random character
+  - `nickserv_password` - optional, if present the bot will attempt to authenticate with `NickServ` upon joining
 - `irc_control` - controls to which IRC network (from `irc_networks`) bot should announce its state
-    - `network` - valid network name
-    - `channel` - channel name
+  - `network` - valid network name
+  - `channel` - channel name
 
 Additionally the bot expects `LOG_LEVEL` environment variable to be set to one of:
+
 - `trace`
 - `debug` (default if not provided)
 - `info`

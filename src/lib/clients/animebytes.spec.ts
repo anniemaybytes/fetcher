@@ -35,8 +35,7 @@ describe('animebytes', () => {
     let fetchStub: SinonStub;
 
     beforeEach(() => {
-      const fetchTextStub = sandbox.stub().resolves('hi');
-      fetchStub = sandbox.stub(AnimeBytes, 'fetch').resolves({ status: 200, text: fetchTextStub });
+      fetchStub = sandbox.stub(AnimeBytes, 'got').resolves({ statusCode: 200, body: 'hi' });
     });
 
     it('throws an error when it doesnt receieve a redirect for login page', async () => {
@@ -47,7 +46,7 @@ describe('animebytes', () => {
     });
 
     it('throws an error when upload page does not provide an http 200 response', async () => {
-      fetchStub.resolves({ status: 303 });
+      fetchStub.resolves({ statusCode: 303 });
       try {
         await AnimeBytes.ensureLoggedIn();
         expect.fail('did not throw');
@@ -58,15 +57,13 @@ describe('animebytes', () => {
   describe('upload', () => {
     let loggedInStub: SinonStub;
     let fetchStub: SinonStub;
-    let fetchTextStub: SinonStub;
     let fakeEpisode: Episode;
     const fakeMediaInfo: any = { audio: 'audio', audiochannels: 'channels', codec: 'codec', text: 'text' };
 
     beforeEach(() => {
       sandbox.stub(Config, 'getConfig').returns({ torrent_dir: 'tdir' } as any);
       loggedInStub = sandbox.stub(AnimeBytes, 'ensureLoggedIn');
-      fetchTextStub = sandbox.stub().resolves('hi');
-      fetchStub = sandbox.stub(AnimeBytes, 'fetch').resolves({ status: 200, text: fetchTextStub });
+      fetchStub = sandbox.stub(AnimeBytes, 'got').resolves({ statusCode: 200, body: 'hi' });
       fakeEpisode = Episode.fromStorageJSON({
         episode: 1,
         resolution: 'resolution',
@@ -102,17 +99,17 @@ describe('animebytes', () => {
     });
 
     it('returns if receieved a 409 (conflict)', async () => {
-      fetchStub.resolves({ status: 409, text: fetchTextStub });
+      fetchStub.resolves({ statusCode: 409, body: 'hi' });
       await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
     });
 
     it('returns if torrent already exists', async () => {
-      fetchTextStub.resolves('torrent file already exists');
+      fetchStub.resolves({ statusCode: 200, body: 'torrent file already exists' });
       await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
     });
 
     it('throws an error for non-200 response', async () => {
-      fetchStub.resolves({ status: 400, text: fetchTextStub });
+      fetchStub.resolves({ statusCode: 400, body: 'hi' });
       try {
         await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
         expect.fail('did not throw');
@@ -120,7 +117,7 @@ describe('animebytes', () => {
     });
 
     it('throws an error if `the following error` found in response body', async () => {
-      fetchTextStub.resolves('the following error');
+      fetchStub.resolves({ statusCode: 200, body: 'the following error' });
       try {
         await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
         expect.fail('did not throw');
@@ -131,12 +128,10 @@ describe('animebytes', () => {
   describe('getShows', () => {
     let loggedInStub: SinonStub;
     let fetchStub: SinonStub;
-    let fetchBufferStub: SinonStub;
 
     beforeEach(() => {
       loggedInStub = sandbox.stub(AnimeBytes, 'ensureLoggedIn');
-      fetchBufferStub = sandbox.stub().resolves(Buffer.from('hi'));
-      fetchStub = sandbox.stub(AnimeBytes, 'fetch').resolves({ status: 200, buffer: fetchBufferStub });
+      fetchStub = sandbox.stub(AnimeBytes, 'got').resolves({ statusCode: 200, body: Buffer.from('hi') });
     });
 
     it('calls ensureLoggedIn', async () => {
@@ -149,7 +144,7 @@ describe('animebytes', () => {
     });
 
     it('throws an error on bad fetch status', async () => {
-      fetchStub.resolves({ status: 400 });
+      fetchStub.resolves({ statusCode: 400 });
       try {
         await AnimeBytes.getShows();
         expect.fail('did not throw');

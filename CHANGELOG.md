@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v2.5.0
+### Changed
+- Switched from `node-fetch` to `got`
+
 ## v2.4.0
 ### Changed
 - Use webpack to version-hash assets and process Pug templates
