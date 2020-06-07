@@ -11,13 +11,15 @@ const logger = getLogger('AnimeBytesClient');
 const abLoginURL = 'https://animebytes.tv/user/login';
 const abUploadURL = 'https://animebytes.tv/upload.php';
 
+const REQUEST_TIMEOUT_MS = 30000;
+
 export class AnimeBytes {
   public static username: string;
   public static password: string;
   public static shows_uri: string;
   // Only public for testing purposes
   public static cookieJar = new CookieJar();
-  public static got = got.extend({ cookieJar: AnimeBytes.cookieJar, timeout: 30000 });
+  public static got = got.extend({ cookieJar: AnimeBytes.cookieJar, followRedirect: false, throwHttpErrors: false, timeout: REQUEST_TIMEOUT_MS });
 
   public static async initialize() {
     const { tracker_user, tracker_pass, shows_uri } = Config.getConfig();
@@ -27,7 +29,7 @@ export class AnimeBytes {
   }
 
   public static async ensureLoggedIn() {
-    const response = await AnimeBytes.got(abLoginURL, { followRedirect: false, responseType: 'text' });
+    const response = await AnimeBytes.got(abLoginURL, { responseType: 'text' });
     // Already authenticated if we receieve a 303 from the login page
     if (response.statusCode !== 303) {
       if (response.statusCode !== 200) throw new Error(`HTTP status ${response.statusCode} when checking login page`);
@@ -35,7 +37,6 @@ export class AnimeBytes {
       // Perform actual login request
       const loginResponse = await AnimeBytes.got(abLoginURL, {
         method: 'POST',
-        followRedirect: false,
         form: {
           username: AnimeBytes.username,
           password: AnimeBytes.password,
@@ -47,7 +48,7 @@ export class AnimeBytes {
       if (loginResponse.statusCode !== 303) throw new Error(`HTTP status ${loginResponse.statusCode} when logging in`);
     }
     // Check that we can access upload page properly
-    const uploadPageResponse = await AnimeBytes.got(abUploadURL, { followRedirect: false });
+    const uploadPageResponse = await AnimeBytes.got(abUploadURL);
     if (uploadPageResponse.statusCode !== 200) throw new Error(`HTTP status ${uploadPageResponse.statusCode} when checking for upload ability`);
   }
 
@@ -82,6 +83,7 @@ export class AnimeBytes {
     const response = await AnimeBytes.got(`${abUploadURL}?type=anime&groupid=${episode.groupID}`, {
       method: 'POST',
       body: requestBody,
+      retry: 0,
       responseType: 'text',
     });
     // Check result
@@ -91,12 +93,12 @@ export class AnimeBytes {
     } else if (response.body.match(/torrent file already exists/i)) {
       logger.warn(`Upload Exists: ${episode.formattedName()}`);
       return;
-    } else if (response.statusCode !== 200) {
-      throw new Error(`Upload failed with HTTP status ${response.statusCode}`);
     } else if (response.body.match(/the following error/i)) {
       const errMatch = response.body.match(/the following error.*\n.*<p .*?>(.*)<\/p>/im);
       const err = errMatch ? errMatch[1].replace(/<br.*?>/g, ' ') : 'unknown reason';
       throw new Error(`Upload failed: ${err}`);
+    } else if (response.statusCode !== 302) {
+      throw new Error(`Upload failed with HTTP status ${response.statusCode}`);
     }
     logger.info(`Uploaded ${episode.formattedName()} torrent to AnimeBytes`);
   }
@@ -104,7 +106,7 @@ export class AnimeBytes {
   // Returns raw buffer of the return body so it can be properly hashed and written to disk without modification
   public static async getShows() {
     await AnimeBytes.ensureLoggedIn();
-    const response = await AnimeBytes.got(AnimeBytes.shows_uri, { followRedirect: false, responseType: 'buffer' });
+    const response = await AnimeBytes.got(AnimeBytes.shows_uri, { responseType: 'buffer' });
     if (response.statusCode !== 200) throw new Error(`Show fetch failed HTTP status ${response.statusCode}`);
     return response.body;
   }

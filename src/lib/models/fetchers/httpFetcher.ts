@@ -21,7 +21,10 @@ export class HTTPFetcher extends Fetcher {
       // Make initial http request
       this.fetched = 0;
       HTTPFetcher.got
-        .stream(this.url, { timeout: { lookup: 10000, connect: 10000, secureConnect: 10000, socket: 10000, send: 10000, response: 10000 } })
+        .stream(this.url, {
+          throwHttpErrors: false,
+          timeout: { lookup: 10000, connect: 10000, secureConnect: 10000, socket: 10000, send: 10000, response: 10000 },
+        })
         .on('data', (data) => (this.fetched += data.length))
         .once('error', reject)
         .once('response', (response: Response) => {

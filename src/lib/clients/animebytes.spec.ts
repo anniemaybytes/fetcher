@@ -63,7 +63,7 @@ describe('animebytes', () => {
     beforeEach(() => {
       sandbox.stub(Config, 'getConfig').returns({ torrent_dir: 'tdir' } as any);
       loggedInStub = sandbox.stub(AnimeBytes, 'ensureLoggedIn');
-      fetchStub = sandbox.stub(AnimeBytes, 'got').resolves({ statusCode: 200, body: 'hi' });
+      fetchStub = sandbox.stub(AnimeBytes, 'got').resolves({ statusCode: 302, body: 'hi' });
       fakeEpisode = Episode.fromStorageJSON({
         episode: 1,
         resolution: 'resolution',
