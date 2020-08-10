@@ -6,6 +6,7 @@ type: docker
 steps:
     -   name: linter
         image: node:12-alpine
+        pull: always
         commands:
             - yarn --frozen-lockfile --non-interactive
             - yarn lint
@@ -24,6 +25,7 @@ type: docker
 steps:
     -   name: tests
         image: node:12-alpine
+        pull: always
         commands:
             - yarn --frozen-lockfile --non-interactive
             - yarn test
@@ -44,6 +46,7 @@ platform:
 steps:
     -   name: build
         image: plugins/docker
+        pull: always
         privileged: true
         environment:
             DOCKER_REGISTRY:
