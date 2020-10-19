@@ -7,6 +7,7 @@ const logger = getLogger('mediainfo');
 
 const divXCodecs = ['div3', 'divx', 'dx50'];
 const audioChannelsMap = {
+  '8': '7.1',
   '7.1': '7.1',
   '7': '6.1',
   '6.1': '6.1',

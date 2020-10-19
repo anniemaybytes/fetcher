@@ -84,6 +84,7 @@ describe('mediainfo', () => {
         const result11 = mediainfo.parseMediaInfoJSON({ media: { track: [{ '@type': 'Audio', Format: 'ac-3', Channels: '6.1' }] } });
         const result12 = mediainfo.parseMediaInfoJSON({ media: { track: [{ '@type': 'Audio', Format: 'ac-3', Channels: '7' }] } });
         const result13 = mediainfo.parseMediaInfoJSON({ media: { track: [{ '@type': 'Audio', Format: 'ac-3', Channels: '7.1' }] } });
+        const result14 = mediainfo.parseMediaInfoJSON({ media: { track: [{ '@type': 'Audio', Format: 'ac-3', Channels: '8' }] } });
         expect(result1.audiochannels).to.equal('1.0');
         expect(result2.audiochannels).to.equal('1.0');
         expect(result3.audiochannels).to.equal('2.0');
@@ -97,6 +98,7 @@ describe('mediainfo', () => {
         expect(result11.audiochannels).to.equal('6.1');
         expect(result12.audiochannels).to.equal('6.1');
         expect(result13.audiochannels).to.equal('7.1');
+        expect(result14.audiochannels).to.equal('7.1');
       });
     });
   });
