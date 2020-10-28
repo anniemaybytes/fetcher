@@ -22,10 +22,10 @@ describe('mktorrent', () => {
 
     beforeEach(() => {
       execStub = sandbox.stub().yields(undefined);
-      unlinkStub = sandbox.stub().yields(undefined);
+      unlinkStub = sandbox.stub().resolves(undefined);
       makeTorrentFile = proxyquire('./mktorrent', {
         child_process: { execFile: execStub },
-        fs: { unlink: unlinkStub },
+        fs: { promises: { unlink: unlinkStub } },
       }).makeTorrentFile;
       episodeStub = {
         getStoragePath: sandbox.stub(),

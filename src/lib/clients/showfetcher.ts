@@ -1,12 +1,9 @@
-import { readFile, writeFile } from 'fs';
+import { promises as fs } from 'fs';
 import { createHash } from 'crypto';
-import { promisify } from 'util';
 import { Config } from './config';
 import { AnimeBytes } from './animebytes';
 import { Shows, Releasers } from '../../types';
 import { getLogger } from '../logger';
-const readFileAsync = promisify(readFile);
-const writeFileAsync = promisify(writeFile);
 const logger = getLogger('ShowDefinitionFetcher');
 
 export class ShowsReleasersFetcher {
@@ -22,12 +19,12 @@ export class ShowsReleasersFetcher {
       showsBuf = await AnimeBytes.getShows();
     } catch (e) {
       logger.warn('Error fetching shows remotely; continuing from cache', e);
-      showsBuf = await readFileAsync(showsFile);
+      showsBuf = await fs.readFile(showsFile);
     }
     const sha256Hash = createHash('sha256').update(showsBuf).digest().toString('base64');
     if (sha256Hash === ShowsReleasersFetcher.lastHash) return false; // Nothing has changed
     const response = JSON.parse(showsBuf.toString()); // ensure it parses as JSON before writing to disk
-    await writeFileAsync(showsFile, showsBuf);
+    await fs.writeFile(showsFile, showsBuf);
     ShowsReleasersFetcher.lastHash = sha256Hash;
     ShowsReleasersFetcher.showsJSON = response.shows;
     ShowsReleasersFetcher.releasersJSON = response.releasers;

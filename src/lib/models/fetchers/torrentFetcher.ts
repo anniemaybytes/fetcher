@@ -4,9 +4,7 @@ import { Fetcher } from './fetcher';
 import { TorrentFetchOptions } from '../../../types';
 import { Config } from '../../clients/config';
 import { sleep } from '../../utils';
-import { rename } from 'fs';
-import { promisify } from 'util';
-const renameAsync = promisify(rename);
+import { promises as fs } from 'fs';
 
 export class TorrentFetcher extends Fetcher {
   // TODO: Threading solution for torrent, so it doesn't eat the CPU
@@ -14,6 +12,7 @@ export class TorrentFetcher extends Fetcher {
     maxConns: 50,
     dht: true,
     webSeeds: false,
+    utp: false,
     tracker: {
       wrtc: false,
     },
@@ -46,7 +45,7 @@ export class TorrentFetcher extends Fetcher {
     return new Promise<void>((resolve, reject) => {
       const torrent = TorrentFetcher.client.add(this.uri, { path: tempDir });
       this.abort = () => {
-        torrent.destroy();
+        torrent.destroy({ destroyStore: true });
         return reject(new Error('Fetch Aborted'));
       };
       /*
@@ -58,7 +57,7 @@ export class TorrentFetcher extends Fetcher {
       torrent.setMaxListeners(0);
       const metadataError = () => {
         this.abort = undefined;
-        torrent.destroy();
+        torrent.destroy({ destroyStore: true });
         return reject(new Error('Took too long or failed to fetch metadata'));
       };
       const timeout = setTimeout(metadataError, 90 * 1000); // If torrent metadata isn't fetched/resolved in 90 seconds, consider it a failure
@@ -68,7 +67,7 @@ export class TorrentFetcher extends Fetcher {
         clearTimeout(timeout);
         if (torrent.files.length !== 1) {
           this.abort = undefined;
-          torrent.destroy();
+          torrent.destroy({ destroyStore: true });
           return reject(new Error(`torrent has ${torrent.files.length} files, must have 1`));
         }
         const startDate = Date.now();
@@ -76,7 +75,7 @@ export class TorrentFetcher extends Fetcher {
         torrent.on('noPeers', () => {
           if (Date.now() - startDate >= TorrentFetcher.noPeerTimeout && torrent.numPeers === 0 && torrent.progress < 1) {
             this.abort = undefined;
-            torrent.destroy();
+            torrent.destroy({ destroyStore: true });
             return reject(new Error('torrent has no peers'));
           }
         });
@@ -90,9 +89,9 @@ export class TorrentFetcher extends Fetcher {
         });
         torrent.on('done', async () => {
           torrent.pause();
-          await renameAsync(path.resolve(tempDir, torrent.files[0].path), this.path);
+          await fs.rename(path.resolve(tempDir, torrent.files[0].path), this.path);
           this.abort = undefined;
-          torrent.destroy();
+          torrent.destroy({ destroyStore: false }); // Do not attempt to remove file, it has already been moved
           resolve();
         });
       });

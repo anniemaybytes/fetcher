@@ -4,9 +4,7 @@ import streamBuffers from 'stream-buffers';
 import mock from 'mock-fs';
 import { Config } from '../../clients/config';
 import { HTTPFetcher } from './httpFetcher';
-import { readFile } from 'fs';
-import { promisify } from 'util';
-const readFileAsync = promisify(readFile);
+import { promises as fs } from 'fs';
 
 describe('HTTPFetcher', () => {
   let sandbox: SinonSandbox;
@@ -72,7 +70,7 @@ describe('HTTPFetcher', () => {
         }, 1);
       }, 5);
       await promise;
-      expect(await readFileAsync('/path/file.ok', 'utf8')).to.equal('data');
+      expect(await fs.readFile('/path/file.ok', 'utf8')).to.equal('data');
     });
   });
 

@@ -3,10 +3,8 @@ import { expect } from 'chai';
 import { Config } from './config';
 import { AnimeBytes } from './animebytes';
 import { ShowsReleasersFetcher } from './showfetcher';
-import { readFile } from 'fs';
-import { promisify } from 'util';
+import { promises as fs } from 'fs';
 import mock from 'mock-fs';
-const readFileAsync = promisify(readFile);
 
 describe('showfetcher', () => {
   let sandbox: SinonSandbox;
@@ -50,7 +48,7 @@ describe('showfetcher', () => {
 
     it('writes to disk if shows json has changed', async () => {
       await ShowsReleasersFetcher.reload();
-      expect(await readFileAsync('shows.json', 'utf8')).to.equal((await getShowsMock()).toString());
+      expect(await fs.readFile('shows.json', 'utf8')).to.equal((await getShowsMock()).toString());
     });
 
     it('returns false and does not write to disk if previous hash matches', async () => {

@@ -1,11 +1,10 @@
 import { execFile } from 'child_process';
-import { unlink } from 'fs';
+import { promises as fs } from 'fs';
 import { promisify } from 'util';
 import { Config } from './config';
 import type { Episode } from '../models/episode';
 import { getLogger } from '../logger';
 const execAsync = promisify(execFile);
-const unlinkAsync = promisify(unlink);
 const logger = getLogger('mktorrent');
 
 export async function makeTorrentFile(episode: Episode, retry = true): Promise<void> {
@@ -18,7 +17,7 @@ export async function makeTorrentFile(episode: Episode, retry = true): Promise<v
   } catch (e) {
     if (retry && e?.message?.match(/file exists/i)) {
       logger.warn(`Torrent ${torrentPath} already exists; deleting and re-creating`);
-      await unlinkAsync(torrentPath);
+      await fs.unlink(torrentPath);
       return makeTorrentFile(episode, false);
     }
     throw e;
