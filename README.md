@@ -28,7 +28,7 @@ downloads as well as to remove state information for specific episodes.
 
 ## Installation
 
-fetcher requires NodeJS version 12.10 or later and [Yarn package manager](https://classic.yarnpkg.com/).
+fetcher requires NodeJS version 14.15 or later and [Yarn package manager](https://classic.yarnpkg.com/).
 Additionally you need these external tools present in `PATH`:
 
 - `mktorrent` >= 1.1
