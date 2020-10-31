@@ -8,6 +8,8 @@ import { AnimeBytes } from '../clients/animebytes';
 import { IRCManager } from '../clients/irc/ircManager';
 import { Fetcher } from './fetchers/fetcher';
 import { Episode } from './episode';
+import { readFile } from 'fs';
+import mock from 'mock-fs';
 
 describe('Source', () => {
   let sandbox: SinonSandbox;
@@ -99,6 +101,11 @@ describe('Source', () => {
       mktorrentStub = sandbox.stub(mktorrent, 'makeTorrentFile');
       mediainfoStub = sandbox.stub(mediainfo, 'getMediaInfo');
       uploadStub = sandbox.stub(AnimeBytes, 'upload');
+      mock({
+        '/torrents': {},
+        '/tmp/saveFileName.torrent': 'data',
+      });
+      sandbox.stub(Config, 'getConfig').returns({ temporary_dir: '/tmp', torrent_dir: '/torrents' } as any);
     });
 
     it('does not do anything if file is in episodeCache', async () => {
@@ -135,6 +142,17 @@ describe('Source', () => {
       assert.calledOnceWithExactly(uploadStub, episode, 'info');
     });
 
+    it('moves torrent file from temporary to torrents directory', (done) => {
+      episode.fetchEpisode().then(() => {
+        readFile('/torrents/saveFileName.torrent', (err, data) => {
+          // ensure file moved to final path
+          expect(!!err).to.be.false;
+          expect(data.toString()).to.equal('data'); // check file contents
+          done();
+        });
+      });
+    });
+
     it('saves to state', async () => {
       await episode.fetchEpisode();
       assert.calledWithExactly(saveStateStub.getCall(0), 'fetching');
@@ -157,7 +175,7 @@ describe('Source', () => {
 
   describe('getTorrentPath', () => {
     beforeEach(() => {
-      sandbox.stub(Config, 'getConfig').returns({ torrent_dir: '/dir' } as any);
+      sandbox.stub(Config, 'getConfig').returns({ temporary_dir: '/dir' } as any);
     });
 
     it('returns expected path', () => {

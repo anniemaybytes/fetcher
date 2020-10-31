@@ -8,6 +8,7 @@ import { makeTorrentFile } from '../clients/mktorrent';
 import { Fetcher } from './fetchers/fetcher';
 import { getLogger } from '../logger';
 import { FetchOptions } from '../../types';
+import { promises as fs } from 'fs';
 const logger = getLogger('EpisodeModel');
 
 type fetchStatus = 'complete' | 'fetching' | 'uploading' | 'failed';
@@ -73,6 +74,7 @@ export class Episode {
       const mediaInfo = await getMediaInfo(this.getStoragePath(), this.saveFileName);
       await makeTorrentFile(this);
       await AnimeBytes.upload(this, mediaInfo);
+      await fs.rename(this.getTorrentPath(), path.resolve(Config.getConfig().torrent_dir || '', `${this.saveFileName}.torrent`));
 
       // Upload is complete, finish up
       logger.info(`Upload complete for ${this.formattedName()}`);
@@ -105,7 +107,7 @@ export class Episode {
   }
 
   public getTorrentPath() {
-    return path.resolve(Config.getConfig().torrent_dir || '', `${this.saveFileName}.torrent`);
+    return path.resolve(Config.getConfig().temporary_dir || '', `${this.saveFileName}.torrent`);
   }
 
   public formattedName() {

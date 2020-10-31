@@ -3,6 +3,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v2.7.0
+### Changed
+- Torrent files are now created in temporary directory and moved after uploading on site
+to avoid potential race condition with torrent client consuming it before we're done
+processing episode
+
 ## v2.6.0
 ### Changed
 - Instruct webtorrent to remove partial file on fetch failure
