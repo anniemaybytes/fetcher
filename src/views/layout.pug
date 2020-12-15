@@ -3,10 +3,10 @@ html
   head
     title fetcher2
 
-    link(href=basePath + '/bundle.css', rel='stylesheet', type='text/css')
+    link(href=basePath + '/' + assets['bundle.css'], rel='stylesheet', type='text/css')
 
-    script(src=basePath + '/vendor.js')
-    script(src=basePath + '/bundle.js')
+    script(src=basePath + '/' + assets['vendor.js'])
+    script(src=basePath + '/' + assets['bundle.js'])
 
   body
     ul.breadcrumb

@@ -1,19 +1,28 @@
 const webpack = require('webpack');
 const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const ManifestReplacePlugin = require('webpack-manifest-replace-plugin');
+const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
+// https://github.com/webpack/loader-utils/issues/121
+const hashDigestLength = 10;
+
+// noinspection JSUnresolvedVariable,JSValidateTypes
 module.exports = {
-  mode: 'none',
+  mode: 'production',
+  context: path.resolve(__dirname, 'src'),
+  watchOptions: {
+    ignored: ['lib/**/*.ts', 'node_modules/**']
+  },
   entry: {
-    bundle: ['./src/static/js/index.js'],
+    bundle: ['./static/js/index.js'],
   },
   devtool: 'source-map',
   output: {
     path: path.resolve(__dirname, 'dist/static'),
     filename: '[name].[chunkhash].js',
-    hashDigestLength: 10,
+    hashDigestLength: hashDigestLength,
   },
   module: {
     rules: [
@@ -22,6 +31,9 @@ module.exports = {
         use: [
           {
             loader: MiniCssExtractPlugin.loader,
+            options: {
+              publicPath: '',
+            },
           },
           {
             loader: 'css-loader',
@@ -38,13 +50,24 @@ module.exports = {
           },
         ],
       },
+      {
+        test: /\.(png|jpe?g|gif|svg)$/i,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              outputPath: 'common',
+              name: `[name].[contenthash:hex:${hashDigestLength}].[ext]`,
+            },
+          },
+        ],
+      },
     ],
   },
   plugins: [
-    new ManifestReplacePlugin({
-      include: './src/views',
-      test: /\.pug$/,
-      outputDir: path.resolve(__dirname, 'dist/views'),
+    new WebpackManifestPlugin({
+      publicPath: '',
+      removeKeyHash: new RegExp(`(\\.[a-f0-9]{${hashDigestLength}})(\\..*)`),
     }),
     new CleanWebpackPlugin(),
     new webpack.ProvidePlugin({
@@ -54,15 +77,18 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: '[name].[contenthash].css',
     }),
+    new CopyPlugin({
+      patterns: [{ from: 'views/', to: `../views/` }],
+    }),
   ],
   optimization: {
-    moduleIds: 'hashed',
     splitChunks: {
       cacheGroups: {
-        commons: {
+        vendor: {
           test: /[\\/]node_modules[\\/]/,
           name: 'vendor',
           chunks: 'all',
+          enforce: true,
         },
       },
     },

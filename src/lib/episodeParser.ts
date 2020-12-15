@@ -53,8 +53,6 @@ function parseContainer(filename: string, defaultContainer?: string) {
     container = parsedContainer;
   }
   if (!container) return undefined;
-  saveFileName = sanitizeFilename(saveFileName);
-  filename = filename.replace(whitespaceReplaceRegex, ' ');
   return { saveFileName, container, filename };
 }
 
@@ -101,11 +99,11 @@ export function parseWantedEpisode(filename: string, fetchOptions: FetchOptions,
     return undefined;
   }
   episode.container = parsedContainer.container;
-  episode.saveFileName = parsedContainer.saveFileName;
+  episode.saveFileName = sanitizeFilename(parsedContainer.saveFileName);
   filename = parsedContainer.filename;
   // Parse (possible) CRC
   episode.crc = undefined;
-  const crcMatch = filename.match(crcRegex);
+  const crcMatch = filename.replace(whitespaceReplaceRegex, ' ').match(crcRegex);
   if (crcMatch) {
     episode.crc = crcMatch[2].toUpperCase();
     filename = crcMatch[1] + crcMatch[3];
@@ -122,7 +120,7 @@ export function parseWantedEpisode(filename: string, fetchOptions: FetchOptions,
   episode.resolution = resolutionParse.resolution;
   filename = resolutionParse.filename;
   // Parse episode and (possible) version
-  const episodeMatch = filename.match(episodeRegex);
+  const episodeMatch = filename.replace(whitespaceReplaceRegex, ' ').match(episodeRegex);
   episode.episode = parseInt(episodeMatch?.[1] || '', 10);
   episode.version = episodeMatch?.[2] ? parseInt(episodeMatch[2].substr(1) || '', 10) : 1;
   if (episode.version && episode.version > 9) episode.version = 1;

@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import { LevelDB } from '../clients/leveldb';
 import { Episode } from '../models/episode';
+import { promises } from 'fs';
 
 function generateBreadcrumbsMiddleware(req: Request, res: Response, next: NextFunction) {
   const base = `${res.app.locals.basePath}/`;
@@ -10,6 +11,11 @@ function generateBreadcrumbsMiddleware(req: Request, res: Response, next: NextFu
     .filter(Boolean)
     .forEach((seg, index, arr) => breadcrumbs.push({ title: decodeURI(seg), uri: `${base}${arr.slice(0, index + 1).join('/')}` }));
   res.locals.breadcrumbs = breadcrumbs;
+  next();
+}
+
+async function loadWebpackManifest(req: Request, res: Response, next: NextFunction) {
+  res.locals.assets = JSON.parse(await promises.readFile('dist/static/manifest.json', 'utf8'));
   next();
 }
 
@@ -41,6 +47,7 @@ export function routeViews(app: express.Application) {
   const viewRouter = express.Router();
 
   viewRouter.use(generateBreadcrumbsMiddleware);
+  viewRouter.use(loadWebpackManifest);
 
   viewRouter.get('/', async (req, res) => {
     const episodes = await getEpisodeData();
