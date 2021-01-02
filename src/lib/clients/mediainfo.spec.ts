@@ -17,10 +17,11 @@ describe('mediainfo', () => {
     it('throws an error if the result is for multiple files', () => {
       try {
         mediainfo.parseMediaInfoJSON([{ media: {} }, { media: {} }]);
-        expect.fail('Did not throw');
       } catch (e) {
         expect(String(e)).to.equal('Error: non-singular number of files 2');
+        return;
       }
+      expect.fail('did not throw');
     });
 
     describe('video', () => {

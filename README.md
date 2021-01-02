@@ -1,4 +1,4 @@
-# fetcher2
+# fetcher
 
 fetcher is our bot for fetching and uploading airing show.
 
@@ -43,7 +43,7 @@ Example systemd unit file:
 
 ```systemd
 [Unit]
-Description=fetcher2
+Description=fetcher
 After=network.target
 
 [Service]

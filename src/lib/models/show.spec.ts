@@ -64,8 +64,10 @@ describe('Show', () => {
             },
           },
         });
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
   });
 });

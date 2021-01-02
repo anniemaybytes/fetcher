@@ -92,8 +92,10 @@ describe('IRCManager', () => {
     it('throws an error with unknown network key', async () => {
       try {
         await IRCManager.addChannelWatcher('badnetwork', 'chan', 'fakeCallback' as any);
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
   });
 

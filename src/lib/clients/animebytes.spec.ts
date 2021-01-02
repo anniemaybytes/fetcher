@@ -41,16 +41,20 @@ describe('animebytes', () => {
     it('throws an error when it doesnt receieve a redirect for login page', async () => {
       try {
         await AnimeBytes.ensureLoggedIn();
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
 
     it('throws an error when upload page does not provide an http 200 response', async () => {
       fetchStub.resolves({ statusCode: 303 });
       try {
         await AnimeBytes.ensureLoggedIn();
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
   });
 
@@ -85,8 +89,10 @@ describe('animebytes', () => {
       fakeEpisode.groupID = undefined as any;
       try {
         await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
 
     it('calls fetch with proper URL', async () => {
@@ -95,7 +101,7 @@ describe('animebytes', () => {
       const args = fetchStub.getCall(0).args;
       expect(args[0]).to.equal('https://animebytes.tv/upload.php?type=anime&groupid=groupid');
       expect(args[1].method).to.equal('POST');
-      // I don't think there's a way to pull params off of FormData for some reason, so I can't exlicitly check request body here
+      // I don't think there's a way to pull params off of FormData for some reason, so I can't explicitly check request body here
     });
 
     it('returns if receieved a 409 (conflict)', async () => {
@@ -112,16 +118,20 @@ describe('animebytes', () => {
       fetchStub.resolves({ statusCode: 400, body: 'hi' });
       try {
         await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
 
     it('throws an error if `the following error` found in response body', async () => {
       fetchStub.resolves({ statusCode: 200, body: 'the following error' });
       try {
         await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
   });
 
@@ -147,8 +157,10 @@ describe('animebytes', () => {
       fetchStub.resolves({ statusCode: 400 });
       try {
         await AnimeBytes.getShows();
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
   });
 });

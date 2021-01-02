@@ -51,8 +51,10 @@ describe('IRCSource', () => {
           nicks: ['NICK'],
           matchers: [['match (.+\\.mkv) (.+)', 'file', 'link']],
         });
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
 
     it('adds a channel watcher and saves listener closer for provided channel', (done) => {

@@ -25,8 +25,10 @@ describe('Fetcher', () => {
     it('throws an error when trying to create an invalid type', () => {
       try {
         Fetcher.createFetcher('badtype', 'abc', {});
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
 
     it('uses registered static fetcher', () => {

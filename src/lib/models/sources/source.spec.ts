@@ -26,8 +26,10 @@ describe('Source', () => {
     it('throws an error when trying to create an invalid type', () => {
       try {
         Source.createSource('badtype', {} as any, 'type', {});
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
 
     it('uses registered static fetcher', () => {
@@ -73,8 +75,10 @@ describe('Source', () => {
       const source = new Source('type', 'unhandled');
       try {
         source.getFetcherOptions('thing');
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
   });
 });

@@ -100,10 +100,11 @@ describe('leveldb', () => {
       listEventEmitter.emit('error', 'someError');
       try {
         await promise;
-        expect.fail('did not throw');
       } catch (e) {
         expect(e).to.equal('someError');
+        return;
       }
+      expect.fail('did not throw');
     });
   });
 

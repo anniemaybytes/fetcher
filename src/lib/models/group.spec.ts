@@ -60,8 +60,10 @@ describe('Group', () => {
             ],
           },
         } as any);
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
+      } catch (e) {
+        return;
+      }
+      expect.fail('did not throw');
     });
 
     it('does not throw if there was an error creating a source', () => {

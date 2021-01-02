@@ -65,20 +65,23 @@ describe('mktorrent', () => {
       execStub.yields('thing');
       try {
         await makeTorrentFile(episodeStub);
-        expect.fail('did not throw');
       } catch (e) {
         expect(e).to.equal('thing');
+        return;
       }
+      expect.fail('did not throw');
     });
 
     it('deletes existing torrent file if it exists and retries', async () => {
       execStub.yields({ message: 'file exists' });
       try {
         await makeTorrentFile(episodeStub);
-        expect.fail('did not throw');
-      } catch (e) {} // eslint-disable-line no-empty
-      assert.calledOnce(unlinkStub);
-      assert.calledTwice(execStub);
+      } catch (e) {
+        assert.calledOnce(unlinkStub);
+        assert.calledTwice(execStub);
+        return;
+      }
+      expect.fail('did not throw');
     });
   });
 });
