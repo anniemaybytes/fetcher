@@ -1,6 +1,6 @@
 {
   "name": "fetcher",
-  "version": "3.2.0",
+  "version": "3.3.1",
   "description": "a media downloader",
   "engines": {
     "node": ">=14.15.0"

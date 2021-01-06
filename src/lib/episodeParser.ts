@@ -8,7 +8,7 @@ const logger = getLogger('EpisodeParser');
 
 const whitespaceReplaceRegex = /[_.]/g;
 const crcRegex = /(..+)([a-f\d]{8}|[A-F\d]{8})(.*)/;
-const episodeRegex = /.*[^\w](?:EP|E|S\d+E)?(?<!-)(\d{2,3}|(?<=Episode\s)\d{1,3})(?!-)(v0?\d+)?(?:[^\w]|$)/i;
+const episodeRegex = /.*[^\w](?:EP|E|S\d+E)?(?<!-)(\d{2,4}|(?<=Episode\s)\d)(?!-)(v0?\d+)?(?:[^\w]|$)/i;
 let unparseableCache: { [filename: string]: boolean } = {};
 
 const validResolutions = [
