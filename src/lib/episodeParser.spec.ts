@@ -247,6 +247,12 @@ describe('episodeParser', () => {
       expect(episode).to.be.undefined;
     });
 
+    it('should not parse with multi-episode', () => {
+      const file = '[TerribleSubs] Some アニメ - 01-12 [720p][123A4BC5].mkv';
+      const episode = episodeParser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      expect(episode).to.be.undefined;
+    });
+
     it('should not parse with empty filename', () => {
       const episode = episodeParser.parseWantedEpisode('', fakeFetchOptions, fakeSource);
       expect(episode).to.be.undefined;

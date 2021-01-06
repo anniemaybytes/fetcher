@@ -3,6 +3,15 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v3.2.0
+### Added
+- `EpisodeParser` warnings are now emitted to IRC control channel
+
+### Fixed
+- Multi-episode packs (`14-26`) detected as singular episodes (`26`)
+- `torrent has X files, must have 1` error message incorrectly showing `0` as files count in 
+all cases
+
 ## v3.1.0
 ### Changed
 - Update to Webpack v5

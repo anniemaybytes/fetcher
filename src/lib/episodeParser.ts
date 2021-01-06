@@ -1,4 +1,5 @@
 import sanitizeFilename from 'sanitize-filename';
+import { IRCManager } from './clients/irc/ircManager';
 import { Episode } from './models/episode';
 import { getLogger } from './logger';
 import type { Source } from './models/sources/source';
@@ -7,7 +8,7 @@ const logger = getLogger('EpisodeParser');
 
 const whitespaceReplaceRegex = /[_.]/g;
 const crcRegex = /(..+)([a-f\d]{8}|[A-F\d]{8})(.*)/;
-const episodeRegex = /.*[^\w](?:EP|E|S\d+E)?(\d{2,3}|(?<=Episode\s)\d{1,3})(v0?\d+)?(?:[^\w]|$)/i;
+const episodeRegex = /.*[^\w](?:EP|E|S\d+E)?(?<!-)(\d{2,3}|(?<=Episode\s)\d{1,3})(?!-)(v0?\d+)?(?:[^\w]|$)/i;
 let unparseableCache: { [filename: string]: boolean } = {};
 
 const validResolutions = [
@@ -32,6 +33,11 @@ const convertedResolutions: any = {
   '1920x1080': '1080p',
 };
 
+function warn(msg: string) {
+  logger.warn(msg);
+  IRCManager.controlAnnounce(`WARN: ${msg}`);
+}
+
 function parseContainer(filename: string, defaultContainer?: string) {
   let saveFileName = filename;
   let container = defaultContainer;
@@ -40,13 +46,13 @@ function parseContainer(filename: string, defaultContainer?: string) {
   // If container extension is missing or invalid
   if (containerLocation === -1 || parsedContainer.includes(' ')) {
     if (!defaultContainer) {
-      logger.warn(`Release missing container: ${filename}`);
+      warn(`Release missing container: ${filename}`);
       return undefined;
     }
     saveFileName += `.${defaultContainer}`;
   } else {
     if (defaultContainer && parsedContainer !== defaultContainer) {
-      logger.warn(`Release has invalid extension (want ${defaultContainer}): ${filename}`);
+      warn(`Release has invalid extension (want ${defaultContainer}): ${filename}`);
       return undefined;
     }
     filename = filename.substring(0, containerLocation);
@@ -111,7 +117,7 @@ export function parseWantedEpisode(filename: string, fetchOptions: FetchOptions,
   // Parse resolution
   const resolutionParse = parseResolution(filename, source.defaults.res);
   if (!resolutionParse) {
-    logger.warn('Release has invalid or missing resolution:', originalFilename);
+    warn(`Release has invalid or missing resolution: ${originalFilename}`);
     unparseableCache[originalFilename] = true;
     return undefined;
   }
@@ -126,7 +132,7 @@ export function parseWantedEpisode(filename: string, fetchOptions: FetchOptions,
   if (episode.version && episode.version > 9) episode.version = 1;
   if (!episode.episode || !(episode.version >= 0)) {
     const episodeParse = { episode: episode.episode, version: episode.version };
-    logger.warn(`Release has invalid episode or version. Got ${JSON.stringify(episodeParse)}:`, originalFilename);
+    warn(`Release has invalid episode or version. Got ${JSON.stringify(episodeParse)}: ${originalFilename}`);
     unparseableCache[originalFilename] = true;
     return undefined;
   }
