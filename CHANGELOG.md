@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v3.3.0
+### Added
+- Support for 540p as valid resolution
+
 ## v3.2.0
 ### Added
 - `EpisodeParser` warnings are now emitted to IRC control channel

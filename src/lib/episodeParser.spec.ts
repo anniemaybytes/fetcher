@@ -126,6 +126,7 @@ describe('episodeParser', () => {
         'Some アニメ - 01 (640x480).mkv': '640x480',
         'Some アニメ - 01 720x480  .mkv': '720x480',
         'Some アニメ - 01 (704x396).mkv': '704x396',
+        'Some アニメ - 01 (540p).mkv': '960x540',
       };
 
       Object.entries(files).forEach(([filename, expectedRes]) => {
