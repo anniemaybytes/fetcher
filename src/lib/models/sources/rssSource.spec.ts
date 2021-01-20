@@ -62,7 +62,7 @@ describe('RSSSource', () => {
         items: [
           {
             enclosure: {
-              url: 'http://some.url/some%20title',
+              url: 'http://some.url/subpath/some%20title',
             },
           },
         ],
@@ -70,7 +70,7 @@ describe('RSSSource', () => {
       await fetch();
       assert.calledOnce(parseEpisode);
       expect(parseEpisode.getCall(0).args[0]).to.equal('some title');
-      expect(parseEpisode.getCall(0).args[1]).to.deep.equal({ url: 'http://some.url/some%20title' });
+      expect(parseEpisode.getCall(0).args[1]).to.deep.equal({ url: 'http://some.url/subpath/some%20title' });
     });
 
     it('starts fetching parsed episode', async () => {

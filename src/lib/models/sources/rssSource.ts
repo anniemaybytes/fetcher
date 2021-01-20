@@ -30,7 +30,7 @@ export class RSSSource extends Source {
           title = item.title;
         } else {
           link = item.enclosure.url;
-          const linkpath = url.parse(item.enclosure.url).path;
+          const linkpath = new url.URL(item.enclosure.url).pathname;
           if (!linkpath) return;
           title = unescape(path.basename(linkpath));
         }
