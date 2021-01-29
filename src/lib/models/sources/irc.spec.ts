@@ -1,8 +1,8 @@
 import { SinonSandbox, createSandbox, assert, SinonStub, useFakeTimers } from 'sinon';
 import { expect } from 'chai';
 import * as episodeParser from '../../episodeParser';
-import { IRCManager } from '../../clients/irc/ircManager';
-import { IRCSource } from './ircSource';
+import { IRCManager } from '../../clients/irc/manager';
+import { IRCSource } from './irc';
 
 describe('IRCSource', () => {
   let sandbox: SinonSandbox;
@@ -20,7 +20,7 @@ describe('IRCSource', () => {
   });
 
   describe('constructor', () => {
-    it('assigns provided parameters correctly', () => {
+    it('Assigns provided parameters correctly', () => {
       const ircSource = new IRCSource({} as any, 'http', {
         network: 'network',
         channels: ['channel'],
@@ -32,7 +32,7 @@ describe('IRCSource', () => {
       expect(ircSource.matchers[0].matchNames).to.deep.equal(['file', 'link']);
     });
 
-    it('checks if irc network exists', () => {
+    it('Checks if irc network exists', () => {
       new IRCSource({} as any, 'http', {
         network: 'network',
         channels: ['channel'],
@@ -42,7 +42,7 @@ describe('IRCSource', () => {
       assert.calledOnceWithExactly(hasNetworkStub, 'network');
     });
 
-    it('throws if network does not exist', () => {
+    it('Throws if network does not exist', () => {
       hasNetworkStub.returns(false);
       try {
         new IRCSource({} as any, 'http', {
@@ -54,10 +54,10 @@ describe('IRCSource', () => {
       } catch (e) {
         return;
       }
-      expect.fail('did not throw');
+      expect.fail('Did not throw');
     });
 
-    it('adds a channel watcher and saves listener closer for provided channel', (done) => {
+    it('Adds a channel watcher and saves listener closer for provided channel', (done) => {
       const ircSource = new IRCSource({} as any, 'http', {
         network: 'network',
         channels: ['channel'],
@@ -92,14 +92,14 @@ describe('IRCSource', () => {
       if (clock) clock.restore();
     });
 
-    it('does nothing if nick is not matching', async () => {
+    it('Does nothing if nick is not matching', async () => {
       ircSource.multiLine = 2;
       await ircSource.messageCallback({ nick: 'notmatch', target: 'target', message: 'match thing.mkv link' } as any);
       assert.notCalled(parseEpisodeStub);
       expect(ircSource.msgCache).to.deep.equal({});
     });
 
-    it('adds message to new cache if multiline', async () => {
+    it('Adds message to new cache if multiline', async () => {
       const date = new Date(1234);
       clock = useFakeTimers(date);
       ircSource.multiLine = 2;
@@ -107,7 +107,7 @@ describe('IRCSource', () => {
       expect(ircSource.msgCache).to.deep.equal({ 'target|nick': { lastUpdated: date, messages: ['match thing.mkv link'] } });
     });
 
-    it('adds message to existing cache if multiline', async () => {
+    it('Adds message to existing cache if multiline', async () => {
       const date = new Date(1234);
       clock = useFakeTimers(date);
       ircSource.multiLine = 3;
@@ -116,19 +116,19 @@ describe('IRCSource', () => {
       expect(ircSource.msgCache).to.deep.equal({ 'target|nick': { lastUpdated: date, messages: ['one', 'match thing.mkv link'] } });
     });
 
-    it('parses episode for matching episode', async () => {
+    it('Parses episode for matching episode', async () => {
       await ircSource.messageCallback({ nick: 'nick', target: 'target', message: 'match thing.mkv link' } as any);
       assert.calledOnceWithExactly(parseEpisodeStub, 'thing.mkv', { url: 'link' }, ircSource);
     });
 
-    it('starts fetch on matched episode', async () => {
+    it('Starts fetch on matched episode', async () => {
       const fetchStub = sandbox.stub();
       parseEpisodeStub.returns({ fetchEpisode: fetchStub });
       await ircSource.messageCallback({ nick: 'nick', target: 'target', message: 'match thing.mkv link' } as any);
       assert.calledOnce(fetchStub);
     });
 
-    it('does not throw on unexpected error', async () => {
+    it('Does not throw on unexpected error', async () => {
       ircSource.nicks = { includes: sandbox.stub().throws('banana') } as any;
       await ircSource.messageCallback({ nick: 'nick', target: 'target', message: 'match thing.mkv link' } as any);
       assert.calledOnce(ircSource.nicks.includes as any);
@@ -147,7 +147,7 @@ describe('IRCSource', () => {
       });
     });
 
-    it('calls each function in the listener closers', () => {
+    it('Calls each function in the listener closers', () => {
       const close1 = sandbox.stub();
       const close2 = sandbox.stub();
       ircSource.listenerClosers = [close1, close2];

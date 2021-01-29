@@ -1,7 +1,7 @@
 import { Source } from './models/sources/source';
 import { Show } from './models/show';
 import { Group } from './models/group';
-import { ShowsReleasersFetcher } from './clients/showfetcher';
+import { ShowsReleasersFetcher } from './clients/showFetcher';
 import { getLogger } from './logger';
 const logger = getLogger('reloader');
 

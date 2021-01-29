@@ -1,8 +1,8 @@
 import { SinonSandbox, createSandbox, SinonStub, assert, useFakeTimers, match } from 'sinon';
 import { expect } from 'chai';
 import { Config } from '../config';
-import * as ircNetworkModule from './ircNetwork';
-import { IRCManager } from './ircManager';
+import * as ircNetworkModule from './network';
+import { IRCManager } from './manager';
 
 describe('IRCManager', () => {
   let sandbox: SinonSandbox;
@@ -33,21 +33,21 @@ describe('IRCManager', () => {
       sandbox.stub(Config, 'getConfig').returns(fakeConfig);
     });
 
-    it('creates network for config networks and waits until they are registered', async () => {
+    it('Creates network for config networks and waits until they are registered', async () => {
       await IRCManager.initialize();
       assert.calledOnceWithExactly(fakeCreateNetwork, 'networkKey', { some: 'options' });
       assert.calledOnce(fakeNetwork.waitUntilRegistered);
       expect(IRCManager.networks.networkKey).to.equal(fakeNetwork);
     });
 
-    it('assigns static control network and adds channel watcher for control room', async () => {
+    it('Assigns static control network and adds channel watcher for control room', async () => {
       await IRCManager.initialize();
       expect(IRCManager.controlNetwork).to.equal(fakeNetwork);
       expect(IRCManager.controlChannel).to.equal('channel');
       assert.calledOnceWithExactly(fakeNetwork.addChannelWatcher, 'channel', match.any);
     });
 
-    it('does not throw if adding channel watcher (joining) control room fails', async () => {
+    it('Does not throw if adding channel watcher (joining) control room fails', async () => {
       fakeNetwork.addChannelWatcher.throws('borked');
       await IRCManager.initialize();
     });
@@ -57,7 +57,7 @@ describe('IRCManager', () => {
       await IRCManager.initialize();
     });
 
-    it('does not throw if joining a network fails, and disconnects from said network', async () => {
+    it('Does not throw if joining a network fails, and disconnects from said network', async () => {
       fakeNetwork.waitUntilRegistered.throws('could not join');
       await IRCManager.initialize();
       expect(IRCManager.networks.networkKey).to.be.undefined;
@@ -66,12 +66,12 @@ describe('IRCManager', () => {
   });
 
   describe('hasNetwork', () => {
-    it('returns true if network exists', () => {
+    it('Returns true if network exists', () => {
       IRCManager.networks.thing = 'exists' as any;
       expect(IRCManager.hasNetwork('thing')).to.be.true;
     });
 
-    it('returns false if network does not exist', () => {
+    it('Returns false if network does not exist', () => {
       expect(IRCManager.hasNetwork('badnetwork')).to.be.false;
     });
   });
@@ -84,18 +84,18 @@ describe('IRCManager', () => {
       IRCManager.networks.networkKey = fakeNetwork;
     });
 
-    it('calls addChannelWatcher on proper irc network', async () => {
+    it('Calls addChannelWatcher on proper irc network', async () => {
       await IRCManager.addChannelWatcher('networkKey', 'chan', 'fakeCallback' as any);
       assert.calledOnceWithExactly(fakeNetwork.addChannelWatcher, 'chan', 'fakeCallback');
     });
 
-    it('throws an error with unknown network key', async () => {
+    it('Throws an error with unknown network key', async () => {
       try {
         await IRCManager.addChannelWatcher('badnetwork', 'chan', 'fakeCallback' as any);
       } catch (e) {
         return;
       }
-      expect.fail('did not throw');
+      expect.fail('Did not throw');
     });
   });
 
@@ -108,12 +108,12 @@ describe('IRCManager', () => {
       IRCManager.controlChannel = 'chan';
     });
 
-    it('calls control network message with correct channel and message', () => {
+    it('Calls control network message with correct channel and message', () => {
       IRCManager.controlAnnounce('message');
       assert.calledOnceWithExactly(fakeNetwork.message, 'chan', 'message');
     });
 
-    it('does not throw on error', () => {
+    it('Does not throw on error', () => {
       fakeNetwork.message.throws('busted');
       IRCManager.controlAnnounce('message');
     });
@@ -130,7 +130,7 @@ describe('IRCManager', () => {
       clock.restore();
     });
 
-    it('calls disconnect on all current networks', (done) => {
+    it('Calls disconnect on all current networks', (done) => {
       const fakeNetwork: any = { disconnect: sandbox.stub() };
       IRCManager.networks.fakeNetwork = fakeNetwork;
       IRCManager.shutdown().then(() => {

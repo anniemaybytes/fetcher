@@ -1,5 +1,5 @@
 import sanitizeFilename from 'sanitize-filename';
-import { IRCManager } from './clients/irc/ircManager';
+import { IRCManager } from './clients/irc/manager';
 import { Episode } from './models/episode';
 import { getLogger } from './logger';
 import type { Source } from './models/sources/source';

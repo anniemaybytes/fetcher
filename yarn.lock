@@ -6645,10 +6645,10 @@ webpack@5.17.0:
     watchpack "^2.0.0"
     webpack-sources "^2.1.1"
 
-webtorrent@0.112.1:
-  version "0.112.1"
-  resolved "https://registry.yarnpkg.com/webtorrent/-/webtorrent-0.112.1.tgz#3971fa70b7bff7a8e7d9928e5bae0d850c8f3f57"
-  integrity sha512-tTDO7Nh7m7kYEQacTAFVowPerWKx1bmBevTxZ4d2deuwiW4RaEoeiss6+5Odgq1G8WbRL2KPrqrKO1Z0n05u6A==
+webtorrent@0.112.2:
+  version "0.112.2"
+  resolved "https://registry.yarnpkg.com/webtorrent/-/webtorrent-0.112.2.tgz#f92cfbad3841649e3a5a78e60caa11fa9b91ba42"
+  integrity sha512-yaSBGIoDNKHTEpNbV+VZHqvlbDA3StD2ww9QgQ142bg9fFRT+w0TnvEKXlB4FLAir0vk4MfEhgRe+lG9wq/CRg==
   dependencies:
     addr-to-ip-port "^1.5.1"
     bitfield "^4.0.0"

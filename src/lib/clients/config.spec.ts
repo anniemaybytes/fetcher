@@ -18,11 +18,11 @@ describe('config', () => {
   });
 
   describe('getConfig', () => {
-    it('gets config from config.json', () => {
+    it('Gets config from config.json', () => {
       expect(Config.getConfig()).to.deep.equal({ some: 'data' });
     });
 
-    it('uses cached config and only reads from disk once', () => {
+    it('Uses cached config and only reads from disk once', () => {
       expect(Config.getConfig()).to.deep.equal({ some: 'data' });
       mock({ 'config.json': '{"new":"data"}' });
       expect(Config.getConfig()).to.deep.equal({ some: 'data' });
@@ -30,7 +30,7 @@ describe('config', () => {
   });
 
   describe('reloadConfig', () => {
-    it('will reload/cache new data from disk for getConfig', () => {
+    it('Will reload/cache new data from disk for getConfig', () => {
       mock({ 'config.json': '{"new":"data"}' });
       Config.reloadConfig();
       expect(Config.getConfig()).to.deep.equal({ new: 'data' });

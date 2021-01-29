@@ -1,7 +1,7 @@
 import { Source } from './source';
 import { Group } from '../group';
 import { parseWantedEpisode } from '../../episodeParser';
-import { IRCManager } from '../../clients/irc/ircManager';
+import { IRCManager } from '../../clients/irc/manager';
 import { ReleaserIRCOptions, MessageEvent } from '../../../types';
 import { getLogger } from '../../logger';
 const logger = getLogger('IRCSource');

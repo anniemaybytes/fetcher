@@ -1,10 +1,10 @@
 import 'source-map-support/register';
 import { Source } from './lib/models/sources/source';
 import { Episode } from './lib/models/episode';
-import { TorrentFetcher } from './lib/models/fetchers/torrentFetcher';
+import { TorrentFetcher } from './lib/models/fetchers/torrent';
 import { LevelDB } from './lib/clients/leveldb';
 import { AnimeBytes } from './lib/clients/animebytes';
-import { IRCManager } from './lib/clients/irc/ircManager';
+import { IRCManager } from './lib/clients/irc/manager';
 import { startWebserver, stopWebserver } from './lib/webserver/server';
 import { Reloader } from './lib/reloader';
 import { getLogger } from './lib/logger';

@@ -1,5 +1,5 @@
-import { IRCNetwork } from './ircNetwork';
-import { handleControlMessage } from './ircControl';
+import { IRCNetwork } from './network';
+import { handleControlMessage } from './control';
 import { Config } from '../config';
 import { sleep, timeoutPromise } from '../../utils';
 import { getLogger } from '../../logger';

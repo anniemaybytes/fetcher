@@ -2,7 +2,7 @@ import { SinonSandbox, createSandbox, assert, SinonStub } from 'sinon';
 import { expect } from 'chai';
 import proxyquire from 'proxyquire';
 import * as episodeParser from '../../episodeParser';
-import { RSSSource } from './rssSource';
+import { RSSSource } from './rss';
 
 describe('RSSSource', () => {
   let sandbox: SinonSandbox;
@@ -16,7 +16,7 @@ describe('RSSSource', () => {
   });
 
   describe('constructor', () => {
-    it('assigns provided parameters correctly', () => {
+    it('Assigns provided parameters correctly', () => {
       const rssSource = new RSSSource({} as any, 'fetchType', { url: 'url' });
       expect(rssSource.url).to.equal('url');
     });
@@ -29,7 +29,7 @@ describe('RSSSource', () => {
 
     beforeEach(() => {
       fakeParser = { parseURL: sandbox.stub() };
-      const patchedModule = proxyquire('./rssSource', {
+      const patchedModule = proxyquire('./rss', {
         'rss-parser': sandbox.stub().returns(fakeParser),
       });
       const rssParser = new patchedModule.RSSSource('', 'http', { url: 'url' });
@@ -37,7 +37,7 @@ describe('RSSSource', () => {
       parseEpisode = sandbox.stub(episodeParser, 'parseWantedEpisode');
     });
 
-    it('calls parser with correct url', async () => {
+    it('Calls parser with correct url', async () => {
       await fetch();
       assert.calledOnceWithExactly(fakeParser.parseURL, 'url');
     });
@@ -57,7 +57,7 @@ describe('RSSSource', () => {
       expect(parseEpisode.getCall(0).args[1]).to.deep.equal({ url: 'alink' });
     });
 
-    it('parses enclosure item from rss feed', async () => {
+    it('Parses enclosure item from rss feed', async () => {
       fakeParser.parseURL.resolves({
         items: [
           {
@@ -73,7 +73,7 @@ describe('RSSSource', () => {
       expect(parseEpisode.getCall(0).args[1]).to.deep.equal({ url: 'http://some.url/subpath/some%20title' });
     });
 
-    it('starts fetching parsed episode', async () => {
+    it('Starts fetching parsed episode', async () => {
       fakeParser.parseURL.resolves({
         items: [
           {
@@ -88,7 +88,7 @@ describe('RSSSource', () => {
       assert.calledOnce(fetchEpisode);
     });
 
-    it('does not throw on unexpected error', async () => {
+    it('Does not throw on unexpected error', async () => {
       fakeParser.parseURL.throws('broken');
       await fetch();
     });

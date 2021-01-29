@@ -14,7 +14,7 @@ describe('utils', () => {
   });
 
   describe('sleep', () => {
-    it('stops execution for specified amount of time', async () => {
+    it('Stops execution for specified amount of time', async () => {
       const now = Date.now();
       await utils.sleep(10);
       expect(Date.now() - 9).to.be.gte(now);
@@ -22,7 +22,7 @@ describe('utils', () => {
   });
 
   describe('timeoutPromise', () => {
-    it('rejects with provided error if provided promise does not resolve within timeout', async () => {
+    it('Rejects with provided error if provided promise does not resolve within timeout', async () => {
       const longPromise = new Promise((resolve) => setTimeout(resolve, 5000));
       try {
         await utils.timeoutPromise(longPromise, 1, 'my error');
@@ -31,7 +31,7 @@ describe('utils', () => {
       }
     });
 
-    it('returns value from provided promise if it resolves before the timeout', async () => {
+    it('Returns value from provided promise if it resolves before the timeout', async () => {
       const shortPromise = new Promise((resolve) => setTimeout(() => resolve('my return'), 1));
       expect(await utils.timeoutPromise(shortPromise, 10, 'err')).to.equal('my return');
     });

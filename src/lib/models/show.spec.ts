@@ -21,7 +21,7 @@ describe('Show', () => {
       } as any;
     });
 
-    it('creates expected shows and adds them to existing matching groups', () => {
+    it('Creates expected shows and adds them to existing matching groups', () => {
       Show.loadShows({
         'show name': {
           form: {
@@ -47,7 +47,7 @@ describe('Show', () => {
       expect(show.releasers.test.regex.test('yes')).to.be.true;
     });
 
-    it('throws an error if show contains releaser that does not exist', () => {
+    it('Throws an error if show contains releaser that does not exist', () => {
       try {
         Show.loadShows({
           'show name': {
@@ -67,7 +67,7 @@ describe('Show', () => {
       } catch (e) {
         return;
       }
-      expect.fail('did not throw');
+      expect.fail('Did not throw');
     });
   });
 });

@@ -16,29 +16,29 @@ describe('Source', () => {
   });
 
   describe('registerSourceType', () => {
-    it('adds a static source type', () => {
+    it('Adds a static source type', () => {
       Source.registerSourceType('thing', 'something');
       expect(Source.registered.thing).to.equal('something');
     });
   });
 
   describe('createSource', () => {
-    it('throws an error when trying to create an invalid type', () => {
+    it('Throws an error when trying to create an invalid type', () => {
       try {
         Source.createSource('badtype', {} as any, 'type', {});
       } catch (e) {
         return;
       }
-      expect.fail('did not throw');
+      expect.fail('Did not throw');
     });
 
-    it('uses registered static fetcher', () => {
+    it('Uses registered static fetcher', () => {
       Source.registered.test = sandbox.stub();
       Source.createSource('test', {} as any, 'abc', {});
       assert.calledOnceWithExactly(Source.registered.test, {}, 'abc', {});
     });
 
-    it('adds successfully created source to static list', () => {
+    it('Adds successfully created source to static list', () => {
       Source.registered.test = sandbox.stub();
       const source = Source.createSource('test', {} as any, 'abc', {});
       expect(Source.activeSources).includes(source);
@@ -46,7 +46,7 @@ describe('Source', () => {
   });
 
   describe('removeAllSources', () => {
-    it('calls close on current sources', async () => {
+    it('Calls close on current sources', async () => {
       const fakeSource = { close: sandbox.stub() } as any;
       Source.activeSources = [fakeSource];
       await Source.removeAllSources();
@@ -55,21 +55,21 @@ describe('Source', () => {
   });
 
   describe('getFetcherOptions', () => {
-    it('returns valid fetcher options for torrent type', () => {
+    it('Returns valid fetcher options for torrent type', () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const source = new Source('type', 'torrent');
       expect(source.getFetcherOptions('thing')).to.deep.equal({ uri: 'thing' });
     });
 
-    it('returns valid fetcher options for http type', () => {
+    it('Returns valid fetcher options for http type', () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const source = new Source('type', 'http');
       expect(source.getFetcherOptions('thing')).to.deep.equal({ url: 'thing' });
     });
 
-    it('throws an error if fetcher type is not handled', () => {
+    it('Throws an error if fetcher type is not handled', () => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       const source = new Source('type', 'unhandled');
@@ -78,7 +78,7 @@ describe('Source', () => {
       } catch (e) {
         return;
       }
-      expect.fail('did not throw');
+      expect.fail('Did not throw');
     });
   });
 });

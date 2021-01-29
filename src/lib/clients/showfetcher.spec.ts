@@ -2,11 +2,11 @@ import { SinonSandbox, createSandbox, SinonStub, assert } from 'sinon';
 import { expect } from 'chai';
 import { Config } from './config';
 import { AnimeBytes } from './animebytes';
-import { ShowsReleasersFetcher } from './showfetcher';
+import { ShowsReleasersFetcher } from './showFetcher';
 import { promises as fs } from 'fs';
 import mock from 'mock-fs';
 
-describe('showfetcher', () => {
+describe('showFetcher', () => {
   let sandbox: SinonSandbox;
 
   beforeEach(() => {
@@ -30,33 +30,33 @@ describe('showfetcher', () => {
       getShowsMock = sandbox.stub(AnimeBytes, 'getShows').resolves(Buffer.from('{}'));
     });
 
-    it('calls getShows from AnimeBytes', async () => {
+    it('Calls getShows from AnimeBytes', async () => {
       await ShowsReleasersFetcher.reload();
       assert.calledOnce(getShowsMock);
     });
 
-    it('saves showsJSON and releasersJSON', async () => {
+    it('Saves showsJSON and releasersJSON', async () => {
       getShowsMock.resolves(Buffer.from('{"shows":"someData","releasers":"moreData"}'));
       await ShowsReleasersFetcher.reload();
       expect(ShowsReleasersFetcher.showsJSON).to.equal('someData');
       expect(ShowsReleasersFetcher.releasersJSON).to.equal('moreData');
     });
 
-    it('returns true if shows json has changed', async () => {
+    it('Returns true if shows json has changed', async () => {
       expect(await ShowsReleasersFetcher.reload()).to.be.true;
     });
 
-    it('writes to disk if shows json has changed', async () => {
+    it('Writes to disk if shows json has changed', async () => {
       await ShowsReleasersFetcher.reload();
       expect(await fs.readFile('shows.json', 'utf8')).to.equal((await getShowsMock()).toString());
     });
 
-    it('returns false and does not write to disk if previous hash matches', async () => {
+    it('Returns false and does not write to disk if previous hash matches', async () => {
       ShowsReleasersFetcher.lastHash = 'RBNvo1WzZ4oRRq0W9+hknpT7T8If536DEMBg9hyq/4o=';
       expect(await ShowsReleasersFetcher.reload()).to.be.false;
     });
 
-    it('uses file cache if getting from AnimeBytes fails', async () => {
+    it('Uses file cache if getting from AnimeBytes fails', async () => {
       getShowsMock.throws(new Error());
       mock({ 'shows.json': '{"shows":"fileData","releasers":"moreFileData"}' });
       await ShowsReleasersFetcher.reload();

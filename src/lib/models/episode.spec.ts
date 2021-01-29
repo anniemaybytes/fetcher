@@ -5,7 +5,7 @@ import { Config } from '../clients/config';
 import * as mediainfo from '../clients/mediainfo';
 import * as mktorrent from '../clients/mktorrent';
 import { AnimeBytes } from '../clients/animebytes';
-import { IRCManager } from '../clients/irc/ircManager';
+import { IRCManager } from '../clients/irc/manager';
 import { Fetcher } from './fetchers/fetcher';
 import { Episode } from './episode';
 import { readFile } from 'fs';
@@ -33,13 +33,13 @@ describe('Source', () => {
       dbListMock = sandbox.stub(LevelDB, 'list');
     });
 
-    it('does not create episodes for state that is complete', async () => {
+    it('Does not create episodes for state that is complete', async () => {
       dbListMock.resolves([{ state: 'complete' }]);
       await Episode.restartEpisodeFetchingFromState();
       assert.notCalled(fromStorageMock);
     });
 
-    it('starts episode fetch for items recovered from state', async () => {
+    it('Starts episode fetch for items recovered from state', async () => {
       dbListMock.resolves([{ state: 'fetching' }]);
       await Episode.restartEpisodeFetchingFromState();
       assert.calledOnceWithExactly(fromStorageMock, { state: 'fetching' });
@@ -58,22 +58,22 @@ describe('Source', () => {
       sandbox.stub(episode, 'formattedName').returns('formattedName');
     });
 
-    it('returns false if db get fails with notfound (doesnt yet exist)', async () => {
+    it('Returns false if db get fails with notfound (doesnt yet exist)', async () => {
       getMock.throws({ type: 'NotFoundError' });
       expect(await episode.isAlreadyComplete()).to.be.false;
     });
 
-    it('returns false if existing state from db is not marked as complete', async () => {
+    it('Returns false if existing state from db is not marked as complete', async () => {
       getMock.resolves({ state: 'failed' });
       expect(await episode.isAlreadyComplete()).to.be.false;
     });
 
-    it('returns true if existing state from db is marked as complete', async () => {
+    it('Returns true if existing state from db is marked as complete', async () => {
       getMock.resolves({ state: 'complete' });
       expect(await episode.isAlreadyComplete()).to.be.true;
     });
 
-    it('returns true if unexpected error from db', async () => {
+    it('Returns true if unexpected error from db', async () => {
       getMock.throws('uh-oh');
       expect(await episode.isAlreadyComplete()).to.be.true;
     });
@@ -108,41 +108,41 @@ describe('Source', () => {
       sandbox.stub(Config, 'getConfig').returns({ temporary_dir: '/tmp', torrent_dir: '/torrents' } as any);
     });
 
-    it('does not do anything if file is in episodeCache', async () => {
+    it('Does not do anything if file is in episodeCache', async () => {
       Episode.fetchingEpisodesCache.saveFileName = true as any;
       await episode.fetchEpisode();
       assert.notCalled(fakeFetcher.fetch);
     });
 
-    it('does not do anything if isAlreadyComplete from state returns true', async () => {
+    it('Does not do anything if isAlreadyComplete from state returns true', async () => {
       (episode.isAlreadyComplete as any).resolves(true);
       await episode.fetchEpisode();
       assert.notCalled(fakeFetcher.fetch);
     });
 
-    it('saves failed to state on unexpected failure', async () => {
+    it('Saves failed to state on unexpected failure', async () => {
       fakeFetcher.fetch.throws('nope'); // unexpected error while fetching
       await episode.fetchEpisode();
       assert.calledOnceWithExactly(saveStateStub, 'failed', 'nope');
     });
 
-    it('gets mediainfo of the download', async () => {
+    it('Gets mediainfo of the download', async () => {
       await episode.fetchEpisode();
       assert.calledOnceWithExactly(mediainfoStub, 'storagepath', 'saveFileName');
     });
 
-    it('makes a torrent file of the download', async () => {
+    it('Makes a torrent file of the download', async () => {
       await episode.fetchEpisode();
       assert.calledOnceWithExactly(mktorrentStub, episode);
     });
 
-    it('calls AB upload with episode and mediainfo', async () => {
+    it('Calls AB upload with episode and mediainfo', async () => {
       mediainfoStub.resolves('info');
       await episode.fetchEpisode();
       assert.calledOnceWithExactly(uploadStub, episode, 'info');
     });
 
-    it('moves torrent file from temporary to torrents directory', (done) => {
+    it('Moves torrent file from temporary to torrents directory', (done) => {
       episode.fetchEpisode().then(() => {
         readFile('/torrents/saveFileName.torrent', (err, data) => {
           // ensure file moved to final path
@@ -153,7 +153,7 @@ describe('Source', () => {
       });
     });
 
-    it('saves to state', async () => {
+    it('Saves to state', async () => {
       await episode.fetchEpisode();
       assert.calledWithExactly(saveStateStub.getCall(0), 'fetching');
       assert.calledWithExactly(saveStateStub.getCall(1), 'uploading');
@@ -166,7 +166,7 @@ describe('Source', () => {
       sandbox.stub(Config, 'getConfig').returns({ storage_dir: '/dir' } as any);
     });
 
-    it('returns expected path', () => {
+    it('Returns expected path', () => {
       const episode = new Episode();
       episode.saveFileName = 'file.name';
       expect(episode.getStoragePath()).to.equal('/dir/file.name');
@@ -178,7 +178,7 @@ describe('Source', () => {
       sandbox.stub(Config, 'getConfig').returns({ temporary_dir: '/dir' } as any);
     });
 
-    it('returns expected path', () => {
+    it('Returns expected path', () => {
       const episode = new Episode();
       episode.saveFileName = 'file.name';
       expect(episode.getTorrentPath()).to.equal('/dir/file.name.torrent');
@@ -186,13 +186,13 @@ describe('Source', () => {
   });
 
   describe('formattedName', () => {
-    it('uses existing computed formattedName if it exists', () => {
+    it('Uses existing computed formattedName if it exists', () => {
       const episode = new Episode();
       episode.formattedFileName = 'thing';
       expect(episode.formattedName()).to.equal('thing');
     });
 
-    it('formats name as expected', () => {
+    it('Formats name as expected', () => {
       const episode = new Episode();
       episode.episode = 2;
       episode.showName = 'showname';
@@ -203,7 +203,7 @@ describe('Source', () => {
       expect(episode.formattedName()).to.equal('showname - 02 [resolution][groupName].container');
     });
 
-    it('formats name with version if version > 1', () => {
+    it('Formats name with version if version > 1', () => {
       const episode = new Episode();
       episode.episode = 2;
       episode.showName = 'showname';
@@ -214,7 +214,7 @@ describe('Source', () => {
       expect(episode.formattedName()).to.equal('showname - 02v2 [resolution][groupName].container');
     });
 
-    it('formats name with crc if it exists', () => {
+    it('Formats name with crc if it exists', () => {
       const episode = new Episode();
       episode.episode = 2;
       episode.showName = 'showname';
@@ -226,7 +226,7 @@ describe('Source', () => {
       expect(episode.formattedName()).to.equal('showname - 02 [resolution][groupName][crc].container');
     });
 
-    it('saves formatted name for future use', () => {
+    it('Saves formatted name for future use', () => {
       const episode = new Episode();
       episode.episode = 2;
       episode.showName = 'showname';
@@ -247,7 +247,7 @@ describe('Source', () => {
       sandbox.stub(episode, 'formattedName').returns('formattedName');
     });
 
-    it('returns expected key', () => {
+    it('Returns expected key', () => {
       expect(episode.levelDBKey()).to.equal('file::formattedName');
     });
   });
@@ -262,7 +262,7 @@ describe('Source', () => {
       sandbox.stub(episode, 'levelDBKey').returns('dbkey');
     });
 
-    it('calls delete on db', async () => {
+    it('Calls delete on DB', async () => {
       await episode.deleteFromState();
       assert.calledOnceWithExactly(deleteMock, 'dbkey');
     });
@@ -287,13 +287,13 @@ describe('Source', () => {
       clock.restore();
     });
 
-    it('calls DB get to check for existing state', async () => {
+    it('Calls DB get to check for existing state', async () => {
       getMock.resolves({ state: 'thing', created: 'thing' });
       await episode.saveToState('complete');
       assert.calledOnceWithExactly(getMock, 'dbkey');
     });
 
-    it('calls DB put with expected params when no existing state exists', async () => {
+    it('Calls DB put with expected params when no existing state exists', async () => {
       getMock.throws({ type: 'NotFoundError' });
       await episode.saveToState('complete');
       assert.calledOnceWithExactly(putMock, 'dbkey', {
@@ -306,7 +306,7 @@ describe('Source', () => {
       });
     });
 
-    it('calls DB put with expected params when no existing state exists', async () => {
+    it('Calls DB put with expected params when no existing state exists', async () => {
       getMock.resolves({ state: 'oldState', created: 'sometime' });
       await episode.saveToState('complete');
       assert.calledOnceWithExactly(putMock, 'dbkey', {
@@ -321,18 +321,18 @@ describe('Source', () => {
   });
 
   describe('getProgressString', () => {
-    it('returns pending if state is not defined', () => {
+    it('Returns pending if state is not defined', () => {
       const episode = new Episode();
       expect(episode.getProgressString()).to.equal('pending');
     });
 
-    it('returns the state if no fetcher is defined', () => {
+    it('Returns the state if no fetcher is defined', () => {
       const episode = new Episode();
       episode.state = 'uploading';
       expect(episode.getProgressString()).to.equal('uploading');
     });
 
-    it('returns string with with fetch numbers if fetcher is defined', () => {
+    it('Returns string with with fetch numbers if fetcher is defined', () => {
       const episode = new Episode();
       episode.state = 'fetching';
       episode.fetcher = {
@@ -376,7 +376,7 @@ describe('Source', () => {
   });
 
   describe('fromStorageJSON', () => {
-    it('creates an episode with correctly set params from input', () => {
+    it('Creates an episode with correctly set params from input', () => {
       const episode = Episode.fromStorageJSON({
         showName: 'showName',
         episode: 2,

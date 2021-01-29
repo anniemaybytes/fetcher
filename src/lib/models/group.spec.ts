@@ -22,7 +22,7 @@ describe('Group', () => {
       createSourceStub = sandbox.stub(Source, 'createSource');
     });
 
-    it('creates expected groups in static Group storage', () => {
+    it('Creates expected groups in static Group storage', () => {
       Group.loadGroups({
         somegroup: {
           name: 'Some Group',
@@ -34,7 +34,7 @@ describe('Group', () => {
       assert.notCalled(createSourceStub);
     });
 
-    it('creates sources for provided sources in groups', () => {
+    it('Creates sources for provided sources in groups', () => {
       Group.loadGroups({
         somegroup: {
           name: 'Some Group',
@@ -48,7 +48,7 @@ describe('Group', () => {
       assert.calledOnceWithExactly(createSourceStub, 'a', Group.groups.somegroup, 'b', { some: 'options' });
     });
 
-    it('throws an error if source/fetch type are malformed', () => {
+    it('Throws an error if source/fetch type are malformed', () => {
       try {
         Group.loadGroups({
           somegroup: {
@@ -63,10 +63,10 @@ describe('Group', () => {
       } catch (e) {
         return;
       }
-      expect.fail('did not throw');
+      expect.fail('Did not throw');
     });
 
-    it('does not throw if there was an error creating a source', () => {
+    it('Does not throw if there was an error creating a source', () => {
       createSourceStub.throws(new Error('An error'));
       Group.loadGroups({
         somegroup: {
@@ -88,7 +88,7 @@ describe('Group', () => {
       group = new Group('somegroup', { name: 'Some Group', sources: [] });
     });
 
-    it('uses regex of shows to check and return show', () => {
+    it('Uses regex of shows to check and return show', () => {
       group.shows = [
         {
           releasers: {
@@ -101,7 +101,7 @@ describe('Group', () => {
       expect(group.findShow('yes')).to.equal(group.shows[0]);
     });
 
-    it('returns undefined if there are no found matches', () => {
+    it('Returns undefined if there are no found matches', () => {
       group.shows = [
         {
           releasers: {

@@ -34,13 +34,13 @@ describe('mktorrent', () => {
       sandbox.stub(Config, 'getConfig').returns({ tracker_url: 'trackerurl', tracker_source: 'trackersource' } as any);
     });
 
-    it('calls getStoragePath and getTorrentPath on the provided episode', async () => {
+    it('Calls getStoragePath and getTorrentPath on the provided episode', async () => {
       await makeTorrentFile(episodeStub);
       assert.calledOnce(episodeStub.getStoragePath);
       assert.calledOnce(episodeStub.getTorrentPath);
     });
 
-    it('calls execFile with correct params', async () => {
+    it('Calls execFile with correct params', async () => {
       episodeStub.getStoragePath.returns('storagepath');
       episodeStub.getTorrentPath.returns('torrentpath');
       await makeTorrentFile(episodeStub);
@@ -61,7 +61,7 @@ describe('mktorrent', () => {
       ]);
     });
 
-    it('throws on unexpected error', async () => {
+    it('Throws on unexpected error', async () => {
       execStub.yields('thing');
       try {
         await makeTorrentFile(episodeStub);
@@ -69,10 +69,10 @@ describe('mktorrent', () => {
         expect(e).to.equal('thing');
         return;
       }
-      expect.fail('did not throw');
+      expect.fail('Did not throw');
     });
 
-    it('deletes existing torrent file if it exists and retries', async () => {
+    it('Deletes existing torrent file if it exists and retries', async () => {
       execStub.yields({ message: 'file exists' });
       try {
         await makeTorrentFile(episodeStub);
@@ -81,7 +81,7 @@ describe('mktorrent', () => {
         assert.calledTwice(execStub);
         return;
       }
-      expect.fail('did not throw');
+      expect.fail('Did not throw');
     });
   });
 });

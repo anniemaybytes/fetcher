@@ -2,7 +2,7 @@ import { SinonSandbox, createSandbox, assert, SinonStub, useFakeTimers } from 's
 import { expect } from 'chai';
 import proxyquire from 'proxyquire';
 import { EventEmitter } from 'events';
-import { IRCNetwork } from './ircNetwork';
+import { IRCNetwork } from './network';
 
 describe('IRCNetwork', () => {
   let sandbox: SinonSandbox;
@@ -16,7 +16,7 @@ describe('IRCNetwork', () => {
     fakeIRCClient.connect = sandbox.stub();
     fakeIRCClient.say = sandbox.stub();
     fakeIRCClient.join = sandbox.stub();
-    patchedIRCNetwork = proxyquire('./ircNetwork', {
+    patchedIRCNetwork = proxyquire('./network', {
       'irc-framework': { Client: sandbox.stub().returns(fakeIRCClient) },
     }).IRCNetwork;
   });
@@ -26,7 +26,7 @@ describe('IRCNetwork', () => {
   });
 
   describe('constructor', () => {
-    it('sets expected parameters from input', () => {
+    it('Sets expected parameters from input', () => {
       const network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       expect(network.name).to.equal('name');
       expect(network.connectOptions).to.deep.equal({
@@ -41,20 +41,20 @@ describe('IRCNetwork', () => {
       expect(network.bot).to.equal(fakeIRCClient);
     });
 
-    it('calls connect on irc client', () => {
+    it('Calls connect on irc client', () => {
       new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       assert.calledOnce(fakeIRCClient.connect);
     });
   });
 
   describe('listeners', () => {
-    it('does not error on nick in use', (done) => {
+    it('Does not error on nick in use', (done) => {
       new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       fakeIRCClient.emit('nick in use');
       setTimeout(() => done(), 1);
     });
 
-    it('sets registered to false on close', (done) => {
+    it('Sets registered to false on close', (done) => {
       const network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       network.registered = true;
       fakeIRCClient.emit('close');
@@ -64,7 +64,7 @@ describe('IRCNetwork', () => {
       }, 1);
     });
 
-    it('calls postConnect on registered', (done) => {
+    it('Calls postConnect on registered', (done) => {
       const network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       const postConnectStub = sandbox.stub(network, 'postConnect');
       fakeIRCClient.emit('registered');
@@ -85,12 +85,12 @@ describe('IRCNetwork', () => {
       network.previouslyJoinedChannels = new Set();
     });
 
-    it('sets registered to true when no nickserv password defined', async () => {
+    it('Sets registered to true when no NickServ password defined', async () => {
       await network.postConnect();
       expect(network.registered).to.be.true;
     });
 
-    it('sets registered to true after validating nickserv identification if nickserv password defined', (done) => {
+    it('Sets registered to true after validating NickServ identification if nickserv password defined', (done) => {
       network.nickservPassword = 'pass';
       network.postConnect();
       fakeIRCClient.emit('notice', { nick: 'NickServ', message: 'password accepted' });
@@ -101,7 +101,7 @@ describe('IRCNetwork', () => {
       }, 1);
     });
 
-    it('does not set registered to true if nickserv doesnt respond with successful notice', (done) => {
+    it('Does not set registered to true if NickServ doesnt respond with successful notice', (done) => {
       network.nickservPassword = 'pass';
       network.postConnect();
       fakeIRCClient.emit('notice', { nick: 'NickServ', message: 'password denied' });
@@ -112,14 +112,14 @@ describe('IRCNetwork', () => {
       }, 1);
     });
 
-    it('attempts to join previous channels if they exist', async () => {
+    it('Attempts to join previous channels if they exist', async () => {
       const joinStub = sandbox.stub(network, 'joinRoom');
       network.previouslyJoinedChannels.add('chan');
       await network.postConnect();
       assert.calledOnceWithExactly(joinStub, 'chan');
     });
 
-    it('does not throw if rejoining channel fails', async () => {
+    it('Does not throw if rejoining channel fails', async () => {
       const joinStub = sandbox.stub(network, 'joinRoom').throws('broken');
       network.previouslyJoinedChannels.add('chan');
       await network.postConnect();
@@ -128,7 +128,7 @@ describe('IRCNetwork', () => {
   });
 
   describe('waitUntilRegistered', () => {
-    it('returns if network is registered', async () => {
+    it('Returns if network is registered', async () => {
       const network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       network.registered = true;
       await network.waitUntilRegistered();
@@ -149,13 +149,13 @@ describe('IRCNetwork', () => {
       if (clock) clock.restore();
     });
 
-    it('does nothing if channel is already in joinedChannels list', async () => {
+    it('Does nothing if channel is already in joinedChannels list', async () => {
       network.joinedChannels = ['chan'];
       await network.joinRoom('chan');
       assert.notCalled(fakeIRCClient.join);
     });
 
-    it('resolves and adds chan to join lists if userlist event for channnel is receieved', (done) => {
+    it('Resolves and adds chan to join lists if userlist event for channnel is receieved', (done) => {
       network.joinRoom('chan').then(() => {
         expect(network.joinedChannels).to.deep.equal(['chan']);
         expect(network.previouslyJoinedChannels.has('chan')).to.be.true;
@@ -164,7 +164,7 @@ describe('IRCNetwork', () => {
       fakeIRCClient.emit('userlist', { channel: 'chan' });
     });
 
-    it('throws error if joining room times out', (done) => {
+    it('Throws error if joining room times out', (done) => {
       clock = useFakeTimers({ shouldAdvanceTime: true });
       network.joinRoom('chan').catch((err) => {
         expect(String(err)).to.equal('Error: Unable to join IRC channel chan on name');
@@ -183,12 +183,12 @@ describe('IRCNetwork', () => {
       network.shuttingDown = false;
     });
 
-    it('calls irc client say with expected params', () => {
+    it('Calls irc client say with expected params', () => {
       network.message('chan', 'message');
       assert.calledOnceWithExactly(fakeIRCClient.say, 'chan', 'message');
     });
 
-    it('calls irc client say once for each line in message', () => {
+    it('Calls irc client say once for each line in message', () => {
       network.message('chan', 'message\nwith\nlines');
       assert.calledThrice(fakeIRCClient.say);
       assert.calledWithExactly(fakeIRCClient.say.getCall(0), 'chan', 'message');
@@ -206,19 +206,19 @@ describe('IRCNetwork', () => {
       joinStub = sandbox.stub(network, 'joinRoom');
     });
 
-    it('attempts to join channel provided', async () => {
+    it('Attempts to join channel provided', async () => {
       await network.addChannelWatcher('chan', () => {});
       assert.calledOnceWithExactly(joinStub, 'chan');
     });
 
-    it('sets up listener on irc client', async () => {
+    it('Sets up listener on IRC client', async () => {
       fakeIRCClient.on = sandbox.stub();
       await network.addChannelWatcher('chan', () => {});
       assert.calledOnce(fakeIRCClient.on);
       expect(fakeIRCClient.on.getCall(0).args[0]).to.equal('privmsg');
     });
 
-    it('calls provided callback when matching message for channel is emitted', (done) => {
+    it('Calls provided callback when matching message for channel is emitted', (done) => {
       network
         .addChannelWatcher('chan', () => {
           done();
@@ -230,7 +230,7 @@ describe('IRCNetwork', () => {
   });
 
   describe('disconnect', () => {
-    it('sets appropriate parameters and calls irc client quit', () => {
+    it('Sets appropriate parameters and calls irc client quit', () => {
       const network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       fakeIRCClient.quit = sandbox.stub(); // reset stub because it calls quit on creation once
       network.disconnect();

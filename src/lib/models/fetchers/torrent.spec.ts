@@ -4,7 +4,7 @@ import { readFile } from 'fs';
 import mock from 'mock-fs';
 import { EventEmitter } from 'events';
 import { Config } from '../../clients/config';
-import { TorrentFetcher } from './torrentFetcher';
+import { TorrentFetcher } from './torrent';
 
 describe('TorrentFetcher', () => {
   let sandbox: SinonSandbox;
@@ -25,7 +25,7 @@ describe('TorrentFetcher', () => {
   });
 
   describe('constructor', () => {
-    it('assigns relevant parameters', () => {
+    it('Assigns relevant parameters', () => {
       const fetcher = new TorrentFetcher('path', { uri: 'thing' });
       expect(fetcher.uri).to.equal('thing');
       expect(fetcher.path).to.equal('path');
@@ -33,7 +33,7 @@ describe('TorrentFetcher', () => {
   });
 
   describe('shutdown', () => {
-    it('calls destroy on client', (done) => {
+    it('Calls destroy on client', (done) => {
       TorrentFetcher.shutdown().then(() => {
         assert.calledOnce(fakeClient.destroy);
         done();
@@ -66,7 +66,7 @@ describe('TorrentFetcher', () => {
       mock.restore();
     });
 
-    it('calls client add with correct params', (done) => {
+    it('Calls client add with correct params', (done) => {
       fetcher.fetch().then(() => {
         assert.calledOnceWithExactly(fakeClient.add, 'torrentURI', { path: '/test' });
         done();
@@ -75,7 +75,7 @@ describe('TorrentFetcher', () => {
       fakeTorrent.emit('done');
     });
 
-    it('updates fetched on the fetcher with download event', (done) => {
+    it('Updates fetched on the fetcher with download event', (done) => {
       fakeTorrent.downloaded = 12;
       fetcher.fetch().then(() => {
         expect(fetcher.fetched).to.equal(12);
@@ -86,7 +86,7 @@ describe('TorrentFetcher', () => {
       fakeTorrent.emit('done');
     });
 
-    it('pauses, destroys, and moves torrent upon completion', (done) => {
+    it('Pauses, destroys, and moves torrent upon completion', (done) => {
       fetcher.fetch().then(() => {
         assert.calledOnce(fakeTorrent.pause);
         assert.calledOnce(fakeTorrent.destroy);
@@ -101,7 +101,7 @@ describe('TorrentFetcher', () => {
       fakeTorrent.emit('done');
     });
 
-    it('throws on torrent error', (done) => {
+    it('Throws on torrent error', (done) => {
       fetcher.fetch().catch((err) => {
         expect(err).to.equal('broken');
         done();
@@ -110,7 +110,7 @@ describe('TorrentFetcher', () => {
       fakeTorrent.emit('error', 'broken');
     });
 
-    it('throws on noPeers after timeout', (done) => {
+    it('Throws on noPeers after timeout', (done) => {
       fakeTorrent.numPeers = 0;
       fakeTorrent.progress = 0.5;
       clock = useFakeTimers();
@@ -124,7 +124,7 @@ describe('TorrentFetcher', () => {
       fakeTorrent.emit('noPeers');
     });
 
-    it('throws if torrent has more than 1 file', (done) => {
+    it('Throws if torrent has more than 1 file', (done) => {
       fakeTorrent.files = ['more', 'than', 'one'];
       fetcher.fetch().catch((err) => {
         assert.calledOnce(fakeTorrent.destroy);
@@ -134,7 +134,7 @@ describe('TorrentFetcher', () => {
       fakeTorrent.emit('ready');
     });
 
-    it('throws if fetching metadata takes too long', (done) => {
+    it('Throws if fetching metadata takes too long', (done) => {
       clock = useFakeTimers();
       fetcher.fetch().catch((err) => {
         assert.calledOnce(fakeTorrent.destroy);
@@ -152,12 +152,12 @@ describe('TorrentFetcher', () => {
       fetcher = new TorrentFetcher('/finalPath', { uri: 'torrentURI' });
     });
 
-    it('sets aborted on the fetcher', async () => {
+    it('Sets aborted on the fetcher', async () => {
       await fetcher.abortFetch();
       expect(fetcher.aborted).to.be.true;
     });
 
-    it('calls abort function if it exists', async () => {
+    it('Calls abort function if it exists', async () => {
       fetcher.abort = sandbox.stub() as any;
       await fetcher.abortFetch();
       assert.calledOnce(fetcher.abort as any);

@@ -1,7 +1,7 @@
 import path from 'path';
 import { Config } from '../clients/config';
 import { LevelDB } from '../clients/leveldb';
-import { IRCManager } from '../clients/irc/ircManager';
+import { IRCManager } from '../clients/irc/manager';
 import { AnimeBytes } from '../clients/animebytes';
 import { getMediaInfo } from '../clients/mediainfo';
 import { makeTorrentFile } from '../clients/mktorrent';

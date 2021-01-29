@@ -15,23 +15,23 @@ describe('Fetcher', () => {
   });
 
   describe('registerFetcherType', () => {
-    it('adds a static fetcher type', () => {
+    it('Adds a static fetcher type', () => {
       Fetcher.registerFetcherType('thing', 'something');
       expect(Fetcher.registered.thing).to.equal('something');
     });
   });
 
   describe('createFetcher', () => {
-    it('throws an error when trying to create an invalid type', () => {
+    it('Throws an error when trying to create an invalid type', () => {
       try {
         Fetcher.createFetcher('badtype', 'abc', {});
       } catch (e) {
         return;
       }
-      expect.fail('did not throw');
+      expect.fail('Did not throw');
     });
 
-    it('uses registered static fetcher', () => {
+    it('Uses registered static fetcher', () => {
       Fetcher.registered.test = sandbox.stub();
       Fetcher.createFetcher('test', 'abc', {});
       assert.calledOnceWithExactly(Fetcher.registered.test, 'abc', {});

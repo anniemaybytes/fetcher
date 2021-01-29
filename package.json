@@ -35,7 +35,7 @@
     "source-map-support": "0.5.19",
     "tough-cookie": "4.0.0",
     "tslib": "2.1.0",
-    "webtorrent": "0.112.1"
+    "webtorrent": "0.112.2"
   },
   "devDependencies": {
     "@types/chai": "4.2.14",
