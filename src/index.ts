@@ -9,10 +9,10 @@ import { startWebserver, stopWebserver } from './lib/webserver/server';
 import { Reloader } from './lib/reloader';
 import { getLogger } from './lib/logger';
 // Must be imported to initialize properly
-import './lib/models/sources/ircSource';
-import './lib/models/sources/rssSource';
-import './lib/models/fetchers/httpFetcher';
-import './lib/models/fetchers/torrentFetcher';
+import './lib/models/sources/irc';
+import './lib/models/sources/rss';
+import './lib/models/fetchers/http';
+import './lib/models/fetchers/torrent';
 const logger = getLogger('main');
 
 async function main() {
