@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v3.4.0
+### Changed
+- Remove deprecated use of URL library
+
 ## v3.3.1
 ### Fixed
 - 4-digit episodes not being parsed correctly
