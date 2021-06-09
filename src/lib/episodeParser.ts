@@ -135,7 +135,7 @@ export function parseWantedEpisode(filename: string, fetchOptions: FetchOptions,
   if (episode.version && episode.version > 9) episode.version = 1;
   if (!episode.episode || !(episode.version >= 0)) {
     const episodeParse = { episode: episode.episode, version: episode.version };
-    warn(`Release has invalid episode or version. Got ${JSON.stringify(episodeParse)}: ${originalFilename}`);
+    warn(`Release has invalid episode or version, got ${JSON.stringify(episodeParse)}: ${originalFilename}`);
     unparseableCache[originalFilename] = true;
     return undefined;
   }

@@ -1,27 +1,44 @@
 {
-  "extends": ["config:base"],
-  "labels": ["kind/deps"],
+  "extends": [
+    "config:base",
+    "docker:disableMajor"
+  ],
+  "labels": [
+    "kind/deps"
+  ],
   "vulnerabilityAlerts": {
-    "labels": ["kind/security"]
+    "labels": [
+      "kind/security"
+    ]
   },
   "stabilityDays": 1,
-  "semanticCommits": false,
+  "semanticCommits": "disabled",
   "ignorePaths": [],
   "ignoreDeps": [],
   "lockFileMaintenance": {
     "enabled": true,
-    "schedule": ["before 3am on tuesday"]
+    "schedule": [
+      "before 3am on tuesday"
+    ]
   },
   "node": {
-    "supportPolicy": ["lts_latest"]
+    "supportPolicy": [
+      "lts_latest"
+    ]
   },
   "packageRules": [
     {
-      "depTypeList": ["devDependencies"],
-      "extends": ["schedule:weekends"]
+      "matchDepTypes": [
+        "devDependencies"
+      ],
+      "extends": [
+        "schedule:weekends"
+      ]
     },
     {
-      "packagePatterns": ["^@types/"],
+      "matchPackagePatterns": [
+        "^@types/"
+      ],
       "groupName": "type definitions"
     }
   ]
