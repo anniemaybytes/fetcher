@@ -5,7 +5,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
-// https://github.com/webpack/loader-utils/issues/121
 const hashDigestLength = 10;
 
 // noinspection JSUnresolvedVariable,JSValidateTypes
@@ -43,18 +42,6 @@ module.exports = {
             loader: 'postcss-loader',
             options: {
               sourceMap: true,
-            },
-          },
-        ],
-      },
-      {
-        test: /\.(png|jpe?g|gif|svg)$/i,
-        use: [
-          {
-            loader: 'file-loader',
-            options: {
-              outputPath: 'common',
-              name: `[name].[contenthash:hex:${hashDigestLength}].[ext]`,
             },
           },
         ],
