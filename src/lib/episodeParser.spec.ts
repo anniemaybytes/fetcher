@@ -2,7 +2,7 @@ import { SinonSandbox, createSandbox, assert } from 'sinon';
 import { expect } from 'chai';
 import * as episodeParser from './episodeParser';
 
-describe('episodeParser', () => {
+describe('EpisodeParser', () => {
   let sandbox: SinonSandbox;
 
   beforeEach(() => {

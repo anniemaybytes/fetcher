@@ -4,7 +4,7 @@ import { Episode } from '../models/episode';
 import { Config } from './config';
 import { AnimeBytes } from './animebytes';
 
-describe('animebytes', () => {
+describe('AnimeBytes', () => {
   let sandbox: SinonSandbox;
 
   beforeEach(() => {

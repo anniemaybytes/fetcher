@@ -84,7 +84,7 @@ describe('IRCManager', () => {
       IRCManager.networks.networkKey = fakeNetwork;
     });
 
-    it('Calls addChannelWatcher on proper irc network', async () => {
+    it('Calls addChannelWatcher on proper network', async () => {
       await IRCManager.addChannelWatcher('networkKey', 'chan', 'fakeCallback' as any);
       assert.calledOnceWithExactly(fakeNetwork.addChannelWatcher, 'chan', 'fakeCallback');
     });

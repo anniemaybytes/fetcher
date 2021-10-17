@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { Config } from './config';
 import proxyquire from 'proxyquire';
 
-describe('mktorrent', () => {
+describe('MkTorrent', () => {
   let sandbox: SinonSandbox;
 
   beforeEach(() => {

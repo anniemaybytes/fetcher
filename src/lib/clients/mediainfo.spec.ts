@@ -2,7 +2,7 @@ import { createSandbox, SinonSandbox } from 'sinon';
 import { expect } from 'chai';
 import * as mediainfo from './mediainfo';
 
-describe('mediainfo', () => {
+describe('MediaInfo', () => {
   let sandbox: SinonSandbox;
 
   beforeEach(() => {
@@ -25,7 +25,7 @@ describe('mediainfo', () => {
     });
 
     describe('video', () => {
-      it('Changes mpeg video to MPEG-2', () => {
+      it('Changes MPEG video to MPEG-2', () => {
         const result = mediainfo.parseMediaInfoJSON({ media: { track: [{ '@type': 'Video', Format: 'MPEG video' }] } });
         expect(result.codec).to.equal('MPEG-2');
       });
@@ -33,7 +33,7 @@ describe('mediainfo', () => {
         const result = mediainfo.parseMediaInfoJSON({ media: { track: [{ '@type': 'Video', Format: 'xvid' }] } });
         expect(result.codec).to.equal('XviD');
       });
-      it('Changes divx types to DivX', () => {
+      it('Changes divx/div3/dx50 to DivX', () => {
         const result1 = mediainfo.parseMediaInfoJSON({ media: { track: [{ '@type': 'Video', Format: 'div3' }] } });
         const result2 = mediainfo.parseMediaInfoJSON({ media: { track: [{ '@type': 'Video', Format: 'divx' }] } });
         const result3 = mediainfo.parseMediaInfoJSON({ media: { track: [{ '@type': 'Video', Format: 'dx50' }] } });
@@ -63,7 +63,7 @@ describe('mediainfo', () => {
       });
     });
     describe('audio', () => {
-      it('Changes mpeg audio to MP3', () => {
+      it('Changes MPEG audio to MP3', () => {
         const result = mediainfo.parseMediaInfoJSON({ media: { track: [{ '@type': 'Audio', Format: 'MPEG audio' }] } });
         expect(result.audio).to.equal('MP3');
       });

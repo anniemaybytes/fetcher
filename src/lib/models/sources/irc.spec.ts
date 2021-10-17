@@ -32,7 +32,7 @@ describe('IRCSource', () => {
       expect(ircSource.matchers[0].matchNames).to.deep.equal(['file', 'link']);
     });
 
-    it('Checks if irc network exists', () => {
+    it('Checks if network exists', () => {
       new IRCSource({} as any, 'http', {
         network: 'network',
         channels: ['channel'],

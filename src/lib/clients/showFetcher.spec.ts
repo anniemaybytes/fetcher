@@ -6,7 +6,7 @@ import { ShowsReleasersFetcher } from './showFetcher';
 import { promises as fs } from 'fs';
 import mock from 'mock-fs';
 
-describe('showFetcher', () => {
+describe('ShowFetcher', () => {
   let sandbox: SinonSandbox;
 
   beforeEach(() => {

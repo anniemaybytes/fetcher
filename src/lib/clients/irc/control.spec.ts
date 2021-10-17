@@ -32,14 +32,14 @@ describe('IRCControl', () => {
       assert.notCalled(fakeEvent.reply);
     });
 
-    it('Reloads shows.json and replies if !reload', () => {
+    it('Reloads shows.json and replies om !reload', () => {
       fakeEvent.message = '!reload';
       ircControl.handleControlMessage(fakeEvent);
       assert.calledOnce(reloadStub);
       assert.calledOnce(fakeEvent.reply);
     });
 
-    it('Refreshes sources and replies if !fetch', () => {
+    it('Refreshes sources and replies om !fetch', () => {
       fakeEvent.message = '!fetch';
       ircControl.handleControlMessage(fakeEvent);
       assert.calledOnce(refreshStub);

@@ -41,7 +41,7 @@ describe('IRCNetwork', () => {
       expect(network.bot).to.equal(fakeIRCClient);
     });
 
-    it('Calls connect on irc client', () => {
+    it('Calls connect on IRCClient', () => {
       new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       assert.calledOnce(fakeIRCClient.connect);
     });
@@ -211,7 +211,7 @@ describe('IRCNetwork', () => {
       assert.calledOnceWithExactly(joinStub, 'chan');
     });
 
-    it('Sets up listener on IRC client', async () => {
+    it('Sets up listener on IRCClient', async () => {
       fakeIRCClient.on = sandbox.stub();
       await network.addChannelWatcher('chan', () => {});
       assert.calledOnce(fakeIRCClient.on);
@@ -230,7 +230,7 @@ describe('IRCNetwork', () => {
   });
 
   describe('disconnect', () => {
-    it('Sets appropriate parameters and calls irc client quit', () => {
+    it('Sets appropriate parameters and calls IRCClient quit', () => {
       const network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       fakeIRCClient.quit = sandbox.stub(); // reset stub because it calls quit on creation once
       network.disconnect();

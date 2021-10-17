@@ -2,7 +2,7 @@ import { SinonSandbox, createSandbox } from 'sinon';
 import { expect } from 'chai';
 import * as utils from './utils';
 
-describe('utils', () => {
+describe('Utils', () => {
   let sandbox: SinonSandbox;
 
   beforeEach(() => {

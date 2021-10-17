@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import { Config } from './config';
 import mock from 'mock-fs';
 
-describe('config', () => {
+describe('Config', () => {
   let sandbox: SinonSandbox;
 
   beforeEach(() => {

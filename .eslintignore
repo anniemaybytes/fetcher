@@ -1,4 +1,8 @@
-# Built TS
+webpack.config.js
+postcss.config.js
+
+# built artifacts
 dist/
 
-**/*.js
+# package managers
+node_modules
