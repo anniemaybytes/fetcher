@@ -40,7 +40,10 @@ export class Reloader {
     // Ensure only one active timer for this function
     if (Reloader.currentRefreshTimer) clearTimeout(Reloader.currentRefreshTimer);
     // If currently reloading sources, check back in 15 seconds
-    if (Reloader.currentlyReloading) return (Reloader.currentRefreshTimer = setTimeout(Reloader.refreshSources, 15000));
+    if (Reloader.currentlyReloading) {
+      Reloader.currentRefreshTimer = setTimeout(Reloader.refreshSources, 15000);
+      return;
+    }
     logger.debug('Starting sources refresh');
     try {
       for (const source of Source.activeSources) {
@@ -56,7 +59,7 @@ export class Reloader {
     logger.debug('Sources refresh complete');
     // clear (if necessary) and set new timeout as atomically as possible
     if (Reloader.currentRefreshTimer) clearTimeout(Reloader.currentRefreshTimer);
-    return (Reloader.currentRefreshTimer = setTimeout(Reloader.refreshSources, sourcesRefreshPeriod));
+    Reloader.currentRefreshTimer = setTimeout(Reloader.refreshSources, sourcesRefreshPeriod);
   }
 
   public static async startRefreshAndReloads() {

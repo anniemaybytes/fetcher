@@ -40,6 +40,13 @@
         "^@types/"
       ],
       "groupName": "type definitions"
+    },
+    {
+      "matchPackageNames": [
+        "stylelint",
+        "stylelint-config-standard"
+      ],
+      "groupName": "stylelint monorepo"
     }
   ]
 }

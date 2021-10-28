@@ -5,7 +5,7 @@ type: docker
 
 steps:
     -   name: linter
-        image: node:14-alpine3.13
+        image: node:16-alpine3.13
         pull: always
         commands:
             - yarn --frozen-lockfile --non-interactive
@@ -24,7 +24,7 @@ type: docker
 
 steps:
     -   name: tests
-        image: node:14-alpine3.13
+        image: node:16-alpine3.13
         pull: always
         commands:
             - yarn --frozen-lockfile --non-interactive

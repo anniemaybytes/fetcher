@@ -6,7 +6,6 @@ const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 
 const hashDigestLength = 10;
 
-// noinspection JSUnresolvedVariable,JSValidateTypes
 module.exports = {
   mode: 'production',
   context: path.resolve(__dirname, 'src'),

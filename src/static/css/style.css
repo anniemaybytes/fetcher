@@ -3,7 +3,16 @@ body {
   margin: 0;
   padding: 0;
   color: #323b43;
-  font-family: "Source Sans Pro", "ヒラギノ角ゴ Pro W3", "Hiragino Kaku Gothic Pro", Osaka, "メイリオ", Meiryo, "ＭＳ Ｐゴシック", "MS PGothic", sans-serif;
+  font-family:
+    "Source Sans Pro",
+    "ヒラギノ角ゴ Pro W3",
+    "Hiragino Kaku Gothic Pro",
+    Osaka,
+    "メイリオ",
+    Meiryo,
+    "ＭＳ Ｐゴシック",
+    "MS PGothic",
+    sans-serif;
 }
 
 a {
@@ -22,7 +31,7 @@ a {
 h1,
 h2,
 h3 {
-  margin: 1em 0 0.2em 0;
+  margin: 1em 0 0.2em;
 }
 
 nav {
@@ -80,7 +89,7 @@ table td {
 
 .breadcrumb li::after {
   color: #59626a;
-  content: '/';
+  content: "/";
   position: relative;
   left: 0.4em;
 }
@@ -88,9 +97,9 @@ table td {
 .json {
   background-color: #f0f0f0;
   border: 1px solid #d5d5d5;
-  padding: 0 10px 0 10px;
+  padding: 0 10px;
   width: 95%;
-  margin: 10px auto 0 auto;
+  margin: 10px auto 0;
 }
 
 .json pre {
@@ -99,7 +108,6 @@ table td {
   font-family: Consolas, monospace;
   font-size: 13px;
   line-height: 1.42em;
-  -webkit-user-select: all;
   user-select: all;
 }
 

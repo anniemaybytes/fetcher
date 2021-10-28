@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v4.0.0
+### Changed
+- Bumped minimum supported Node version to v16.13.0
+- Bumped TypeScript target to ES2021
+
 ## v3.4.1
 ### Changed
 - Force usage of Alpine 3.13 in Dockerfile

@@ -1,3 +1,4 @@
+// noinspection JSValidateTypes
 module.exports = {
   plugins: [
     require('cssnano')({
