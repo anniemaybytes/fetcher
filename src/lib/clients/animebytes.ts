@@ -11,7 +11,7 @@ const logger = getLogger('AnimeBytesClient');
 const abLoginURL = 'https://animebytes.tv/user/login';
 const abUploadURL = 'https://animebytes.tv/upload.php';
 
-const REQUEST_TIMEOUT_MS = 30000;
+const REQUEST_TIMEOUT_MS = 1000 * 30; // 30 seconds
 
 export class AnimeBytes {
   public static username: string;
@@ -19,7 +19,14 @@ export class AnimeBytes {
   public static shows_uri: string;
   // Only public for testing purposes
   public static cookieJar = new CookieJar();
-  public static got = got.extend({ cookieJar: AnimeBytes.cookieJar, followRedirect: false, throwHttpErrors: false, timeout: REQUEST_TIMEOUT_MS });
+  public static got = got.extend({
+    headers: { 'User-Agent': 'fetcher/2.0 (got [AnimeBytes])' },
+    cookieJar: AnimeBytes.cookieJar,
+    followRedirect: false,
+    throwHttpErrors: false,
+    timeout: REQUEST_TIMEOUT_MS,
+    retry: 0,
+  });
 
   public static async initialize() {
     const { tracker_user, tracker_pass, shows_uri } = Config.getConfig();

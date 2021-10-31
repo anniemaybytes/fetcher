@@ -18,7 +18,7 @@ export class RSSSource extends Source {
 
   public async fetch() {
     try {
-      const parser = new Parser();
+      const parser = new Parser({ headers: { 'User-Agent': 'fetcher/2.0 (rss-parser [RSSSource])' } });
       const feed = await parser.parseURL(this.url);
 
       feed.items?.forEach((item) => {

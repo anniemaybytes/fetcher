@@ -7,7 +7,10 @@ import { Config } from '../../clients/config';
 import { HTTPFetchOptions } from '../../../types';
 
 export class HTTPFetcher extends Fetcher {
-  public static got = got; // For testing purposes
+  public static got = got.extend({
+    headers: { 'User-Agent': 'fetcher/2.0 (got [HTTPFetcher])' },
+    retry: 0,
+  }); // Only exported for testing purposes
   url: string;
   abort?: () => void;
 
