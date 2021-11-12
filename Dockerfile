@@ -1,4 +1,4 @@
-FROM node:16-alpine3.13 AS base
+FROM node:16-alpine AS base
 WORKDIR /app
 RUN apk --no-cache add ca-certificates mktorrent mediainfo
 
