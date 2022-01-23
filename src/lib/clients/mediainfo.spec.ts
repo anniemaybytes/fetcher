@@ -18,7 +18,7 @@ describe('MediaInfo', () => {
       try {
         mediainfo.parseMediaInfoJSON([{ media: {} }, { media: {} }]);
       } catch (e) {
-        expect(String(e)).to.equal('Error: non-singular number of files 2');
+        expect(String(e)).to.equal('Error: Non-singular number of files 2');
         return;
       }
       expect.fail('Did not throw');

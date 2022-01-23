@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v4.1.1
+### Fixed
+- Parse only first (any) video and (valid) audio stream from MediaInfo
+
 ## v4.1.0
 ### Changed
 - Use specific User-Agent
@@ -64,7 +68,6 @@ processing episode
 - Missing audio channel mapping `{ 8: 7.1 }`
 
 ## v2.5.2
-
 No changes; updated dependencies
 
 ## v2.5.1

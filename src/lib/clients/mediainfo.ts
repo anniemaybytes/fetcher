@@ -25,15 +25,17 @@ const audioChannelsMap = {
 
 // Exported for testing purposes only
 export function parseMediaInfoJSON(mediaInfoJSON: any) {
-  if (Array.isArray(mediaInfoJSON)) throw new Error('non-singular number of files ' + mediaInfoJSON.length);
+  if (Array.isArray(mediaInfoJSON)) throw new Error('Non-singular number of files ' + mediaInfoJSON.length);
   let audio = '';
   let audiochannels = '';
   let codec = '';
   mediaInfoJSON.media.track.forEach((track: any) => {
     if (track['@type'] === 'Video') {
-      codec = track.Format;
-      const codecLower = codec.toLowerCase();
+      if (codec) return; // handle first video stream only
 
+      codec = track.Format;
+
+      const codecLower = codec.toLowerCase();
       if (codecLower === 'mpeg video') codec = 'MPEG-2';
       else if (codecLower === 'xvid') codec = 'XviD';
       else if (codecLower === 'x264') codec = 'h264';
@@ -43,13 +45,14 @@ export function parseMediaInfoJSON(mediaInfoJSON: any) {
 
       if (track.BitDepth === '10' && (codec === 'h264' || codec === 'h265')) codec += ' 10-bit';
     } else if (track['@type'] === 'Audio') {
-      audio = track.Format;
-      const audioLower = audio.toLowerCase();
+      if (audio && audiochannels) return; // handle first audio stream that can be fully parsed
 
+      audio = track.Format;
+      audiochannels = audioChannelsMap[track.Channels] || '';
+
+      const audioLower = audio.toLowerCase();
       if (audioLower === 'mpeg audio') audio = 'MP3';
       else if (audioLower.includes('ac-3')) audio = 'AC3';
-
-      audiochannels = audioChannelsMap[track.Channels] || '';
     }
   });
   if (!audio || !audiochannels) logger.warn(`MediaInfo couldn't parse audio information for ${mediaInfoJSON.media['@ref']}`);
