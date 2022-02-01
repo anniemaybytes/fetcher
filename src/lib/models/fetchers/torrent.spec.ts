@@ -3,8 +3,9 @@ import { expect } from 'chai';
 import { readFile } from 'fs';
 import mock from 'mock-fs';
 import { EventEmitter } from 'events';
-import { Config } from '../../clients/config';
-import { TorrentFetcher } from './torrent';
+
+import { Config } from '../../clients/config.js';
+import { TorrentFetcher } from './torrent.js';
 
 describe('TorrentFetcher', () => {
   let sandbox: SinonSandbox;
@@ -34,7 +35,7 @@ describe('TorrentFetcher', () => {
 
   describe('shutdown', () => {
     it('Calls destroy on client', (done) => {
-      TorrentFetcher.shutdown().then(() => {
+      TorrentFetcher.shutDown().then(() => {
         assert.calledOnce(fakeClient.destroy);
         done();
       });

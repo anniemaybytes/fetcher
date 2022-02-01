@@ -31,7 +31,7 @@ export interface ConfigFile {
   };
 }
 
-export interface MediaInfo {
+export interface MediaInfoInfo {
   text: string;
   audio: string;
   audiochannels: string;

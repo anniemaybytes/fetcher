@@ -2,51 +2,54 @@ import { createReadStream } from 'fs';
 import got from 'got';
 import { CookieJar } from 'tough-cookie';
 import FormData from 'form-data';
-import { Config } from './config';
-import { Episode } from '../models/episode';
-import { MediaInfo } from '../../types';
-import { getLogger } from '../logger';
-const logger = getLogger('AnimeBytesClient');
+
+import { Config } from './config.js';
+import { Episode } from '../models/episode.js';
+import { MediaInfoInfo } from '../../types.js';
+
+import { Logger } from '../logger.js';
+const logger = Logger.get('ABClient');
 
 const abLoginURL = 'https://animebytes.tv/user/login';
 const abUploadURL = 'https://animebytes.tv/upload.php';
 
 const REQUEST_TIMEOUT_MS = 1000 * 30; // 30 seconds
 
-export class AnimeBytes {
+export class ABClient {
   public static username: string;
   public static password: string;
   public static shows_uri: string;
+
   // Only public for testing purposes
   public static cookieJar = new CookieJar();
   public static got = got.extend({
     headers: { 'User-Agent': 'fetcher/2.0 (got [AnimeBytes])' },
-    cookieJar: AnimeBytes.cookieJar,
+    cookieJar: ABClient.cookieJar,
     followRedirect: false,
     throwHttpErrors: false,
-    timeout: REQUEST_TIMEOUT_MS,
-    retry: 0,
+    timeout: { request: REQUEST_TIMEOUT_MS },
+    retry: { limit: 0 },
   });
 
   public static async initialize() {
     const { tracker_user, tracker_pass, shows_uri } = Config.getConfig();
-    AnimeBytes.username = tracker_user;
-    AnimeBytes.password = tracker_pass;
-    AnimeBytes.shows_uri = shows_uri;
+    ABClient.username = tracker_user;
+    ABClient.password = tracker_pass;
+    ABClient.shows_uri = shows_uri;
   }
 
   public static async ensureLoggedIn() {
-    const response = await AnimeBytes.got(abLoginURL, { responseType: 'text' });
+    const response = await ABClient.got(abLoginURL, { responseType: 'text' });
     // Already authenticated if we receieve a 303 from the login page
     if (response.statusCode !== 303) {
       if (response.statusCode !== 200) throw new Error(`HTTP status ${response.statusCode} when checking login page`);
-      logger.info(`Logging into AnimeBytes with user ${AnimeBytes.username}`);
+      logger.info(`Logging into AnimeBytes with user ${ABClient.username}`);
       // Perform actual login request
-      const loginResponse = await AnimeBytes.got(abLoginURL, {
+      const loginResponse = await ABClient.got(abLoginURL, {
         method: 'POST',
         form: {
-          username: AnimeBytes.username,
-          password: AnimeBytes.password,
+          username: ABClient.username,
+          password: ABClient.password,
           keeplogged: 'on',
           _CSRF_INDEX: response.body.match(/_CSRF_INDEX"\s+value="(.*)"\s\/></)?.[1],
           _CSRF_TOKEN: response.body.match(/_CSRF_TOKEN"\s+value="(.*)"\s\/>/)?.[1],
@@ -55,11 +58,11 @@ export class AnimeBytes {
       if (loginResponse.statusCode !== 303) throw new Error(`HTTP status ${loginResponse.statusCode} when logging in`);
     }
     // Check that we can access upload page properly
-    const uploadPageResponse = await AnimeBytes.got(abUploadURL);
+    const uploadPageResponse = await ABClient.got(abUploadURL);
     if (uploadPageResponse.statusCode !== 200) throw new Error(`HTTP status ${uploadPageResponse.statusCode} when checking for upload ability`);
   }
 
-  public static async upload(episode: Episode, mediaInfo: MediaInfo) {
+  public static async upload(episode: Episode, mediaInfo: MediaInfoInfo) {
     if (!episode.groupID) throw new Error('Cannot upload without groupID');
     const formData = {
       groupid: episode.groupID,
@@ -84,13 +87,13 @@ export class AnimeBytes {
       mediainfo_desc: mediaInfo.text,
     };
     logger.info(`Uploading: ${episode.formattedName()} torrent to AnimeBytes`);
-    await AnimeBytes.ensureLoggedIn();
+    await ABClient.ensureLoggedIn();
     const requestBody = new FormData();
     Object.entries(formData).forEach(([key, value]) => requestBody.append(key, value));
-    const response = await AnimeBytes.got(`${abUploadURL}?type=anime&groupid=${episode.groupID}`, {
+    const response = await ABClient.got(`${abUploadURL}?type=anime&groupid=${episode.groupID}`, {
       method: 'POST',
       body: requestBody,
-      retry: 0,
+      retry: { limit: 0 },
       responseType: 'text',
     });
     // Check result
@@ -112,8 +115,8 @@ export class AnimeBytes {
 
   // Returns raw buffer of the return body so it can be properly hashed and written to disk without modification
   public static async getShows() {
-    await AnimeBytes.ensureLoggedIn();
-    const response = await AnimeBytes.got(AnimeBytes.shows_uri, { responseType: 'buffer' });
+    await ABClient.ensureLoggedIn();
+    const response = await ABClient.got(ABClient.shows_uri, { responseType: 'buffer' });
     if (response.statusCode !== 200) throw new Error(`Show fetch failed HTTP status ${response.statusCode}`);
     return response.body;
   }

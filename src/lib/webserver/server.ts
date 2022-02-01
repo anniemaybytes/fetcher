@@ -1,26 +1,30 @@
 import express from 'express';
-import { Config } from '../clients/config';
-import { routeViews } from './views';
-import { routeAPI } from './api';
-import { getLogger } from '../logger';
-const logger = getLogger('Webserver');
+import http from 'http';
 
-let server: any = undefined;
+import { Config } from '../clients/config.js';
+import { WebServerRouter } from './router.js';
 
-export async function startWebserver() {
-  const app = express();
-  const port = Config.getConfig().http_port || 3004;
-  const bind = Config.getConfig().http_bind || '::';
-  app.locals.basePath = Config.getConfig().http_path || '';
+import { Logger } from '../logger.js';
+const logger = Logger.get('WebServer');
 
-  app.use(express.static('dist/static/'));
-  routeViews(app);
-  routeAPI(app);
+export class WebServer {
+  private static server: http.Server | undefined = undefined;
 
-  server = app.listen(port, bind);
-  logger.info(`Webserver now listening on ${bind} over port ${port}`);
-}
+  public static async start(imp: any /* for testing */ = express) {
+    const app = imp();
 
-export async function stopWebserver() {
-  if (server) server.close();
+    const port = Config.getConfig().http_port || 3004;
+    const bind = Config.getConfig().http_bind || '::';
+    app.locals.basePath = Config.getConfig().http_path || '';
+
+    app.use(express.static('dist/static/'));
+    WebServerRouter.register(app);
+
+    WebServer.server = app.listen(port, bind);
+    logger.info(`Webserver now listening on ${bind} over port ${port}`);
+  }
+
+  public static async shutDown() {
+    if (WebServer.server) WebServer.server.close();
+  }
 }

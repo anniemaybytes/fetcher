@@ -1,7 +1,8 @@
 import { SinonSandbox, createSandbox } from 'sinon';
 import { expect } from 'chai';
-import { Config } from './config';
 import mock from 'mock-fs';
+
+import { Config } from './config.js';
 
 describe('Config', () => {
   let sandbox: SinonSandbox;

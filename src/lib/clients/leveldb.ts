@@ -1,13 +1,13 @@
 import level from 'level';
 import type { LevelUp } from 'levelup';
-import { Config } from './config';
+import { Config } from './config.js';
 
 export class LevelDB {
   public static db: LevelUp; // Only public for testing. Not to be used directly outside of this class
 
   // Must be called before other methods (on startup)
-  public static async initialize() {
-    LevelDB.db = level(Config.getConfig().state_db || 'state.ldb', { valueEncoding: 'json' });
+  public static async initialize(imp: any /* for testing */ = level) {
+    LevelDB.db = imp(Config.getConfig().state_db || 'state.ldb', { valueEncoding: 'json' });
   }
 
   public static get(key: string) {
@@ -32,7 +32,7 @@ export class LevelDB {
     });
   }
 
-  public static async shutdown() {
+  public static async shutDown() {
     await LevelDB.db.close();
   }
 }

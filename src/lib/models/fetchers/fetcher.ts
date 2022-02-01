@@ -1,12 +1,13 @@
 export abstract class Fetcher {
   public static registered: { [type: string]: any } = {}; // public for testing only
-  type: string;
-  path: string;
-  aborted: boolean;
-  length: number;
-  fetched = 0;
 
-  constructor(type: string, path: string) {
+  public type: string;
+  public path: string;
+  public aborted: boolean;
+  public length: number;
+  public fetched = 0;
+
+  protected constructor(type: string, path: string) {
     this.type = type;
     this.path = path;
     this.aborted = false;

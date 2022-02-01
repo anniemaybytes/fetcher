@@ -1,8 +1,8 @@
 import { SinonSandbox, createSandbox, SinonStub, assert, useFakeTimers, match } from 'sinon';
 import { expect } from 'chai';
-import { Config } from '../config';
-import * as ircNetworkModule from './network';
-import { IRCManager } from './manager';
+
+import { Config } from '../config.js';
+import { IRCManager } from './manager.js';
 
 describe('IRCManager', () => {
   let sandbox: SinonSandbox;
@@ -25,7 +25,8 @@ describe('IRCManager', () => {
 
     beforeEach(() => {
       fakeNetwork = { waitUntilRegistered: sandbox.stub().resolves(undefined), addChannelWatcher: sandbox.stub(), disconnect: sandbox.stub() };
-      fakeCreateNetwork = sandbox.stub(ircNetworkModule, 'IRCNetwork').returns(fakeNetwork);
+      fakeCreateNetwork = sandbox.stub().returns(fakeNetwork);
+
       fakeConfig = {
         irc_networks: { networkKey: { some: 'options' } },
         irc_control: { network: 'networkKey', channel: 'channel' },
@@ -34,14 +35,14 @@ describe('IRCManager', () => {
     });
 
     it('Creates network for config networks and waits until they are registered', async () => {
-      await IRCManager.initialize();
+      await IRCManager.initialize(fakeCreateNetwork);
       assert.calledOnceWithExactly(fakeCreateNetwork, 'networkKey', { some: 'options' });
       assert.calledOnce(fakeNetwork.waitUntilRegistered);
       expect(IRCManager.networks.networkKey).to.equal(fakeNetwork);
     });
 
     it('Assigns static control network and adds channel watcher for control room', async () => {
-      await IRCManager.initialize();
+      await IRCManager.initialize(fakeCreateNetwork);
       expect(IRCManager.controlNetwork).to.equal(fakeNetwork);
       expect(IRCManager.controlChannel).to.equal('channel');
       assert.calledOnceWithExactly(fakeNetwork.addChannelWatcher, 'channel', match.any);
@@ -49,17 +50,17 @@ describe('IRCManager', () => {
 
     it('Does not throw if adding channel watcher (joining) control room fails', async () => {
       fakeNetwork.addChannelWatcher.throws('borked');
-      await IRCManager.initialize();
+      await IRCManager.initialize(fakeCreateNetwork);
     });
 
-    it('does not throw if control network does not exist in network definitions', async () => {
+    it('Does not throw if control network does not exist in network definitions', async () => {
       fakeConfig.irc_control.network = 'badnetwork';
-      await IRCManager.initialize();
+      await IRCManager.initialize(fakeCreateNetwork);
     });
 
     it('Does not throw if joining a network fails, and disconnects from said network', async () => {
       fakeNetwork.waitUntilRegistered.throws('could not join');
-      await IRCManager.initialize();
+      await IRCManager.initialize(fakeCreateNetwork);
       expect(IRCManager.networks.networkKey).to.be.undefined;
       assert.calledOnce(fakeNetwork.disconnect);
     });
@@ -133,7 +134,7 @@ describe('IRCManager', () => {
     it('Calls disconnect on all current networks', (done) => {
       const fakeNetwork: any = { disconnect: sandbox.stub() };
       IRCManager.networks.fakeNetwork = fakeNetwork;
-      IRCManager.shutdown().then(() => {
+      IRCManager.shutDown().then(() => {
         assert.calledOnce(fakeNetwork.disconnect);
         done();
       });

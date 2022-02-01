@@ -1,10 +1,11 @@
 import { SinonSandbox, createSandbox, SinonStub, assert } from 'sinon';
 import { expect } from 'chai';
-import { Config } from './config';
-import { AnimeBytes } from './animebytes';
-import { ShowsReleasersFetcher } from './showFetcher';
 import { promises as fs } from 'fs';
 import mock from 'mock-fs';
+
+import { Config } from './config.js';
+import { ABClient } from './animebytes.js';
+import { ShowsReleasersFetcher } from './fetcher.js';
 
 describe('ShowFetcher', () => {
   let sandbox: SinonSandbox;
@@ -27,7 +28,7 @@ describe('ShowFetcher', () => {
       ShowsReleasersFetcher.releasersJSON = undefined as any;
       ShowsReleasersFetcher.showsJSON = undefined as any;
       sandbox.stub(Config, 'getConfig').returns({} as any);
-      getShowsMock = sandbox.stub(AnimeBytes, 'getShows').resolves(Buffer.from('{}'));
+      getShowsMock = sandbox.stub(ABClient, 'getShows').resolves(Buffer.from('{}'));
     });
 
     it('Calls getShows from AnimeBytes', async () => {

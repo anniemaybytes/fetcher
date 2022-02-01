@@ -1,38 +1,41 @@
 import path from 'path';
-import { Config } from '../clients/config';
-import { LevelDB } from '../clients/leveldb';
-import { IRCManager } from '../clients/irc/manager';
-import { AnimeBytes } from '../clients/animebytes';
-import { getMediaInfo } from '../clients/mediainfo';
-import { makeTorrentFile } from '../clients/mktorrent';
-import { Fetcher } from './fetchers/fetcher';
-import { getLogger } from '../logger';
-import { FetchOptions } from '../../types';
 import { promises as fs } from 'fs';
-const logger = getLogger('EpisodeModel');
+
+import { Config } from '../clients/config.js';
+import { LevelDB } from '../clients/leveldb.js';
+import { IRCManager } from '../clients/irc/manager.js';
+import { ABClient } from '../clients/animebytes.js';
+import { MediaInfo } from '../clients/mediainfo.js';
+import { MkTorrent } from '../clients/mktorrent.js';
+import { Fetcher } from './fetchers/fetcher.js';
+import { FetchOptions } from '../../types.js';
+
+import { Logger } from '../logger.js';
+const logger = Logger.get('EpisodeModel');
 
 type fetchStatus = 'complete' | 'fetching' | 'uploading' | 'failed';
 
 export class Episode {
   public static fetchingEpisodesCache: { [key: string]: Episode } = {};
-  episode: number;
-  version: number;
-  resolution: string;
-  container: string;
-  crc?: string;
-  saveFileName: string;
-  showName: string;
-  groupID: string;
-  media: string;
-  subbing: string;
-  groupName: string;
-  fetchType: string;
-  fetchOptions: FetchOptions;
-  formattedFileName?: string;
-  fetcher?: Fetcher;
-  state?: fetchStatus;
 
-  public static async restartEpisodeFetchingFromState() {
+  public episode: number;
+  public version: number;
+  public resolution: string;
+  public container: string;
+  public crc?: string;
+  public saveFileName: string;
+  public showName: string;
+  public groupID: string;
+  public media: string;
+  public subbing: string;
+  public groupName: string;
+  public fetchType: string;
+  public fetchOptions: FetchOptions;
+  public formattedFileName?: string;
+  public fetcher?: Fetcher;
+  public state?: fetchStatus;
+
+  public static async start() {
     (await LevelDB.list()).forEach((item) => {
       if (item.state && item.state !== 'complete') {
         const episode = Episode.fromStorageJSON(item);
@@ -71,9 +74,9 @@ export class Episode {
       // Fetch is complete, get mediainfo, create torrent, and upload
       logger.info(`Finished fetch for ${this.formattedName()}; gathering metadata and uploading`);
       await this.saveToState('uploading');
-      const mediaInfo = await getMediaInfo(this.getStoragePath(), this.saveFileName);
-      await makeTorrentFile(this);
-      await AnimeBytes.upload(this, mediaInfo);
+      const mediaInfo = await MediaInfo.get(this.getStoragePath(), this.saveFileName);
+      await MkTorrent.make(this);
+      await ABClient.upload(this, mediaInfo);
       await fs.rename(this.getTorrentPath(), path.resolve(Config.getConfig().torrent_dir || '', `${this.saveFileName}.torrent`));
 
       // Upload is complete, finish up

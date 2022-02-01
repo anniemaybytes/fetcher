@@ -1,16 +1,17 @@
-import { Show } from './show';
-import { Source } from './sources/source';
-import { getLogger } from '../logger';
-import { Releasers, ReleaserDef } from '../../types';
-const logger = getLogger('GroupModel');
+import { Show } from './show.js';
+import { Source } from './sources/source.js';
+import { Releasers, ReleaserDef } from '../../types.js';
+
+import { Logger } from '../logger.js';
+const logger = Logger.get('GroupModel');
 
 export class Group {
   // Used for global storage of groups
   public static groups: { [groupKey: string]: Group } = {};
 
-  name: string;
-  key: string;
-  shows: Show[];
+  public name: string;
+  public key: string;
+  public shows: Show[];
 
   constructor(key: string, options: ReleaserDef) {
     this.key = key;

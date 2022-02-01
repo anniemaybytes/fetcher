@@ -1,6 +1,6 @@
 import { SinonSandbox, createSandbox, SinonStub, assert } from 'sinon';
-import { Reloader } from '../../reloader';
-import * as ircControl from './control';
+import { Reloader } from '../../reloader.js';
+import { IRCControl } from './control.js';
 
 describe('IRCControl', () => {
   let sandbox: SinonSandbox;
@@ -13,7 +13,7 @@ describe('IRCControl', () => {
     sandbox.restore();
   });
 
-  describe('handleControlMessage', () => {
+  describe('handle', () => {
     let fakeEvent: any;
     let reloadStub: SinonStub;
     let refreshStub: SinonStub;
@@ -26,7 +26,7 @@ describe('IRCControl', () => {
 
     it('Does nothing with no matching message', () => {
       fakeEvent.message = 'thisisnotamatchingmessage';
-      ircControl.handleControlMessage(fakeEvent);
+      IRCControl.handle(fakeEvent);
       assert.notCalled(reloadStub);
       assert.notCalled(refreshStub);
       assert.notCalled(fakeEvent.reply);
@@ -34,14 +34,14 @@ describe('IRCControl', () => {
 
     it('Reloads shows.json and replies om !reload', () => {
       fakeEvent.message = '!reload';
-      ircControl.handleControlMessage(fakeEvent);
+      IRCControl.handle(fakeEvent);
       assert.calledOnce(reloadStub);
       assert.calledOnce(fakeEvent.reply);
     });
 
     it('Refreshes sources and replies om !fetch', () => {
       fakeEvent.message = '!fetch';
-      ircControl.handleControlMessage(fakeEvent);
+      IRCControl.handle(fakeEvent);
       assert.calledOnce(refreshStub);
       assert.calledOnce(fakeEvent.reply);
     });

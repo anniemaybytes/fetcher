@@ -1,10 +1,12 @@
 import { promises as fs } from 'fs';
 import { createHash } from 'crypto';
-import { Config } from './config';
-import { AnimeBytes } from './animebytes';
-import { Shows, Releasers } from '../../types';
-import { getLogger } from '../logger';
-const logger = getLogger('ShowDefinitionFetcher');
+
+import { Config } from './config.js';
+import { ABClient } from './animebytes.js';
+import { Shows, Releasers } from '../../types.js';
+
+import { Logger } from '../logger.js';
+const logger = Logger.get('ShowReleasersFetcher');
 
 export class ShowsReleasersFetcher {
   public static showsJSON: Shows;
@@ -16,7 +18,7 @@ export class ShowsReleasersFetcher {
     const showsFile = Config.getConfig().shows_file || 'shows.json';
     let showsBuf: Buffer;
     try {
-      showsBuf = await AnimeBytes.getShows();
+      showsBuf = await ABClient.getShows();
     } catch (e) {
       logger.warn('Error fetching shows remotely; continuing from cache', e);
       showsBuf = await fs.readFile(showsFile);

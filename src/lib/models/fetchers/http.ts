@@ -2,17 +2,20 @@ import path from 'path';
 import fs from 'fs';
 import { pipeline } from 'stream';
 import got, { Response } from 'got';
-import { Fetcher } from './fetcher';
-import { Config } from '../../clients/config';
-import { HTTPFetchOptions } from '../../../types';
+
+import { Fetcher } from './fetcher.js';
+import { Config } from '../../clients/config.js';
+import { HTTPFetchOptions } from '../../../types.js';
 
 export class HTTPFetcher extends Fetcher {
+  // Public for testing purposes
   public static got = got.extend({
     headers: { 'User-Agent': 'fetcher/2.0 (got [HTTPFetcher])' },
-    retry: 0,
-  }); // Only exported for testing purposes
-  url: string;
-  abort?: () => void;
+    retry: { limit: 0 },
+  });
+
+  public url: string;
+  public abort?: () => void;
 
   constructor(path: string, options: HTTPFetchOptions) {
     super('http', path);

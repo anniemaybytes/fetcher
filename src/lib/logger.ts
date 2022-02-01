@@ -1,4 +1,4 @@
-import * as log from 'loglevel';
+import log from 'loglevel';
 import prefix from 'loglevel-plugin-prefix';
 import chalk from 'chalk';
 
@@ -20,9 +20,11 @@ if (process.env.LOG_LEVEL) {
   console.error(colors.WARN(`Environment variable LOG_LEVEL is not set and has been defaulted to ${logLevel}`));
 }
 
-export function getLogger(name: string) {
-  const logger = log.getLogger(name);
-  logger.setLevel(logLevel);
-  prefix.apply(logger, { format: (level, name, timestamp) => `[${timestamp}] ${colors[level.toUpperCase()](level)} ${name}:` });
-  return logger;
+export class Logger {
+  public static get(name: string) {
+    const logger = log.getLogger(name);
+    logger.setLevel(logLevel);
+    prefix.apply(logger, { format: (level, name, timestamp) => `[${timestamp}] ${colors[level.toUpperCase()](level)} ${name}:` });
+    return logger;
+  }
 }

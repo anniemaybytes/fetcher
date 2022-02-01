@@ -1,9 +1,9 @@
 import { SinonSandbox, createSandbox, assert, SinonStub } from 'sinon';
 import { expect } from 'chai';
-import proxyquire from 'proxyquire';
-import { Config } from './config';
-import { LevelDB } from './leveldb';
 import { EventEmitter } from 'events';
+
+import { Config } from './config.js';
+import { LevelDB } from './leveldb.js';
 
 describe('LevelDB', () => {
   let sandbox: SinonSandbox;
@@ -28,18 +28,14 @@ describe('LevelDB', () => {
 
   describe('initialize', () => {
     let mockLevel: SinonStub;
-    let initialize: any;
 
     beforeEach(() => {
       sandbox.stub(Config, 'getConfig').returns({} as any);
       mockLevel = sandbox.stub();
-      initialize = proxyquire('./leveldb', {
-        level: mockLevel,
-      }).LevelDB.initialize;
     });
 
     it('Calls LevelDB to initialize database with expected parameters', async () => {
-      await initialize();
+      await LevelDB.initialize(mockLevel);
       assert.calledOnceWithExactly(mockLevel, 'state.ldb', { valueEncoding: 'json' });
     });
   });
@@ -108,9 +104,9 @@ describe('LevelDB', () => {
     });
   });
 
-  describe('shutdown', () => {
+  describe('shutDown', () => {
     it('Calls close on the DB', async () => {
-      await LevelDB.shutdown();
+      await LevelDB.shutDown();
       assert.calledOnce(mockDB.close);
     });
   });

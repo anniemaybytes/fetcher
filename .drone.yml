@@ -17,6 +17,9 @@ trigger:
         - refs/heads/master
         - refs/pull/**
         - refs/tags/**
+    event:
+        exclude:
+            - promote
 ---
 kind: pipeline
 name: tests
@@ -35,6 +38,9 @@ trigger:
         - refs/heads/master
         - refs/pull/**
         - refs/tags/**
+    event:
+        exclude:
+            - promote
 ---
 kind: pipeline
 name: docker
@@ -65,7 +71,3 @@ steps:
 trigger:
     event:
         - promote
-
-depends_on:
-    - compliance
-    - tests

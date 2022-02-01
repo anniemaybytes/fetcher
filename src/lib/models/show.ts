@@ -1,11 +1,11 @@
-import { Group } from './group';
-import { Shows, ShowDef } from '../../types';
+import { Group } from './group.js';
+import { Shows, ShowDef } from '../../types.js';
 
 export class Show {
-  name: string;
-  groupID: string;
-  wantedResolutions: string[];
-  releasers: {
+  public name: string;
+  public groupID: string;
+  public wantedResolutions: string[];
+  public releasers: {
     [releaser: string]: {
       regex: RegExp;
       media: string;
@@ -18,6 +18,7 @@ export class Show {
     this.groupID = definition.form.groupid;
     this.wantedResolutions = definition.formats;
     this.releasers = {};
+
     Object.entries(definition.releasers).forEach(([groupKey, def]) => {
       this.releasers[groupKey] = {
         regex: new RegExp(def.regex, 'i'),

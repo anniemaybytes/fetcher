@@ -1,5 +1,6 @@
 import { readFileSync } from 'fs';
-import { ConfigFile } from '../../types';
+
+import { ConfigFile } from '../../types.js';
 
 const configFilePath = 'config.json';
 

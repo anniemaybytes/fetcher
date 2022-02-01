@@ -1,10 +1,11 @@
-import { IRCNetwork } from './network';
-import { handleControlMessage } from './control';
-import { Config } from '../config';
-import { sleep, timeoutPromise } from '../../utils';
-import { getLogger } from '../../logger';
-import { MessageEvent } from '../../../types';
-const logger = getLogger('IRCManagerClient');
+import { IRCNetwork } from './network.js';
+import { IRCControl } from './control.js';
+import { Config } from '../config.js';
+import { Utils } from '../../utils.js';
+import { MessageEvent } from '../../../types.js';
+
+import { Logger } from '../../logger.js';
+const logger = Logger.get('IRCManager');
 
 const ircRegistrationTimeout = 1000 * 30; // 30 seconds
 
@@ -13,14 +14,14 @@ export class IRCManager {
   public static controlNetwork?: IRCNetwork;
   public static controlChannel: string;
 
-  public static async initialize() {
+  public static async initialize(client: any /* for testing */ = IRCNetwork) {
     // Connect to all of the networks in the config
     await Promise.all(
       Object.entries(Config.getConfig().irc_networks || {}).map(async ([key, options]) => {
-        const network = new IRCNetwork(key, options);
+        const network = new client(key, options);
         try {
           // if failed to connect/register within timeout period, ignore this network
-          await timeoutPromise(network.waitUntilRegistered(), ircRegistrationTimeout, new Error('IRC connect/register timed out'));
+          await Utils.timeoutPromise(network.waitUntilRegistered(), ircRegistrationTimeout, new Error('IRC connect/register timed out'));
           IRCManager.networks[key] = network;
         } catch (e) {
           logger.error(`Failed to join IRC network ${key}:`, e);
@@ -37,7 +38,7 @@ export class IRCManager {
         `IRC control network ${controlNetworkSettings.network} either didn't connect or doesn't exist in config; will not use control network`
       );
     try {
-      await IRCManager.addChannelWatcher(controlNetworkSettings.network, IRCManager.controlChannel, handleControlMessage);
+      await IRCManager.addChannelWatcher(controlNetworkSettings.network, IRCManager.controlChannel, IRCControl.handle);
     } catch (e) {
       logger.error(`Unable to join control channel ${IRCManager.controlChannel} on ${IRCManager.controlNetwork.name}`);
     }
@@ -63,8 +64,8 @@ export class IRCManager {
     }
   }
 
-  public static async shutdown() {
+  public static async shutDown() {
     Object.values(IRCManager.networks).forEach((network) => network.disconnect());
-    await sleep(1000); // Wait for irc cleanup
+    await Utils.sleep(1000); // Wait for irc cleanup
   }
 }

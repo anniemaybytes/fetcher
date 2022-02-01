@@ -1,9 +1,10 @@
 import { SinonSandbox, createSandbox, SinonStub, assert } from 'sinon';
-import { Source } from './models/sources/source';
-import { Show } from './models/show';
-import { Group } from './models/group';
-import { ShowsReleasersFetcher } from './clients/showFetcher';
-import { Reloader } from './reloader';
+
+import { Source } from './models/sources/source.js';
+import { Show } from './models/show.js';
+import { Group } from './models/group.js';
+import { ShowsReleasersFetcher } from './clients/fetcher.js';
+import { Reloader } from './reloader.js';
 
 describe('Reloader', () => {
   let sandbox: SinonSandbox;
@@ -89,7 +90,7 @@ describe('Reloader', () => {
     });
 
     it('Reloads shows and refreshes sources', async () => {
-      await Reloader.startRefreshAndReloads();
+      await Reloader.start();
       assert.calledOnce(fakeReload);
       assert.calledOnce(fakeRefresh);
     });

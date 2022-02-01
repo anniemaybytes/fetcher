@@ -1,9 +1,10 @@
-import { Source } from './models/sources/source';
-import { Show } from './models/show';
-import { Group } from './models/group';
-import { ShowsReleasersFetcher } from './clients/showFetcher';
-import { getLogger } from './logger';
-const logger = getLogger('reloader');
+import { Source } from './models/sources/source.js';
+import { Show } from './models/show.js';
+import { Group } from './models/group.js';
+import { ShowsReleasersFetcher } from './clients/fetcher.js';
+
+import { Logger } from './logger.js';
+const logger = Logger.get('Reloader');
 
 const showsReloadTimePeriod = 1000 * 60 * 2; // 2 minutes
 const sourcesRefreshPeriod = 1000 * 60 * 5; // 5 minutes
@@ -19,16 +20,16 @@ export class Reloader {
     if (Reloader.currentReloadTimer) clearTimeout(Reloader.currentReloadTimer);
     Reloader.currentlyReloading = true;
     try {
-      logger.debug('Starting shows.json reload');
+      logger.debug('Starting shows definition reload');
       if (await ShowsReleasersFetcher.reload()) {
-        logger.info('shows.json changed; updating now');
+        logger.info('Shows definition changed; updating now');
         await Source.removeAllSources();
         Group.loadGroups(ShowsReleasersFetcher.releasersJSON); // This also creates the sources
         Show.loadShows(ShowsReleasersFetcher.showsJSON);
       }
-      logger.debug('shows.json reload complete');
+      logger.debug('Shows definition reload complete');
     } catch (e) {
-      logger.error('Unexpected error reloading shows.json:', e);
+      logger.error('Unexpected error reloading shows definition:', e);
     }
     Reloader.currentlyReloading = false;
     // clear (if necessary) and set new timeout as atomically as possible
@@ -62,12 +63,12 @@ export class Reloader {
     Reloader.currentRefreshTimer = setTimeout(Reloader.refreshSources, sourcesRefreshPeriod);
   }
 
-  public static async startRefreshAndReloads() {
+  public static async start() {
     await Reloader.reloadShowsAndGroups();
     await Reloader.refreshSources();
   }
 
-  public static async shutdownReloading() {
+  public static async shutDown() {
     if (Reloader.currentReloadTimer) clearTimeout(Reloader.currentReloadTimer);
     if (Reloader.currentRefreshTimer) clearTimeout(Reloader.currentRefreshTimer);
   }

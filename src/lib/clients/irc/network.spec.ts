@@ -1,24 +1,23 @@
 import { SinonSandbox, createSandbox, assert, SinonStub, useFakeTimers } from 'sinon';
 import { expect } from 'chai';
-import proxyquire from 'proxyquire';
 import { EventEmitter } from 'events';
-import { IRCNetwork } from './network';
+
+import { IRCNetwork } from './network.js';
 
 describe('IRCNetwork', () => {
   let sandbox: SinonSandbox;
   let fakeIRCClient: any;
-  let patchedIRCNetwork: any;
 
   beforeEach(() => {
     sandbox = createSandbox();
+
     fakeIRCClient = new EventEmitter();
     fakeIRCClient.quit = sandbox.stub();
     fakeIRCClient.connect = sandbox.stub();
     fakeIRCClient.say = sandbox.stub();
     fakeIRCClient.join = sandbox.stub();
-    patchedIRCNetwork = proxyquire('./network', {
-      'irc-framework': { Client: sandbox.stub().returns(fakeIRCClient) },
-    }).IRCNetwork;
+
+    sandbox.replace(IRCNetwork, 'client', sandbox.stub().returns(fakeIRCClient));
   });
 
   afterEach(() => {
@@ -27,7 +26,7 @@ describe('IRCNetwork', () => {
 
   describe('constructor', () => {
     it('Sets expected parameters from input', () => {
-      const network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      const network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       expect(network.name).to.equal('name');
       expect(network.connectOptions).to.deep.equal({
         host: 'host',
@@ -42,20 +41,20 @@ describe('IRCNetwork', () => {
     });
 
     it('Calls connect on IRCClient', () => {
-      new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       assert.calledOnce(fakeIRCClient.connect);
     });
   });
 
   describe('listeners', () => {
     it('Does not error on nick in use', (done) => {
-      new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       fakeIRCClient.emit('nick in use');
       setTimeout(() => done(), 1);
     });
 
     it('Sets registered to false on close', (done) => {
-      const network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      const network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       network.registered = true;
       fakeIRCClient.emit('close');
       setTimeout(() => {
@@ -65,7 +64,7 @@ describe('IRCNetwork', () => {
     });
 
     it('Calls postConnect on registered', (done) => {
-      const network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      const network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       const postConnectStub = sandbox.stub(network, 'postConnect');
       fakeIRCClient.emit('registered');
       setTimeout(() => {
@@ -79,7 +78,7 @@ describe('IRCNetwork', () => {
     let network: IRCNetwork;
 
     beforeEach(() => {
-      network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       network.registered = false;
       network.joinedChannels = [];
       network.previouslyJoinedChannels = new Set();
@@ -129,7 +128,7 @@ describe('IRCNetwork', () => {
 
   describe('waitUntilRegistered', () => {
     it('Returns if network is registered', async () => {
-      const network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      const network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       network.registered = true;
       await network.waitUntilRegistered();
     });
@@ -140,7 +139,7 @@ describe('IRCNetwork', () => {
     let clock: any;
 
     beforeEach(() => {
-      network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       network.registered = true;
       network.shuttingDown = false;
     });
@@ -178,17 +177,17 @@ describe('IRCNetwork', () => {
     let network: IRCNetwork;
 
     beforeEach(() => {
-      network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       network.registered = true;
       network.shuttingDown = false;
     });
 
-    it('Calls irc client say with expected params', () => {
+    it('Calls IRCClient say with expected params', () => {
       network.message('chan', 'message');
       assert.calledOnceWithExactly(fakeIRCClient.say, 'chan', 'message');
     });
 
-    it('Calls irc client say once for each line in message', () => {
+    it('Calls IRCClient say once for each line in message', () => {
       network.message('chan', 'message\nwith\nlines');
       assert.calledThrice(fakeIRCClient.say);
       assert.calledWithExactly(fakeIRCClient.say.getCall(0), 'chan', 'message');
@@ -202,7 +201,7 @@ describe('IRCNetwork', () => {
     let joinStub: SinonStub;
 
     beforeEach(() => {
-      network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       joinStub = sandbox.stub(network, 'joinRoom');
     });
 
@@ -231,7 +230,7 @@ describe('IRCNetwork', () => {
 
   describe('disconnect', () => {
     it('Sets appropriate parameters and calls IRCClient quit', () => {
-      const network = new patchedIRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      const network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
       fakeIRCClient.quit = sandbox.stub(); // reset stub because it calls quit on creation once
       network.disconnect();
       assert.calledOnce(fakeIRCClient.quit);

@@ -1,8 +1,8 @@
 import { SinonSandbox, createSandbox, assert, SinonStub } from 'sinon';
 import { expect } from 'chai';
-import proxyquire from 'proxyquire';
-import * as episodeParser from '../../episodeParser';
-import { RSSSource } from './rss';
+
+import { Parser } from '../../parser.js';
+import { RSSSource } from './rss.js';
 
 describe('RSSSource', () => {
   let sandbox: SinonSandbox;
@@ -28,21 +28,21 @@ describe('RSSSource', () => {
     let fakeParser: any;
 
     beforeEach(() => {
+      parseEpisode = sandbox.stub(Parser, 'parseWantedEpisode');
+
       fakeParser = { parseURL: sandbox.stub() };
-      const patchedModule = proxyquire('./rss', {
-        'rss-parser': sandbox.stub().returns(fakeParser),
-      });
-      const rssParser = new patchedModule.RSSSource('', 'http', { url: 'url' });
+      sandbox.stub(RSSSource, 'parser').returns(fakeParser);
+
+      const rssParser = new RSSSource({} as any, 'http', { url: 'url' });
       fetch = rssParser.fetch.bind(rssParser);
-      parseEpisode = sandbox.stub(episodeParser, 'parseWantedEpisode');
     });
 
-    it('Calls parser with correct url', async () => {
+    it('Calls parser with correct URL', async () => {
       await fetch();
       assert.calledOnceWithExactly(fakeParser.parseURL, 'url');
     });
 
-    it('parses item from rss feed', async () => {
+    it('Parses item from RSS feed', async () => {
       fakeParser.parseURL.resolves({
         items: [
           {
@@ -57,7 +57,7 @@ describe('RSSSource', () => {
       expect(parseEpisode.getCall(0).args[1]).to.deep.equal({ url: 'alink' });
     });
 
-    it('Parses enclosure item from rss feed', async () => {
+    it('Parses enclosure item from RSS feed', async () => {
       fakeParser.parseURL.resolves({
         items: [
           {

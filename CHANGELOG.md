@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v5.0.0
+### Changed
+- Produce ESM package
+
 ## v4.1.1
 ### Fixed
 - Parse only first (any) video and (valid) audio stream from MediaInfo

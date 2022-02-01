@@ -1,10 +1,11 @@
 import { SinonSandbox, createSandbox, assert } from 'sinon';
 import { expect } from 'chai';
 import streamBuffers from 'stream-buffers';
-import mock from 'mock-fs';
-import { Config } from '../../clients/config';
-import { HTTPFetcher } from './http';
 import { promises as fs } from 'fs';
+import mock from 'mock-fs';
+
+import { Config } from '../../clients/config.js';
+import { HTTPFetcher } from './http.js';
 
 describe('HTTPFetcher', () => {
   let sandbox: SinonSandbox;

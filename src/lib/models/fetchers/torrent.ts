@@ -1,10 +1,11 @@
 import path from 'path';
-import WebTorrent from 'webtorrent';
-import { Fetcher } from './fetcher';
-import { TorrentFetchOptions } from '../../../types';
-import { Config } from '../../clients/config';
-import { sleep } from '../../utils';
 import { promises as fs } from 'fs';
+import WebTorrent from 'webtorrent';
+
+import { Fetcher } from './fetcher.js';
+import { TorrentFetchOptions } from '../../../types.js';
+import { Config } from '../../clients/config.js';
+import { Utils } from '../../utils.js';
 
 export class TorrentFetcher extends Fetcher {
   // TODO: Threading solution for torrent, so it doesn't eat the CPU
@@ -29,7 +30,7 @@ export class TorrentFetcher extends Fetcher {
   }
 
   // For globally shutting down
-  public static async shutdown() {
+  public static async shutDown() {
     return new Promise<any>((resolve) => {
       TorrentFetcher.client.destroy(resolve);
     });
@@ -39,7 +40,7 @@ export class TorrentFetcher extends Fetcher {
     const tempDir = Config.getConfig().temporary_dir || '/tmp/fetcher';
     while (TorrentFetcher.client.torrents.length >= TorrentFetcher.maxActiveDownloads) {
       // Throttle if too many torrents are in progress
-      await sleep(10000);
+      await Utils.sleep(10000);
       if (this.aborted) return new Promise<void>((resolve, reject) => reject(new Error('Fetch Aborted')));
     }
     return new Promise<void>((resolve, reject) => {

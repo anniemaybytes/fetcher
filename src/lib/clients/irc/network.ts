@@ -1,29 +1,34 @@
 import * as irc from 'irc-framework';
-import { stripColorsAndStyle } from 'irc-colors';
-import { sleep } from '../../utils';
-import { getLogger } from '../../logger';
-import { IRCNetworkConfig, MessageEvent } from '../../../types';
-const logger = getLogger('IRCNetworkClient');
+import colors from 'irc-colors';
 
-const nickServPasswordAcceptedRegex = /Password accepted/i;
+import { Utils } from '../../utils.js';
+import { IRCNetworkConfig, MessageEvent } from '../../../types.js';
+
+import { Logger } from '../../logger.js';
+const logger = Logger.get('IRCNetwork');
 
 export class IRCNetwork {
-  name: string;
-  bot: any;
-  connectOptions: any;
-  nickservPassword?: string;
-  registered = false;
-  shuttingDown = false;
-  previouslyJoinedChannels: Set<string>;
-  joinedChannels: string[];
+  // For testing purposes
+  public static client = irc.Client;
+
+  // Public for testing purposes
+  public name: string;
+  public bot: any;
+  public connectOptions: any;
+  public nickservPassword?: string;
+  public registered = false;
+  public shuttingDown = false;
+  public previouslyJoinedChannels: Set<string>;
+  public joinedChannels: string[];
+
+  private static nickServPasswordAcceptedRegex = /Password accepted/i;
 
   constructor(name: string, options: IRCNetworkConfig) {
     this.previouslyJoinedChannels = new Set();
     this.joinedChannels = [];
     this.name = name;
     this.nickservPassword = options.nickserv_password;
-    // Reconnection handled manually otherwise messages can be dropped when not connected
-    this.bot = new irc.Client({ auto_reconnect: false });
+
     const targetNick = options.nick.replace(/\$/g, Math.random().toString(36).substr(7, 3));
     this.connectOptions = {
       host: options.host,
@@ -34,6 +39,10 @@ export class IRCNetwork {
       ssl: options.ssl === undefined ? false : options.ssl,
       rejectUnauthorized: options.verify_certificate === undefined ? true : options.verify_certificate,
     };
+
+    // Reconnection handled manually otherwise messages can be dropped when not connected
+    this.bot = new IRCNetwork.client({ auto_reconnect: false });
+
     this.bot.on('nick in use', () =>
       logger.error(`Attempted IRC nickname ${this.connectOptions.nick} is currently in use on ${this.name}; will retry`)
     );
@@ -44,16 +53,18 @@ export class IRCNetwork {
     this.bot.on('registered', async () => {
       await this.postConnect();
     });
+
     this.connect();
   }
 
   // public for testing purposes only
   public async postConnect() {
     this.joinedChannels = [];
+
     if (this.nickservPassword) {
       const nicservNoticeHandler = (event: any) => {
         if (event.nick.toLowerCase() === 'nickserv') {
-          if (nickServPasswordAcceptedRegex.test(event.message)) {
+          if (IRCNetwork.nickServPasswordAcceptedRegex.test(event.message)) {
             this.registered = true;
             logger.info(`Successfully connected and identified to IRC server ${this.name}`);
           } else {
@@ -61,8 +72,10 @@ export class IRCNetwork {
           }
         }
       };
+
       this.bot.on('notice', nicservNoticeHandler);
       this.bot.say('NickServ', `IDENTIFY ${this.nickservPassword}`);
+
       // Cleanup notice handler after timeout
       setTimeout(() => this.bot.removeListener('notice', nicservNoticeHandler), 5000);
     } else {
@@ -72,7 +85,9 @@ export class IRCNetwork {
         logger.warn(`Connection was established on secure channel without TLS peer verification`);
       }
     }
+
     await this.waitUntilRegistered();
+
     // Reconnect to previously joined channels
     for (const channel of this.previouslyJoinedChannels) {
       try {
@@ -88,7 +103,7 @@ export class IRCNetwork {
   }
 
   public async waitUntilRegistered() {
-    while (!this.registered) await sleep(100);
+    while (!this.registered) await Utils.sleep(100);
   }
 
   private async connect() {
@@ -98,18 +113,21 @@ export class IRCNetwork {
         logger.info(`Attempting to connect to IRC at ${this.connectOptions.host}:${this.connectOptions.ssl ? '+' : ''}${this.connectOptions.port}`);
         this.bot.connect(this.connectOptions);
       }
-      await sleep(10000);
+      await Utils.sleep(10000);
     }
   }
 
   // Join a room with normal JOIN and detect/throw for failure
   public async joinRoom(channel: string) {
     this.checkIfRegistered();
+
     const lowercaseChannel = channel.toLowerCase();
     if (this.joinedChannels.includes(lowercaseChannel)) return;
+
     return new Promise<void>((resolve, reject) => {
       // If joining takes longer than 5 seconds, consider it a failure
       const timeout = setTimeout(() => reject(new Error(`Unable to join IRC channel ${channel} on ${this.name}`)), 5000);
+
       const channelUserListHandler = (event: any) => {
         if (event.channel.toLowerCase() === lowercaseChannel) {
           clearTimeout(timeout);
@@ -119,8 +137,10 @@ export class IRCNetwork {
           resolve();
         }
       };
+
       this.bot.on('userlist', channelUserListHandler);
       this.bot.join(channel);
+
       // Cleanup userlist handler
       setTimeout(() => this.bot.removeListener('userlist', channelUserListHandler), 5001);
     });
@@ -134,12 +154,14 @@ export class IRCNetwork {
   public async addChannelWatcher(channel: string, callback: (event: MessageEvent) => any) {
     const channelLower = channel.toLowerCase();
     await this.joinRoom(channelLower);
+
     const onMessage = (event: MessageEvent) => {
       if (event.target.toLowerCase() === channelLower) {
-        event.message = stripColorsAndStyle(event.message);
+        event.message = colors.stripColorsAndStyle(event.message);
         callback(event);
       }
     };
+
     this.bot.on('privmsg', onMessage);
     return () => this.bot.removeListener('privmsg', onMessage);
   }

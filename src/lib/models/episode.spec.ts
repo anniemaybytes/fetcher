@@ -1,15 +1,16 @@
 import { SinonSandbox, createSandbox, SinonStub, assert, useFakeTimers, SinonFakeTimers } from 'sinon';
 import { expect } from 'chai';
-import { LevelDB } from '../clients/leveldb';
-import { Config } from '../clients/config';
-import * as mediainfo from '../clients/mediainfo';
-import * as mktorrent from '../clients/mktorrent';
-import { AnimeBytes } from '../clients/animebytes';
-import { IRCManager } from '../clients/irc/manager';
-import { Fetcher } from './fetchers/fetcher';
-import { Episode } from './episode';
 import { readFile } from 'fs';
 import mock from 'mock-fs';
+
+import { LevelDB } from '../clients/leveldb.js';
+import { Config } from '../clients/config.js';
+import { MediaInfo } from '../clients/mediainfo.js';
+import { MkTorrent } from '../clients/mktorrent.js';
+import { ABClient } from '../clients/animebytes.js';
+import { IRCManager } from '../clients/irc/manager.js';
+import { Fetcher } from './fetchers/fetcher.js';
+import { Episode } from './episode.js';
 
 describe('Source', () => {
   let sandbox: SinonSandbox;
@@ -35,13 +36,13 @@ describe('Source', () => {
 
     it('Does not create episodes for state that is complete', async () => {
       dbListMock.resolves([{ state: 'complete' }]);
-      await Episode.restartEpisodeFetchingFromState();
+      await Episode.start();
       assert.notCalled(fromStorageMock);
     });
 
     it('Starts episode fetch for items recovered from state', async () => {
       dbListMock.resolves([{ state: 'fetching' }]);
-      await Episode.restartEpisodeFetchingFromState();
+      await Episode.start();
       assert.calledOnceWithExactly(fromStorageMock, { state: 'fetching' });
       assert.calledOnce(episodeStub.fetchEpisode);
     });
@@ -98,9 +99,9 @@ describe('Source', () => {
       sandbox.stub(episode, 'getStoragePath').returns('storagepath');
       sandbox.stub(Fetcher, 'createFetcher').returns(fakeFetcher);
       sandbox.stub(IRCManager, 'controlAnnounce');
-      mktorrentStub = sandbox.stub(mktorrent, 'makeTorrentFile');
-      mediainfoStub = sandbox.stub(mediainfo, 'getMediaInfo');
-      uploadStub = sandbox.stub(AnimeBytes, 'upload');
+      mktorrentStub = sandbox.stub(MkTorrent, 'make');
+      mediainfoStub = sandbox.stub(MediaInfo, 'get');
+      uploadStub = sandbox.stub(ABClient, 'upload');
       mock({
         '/torrents': {},
         '/tmp/saveFileName.torrent': 'data',

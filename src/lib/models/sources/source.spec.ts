@@ -1,6 +1,7 @@
 import { SinonSandbox, createSandbox, assert } from 'sinon';
 import { expect } from 'chai';
-import { Source } from './source';
+
+import { Source } from './source.js';
 
 describe('Source', () => {
   let sandbox: SinonSandbox;

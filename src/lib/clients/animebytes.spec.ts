@@ -1,17 +1,18 @@
 import { SinonSandbox, createSandbox, SinonStub, assert } from 'sinon';
 import { expect } from 'chai';
-import { Episode } from '../models/episode';
-import { Config } from './config';
-import { AnimeBytes } from './animebytes';
+
+import { Episode } from '../models/episode.js';
+import { Config } from './config.js';
+import { ABClient } from './animebytes.js';
 
 describe('AnimeBytes', () => {
   let sandbox: SinonSandbox;
 
   beforeEach(() => {
     sandbox = createSandbox();
-    AnimeBytes.username = 'testuser';
-    AnimeBytes.password = 'testpassword';
-    AnimeBytes.shows_uri = 'testshowsuri';
+    ABClient.username = 'testuser';
+    ABClient.password = 'testpassword';
+    ABClient.shows_uri = 'testshowsuri';
   });
 
   afterEach(() => {
@@ -24,10 +25,10 @@ describe('AnimeBytes', () => {
     });
 
     it('Loads static variables from config', async () => {
-      await AnimeBytes.initialize();
-      expect(AnimeBytes.username).to.equal('user');
-      expect(AnimeBytes.password).to.equal('pass');
-      expect(AnimeBytes.shows_uri).to.equal('uri');
+      await ABClient.initialize();
+      expect(ABClient.username).to.equal('user');
+      expect(ABClient.password).to.equal('pass');
+      expect(ABClient.shows_uri).to.equal('uri');
     });
   });
 
@@ -35,12 +36,12 @@ describe('AnimeBytes', () => {
     let fetchStub: SinonStub;
 
     beforeEach(() => {
-      fetchStub = sandbox.stub(AnimeBytes, 'got').resolves({ statusCode: 200, body: 'hi' });
+      fetchStub = sandbox.stub(ABClient, 'got').resolves({ statusCode: 200, body: 'hi' });
     });
 
     it('Throws an error when it doesnt receieve a redirect for login page', async () => {
       try {
-        await AnimeBytes.ensureLoggedIn();
+        await ABClient.ensureLoggedIn();
       } catch (e) {
         return;
       }
@@ -50,7 +51,7 @@ describe('AnimeBytes', () => {
     it('Throws an error when upload page does not provide an http 200 response', async () => {
       fetchStub.resolves({ statusCode: 303 });
       try {
-        await AnimeBytes.ensureLoggedIn();
+        await ABClient.ensureLoggedIn();
       } catch (e) {
         return;
       }
@@ -66,8 +67,8 @@ describe('AnimeBytes', () => {
 
     beforeEach(() => {
       sandbox.stub(Config, 'getConfig').returns({ torrent_dir: 'tdir' } as any);
-      loggedInStub = sandbox.stub(AnimeBytes, 'ensureLoggedIn');
-      fetchStub = sandbox.stub(AnimeBytes, 'got').resolves({ statusCode: 302, body: 'hi' });
+      loggedInStub = sandbox.stub(ABClient, 'ensureLoggedIn');
+      fetchStub = sandbox.stub(ABClient, 'got').resolves({ statusCode: 302, body: 'hi' });
       fakeEpisode = Episode.fromStorageJSON({
         episode: 1,
         resolution: 'resolution',
@@ -81,14 +82,14 @@ describe('AnimeBytes', () => {
     });
 
     it('Calls ensureLoggedIn', async () => {
-      await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
+      await ABClient.upload(fakeEpisode, fakeMediaInfo);
       assert.calledOnce(loggedInStub);
     });
 
     it('Throws error if no groupID', async () => {
       fakeEpisode.groupID = undefined as any;
       try {
-        await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
+        await ABClient.upload(fakeEpisode, fakeMediaInfo);
       } catch (e) {
         return;
       }
@@ -96,7 +97,7 @@ describe('AnimeBytes', () => {
     });
 
     it('Calls fetch with proper URL', async () => {
-      await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
+      await ABClient.upload(fakeEpisode, fakeMediaInfo);
       assert.calledOnce(fetchStub);
       const args = fetchStub.getCall(0).args;
       expect(args[0]).to.equal('https://animebytes.tv/upload.php?type=anime&groupid=groupid');
@@ -106,18 +107,18 @@ describe('AnimeBytes', () => {
 
     it('Returns if receieved a 409 (conflict)', async () => {
       fetchStub.resolves({ statusCode: 409, body: 'hi' });
-      await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
+      await ABClient.upload(fakeEpisode, fakeMediaInfo);
     });
 
     it('Returns if torrent already exists', async () => {
       fetchStub.resolves({ statusCode: 200, body: 'torrent file already exists' });
-      await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
+      await ABClient.upload(fakeEpisode, fakeMediaInfo);
     });
 
     it('Throws an error for non-200 response', async () => {
       fetchStub.resolves({ statusCode: 400, body: 'hi' });
       try {
-        await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
+        await ABClient.upload(fakeEpisode, fakeMediaInfo);
       } catch (e) {
         return;
       }
@@ -127,7 +128,7 @@ describe('AnimeBytes', () => {
     it('Throws an error if `the following error` found in response body', async () => {
       fetchStub.resolves({ statusCode: 200, body: 'the following error' });
       try {
-        await AnimeBytes.upload(fakeEpisode, fakeMediaInfo);
+        await ABClient.upload(fakeEpisode, fakeMediaInfo);
       } catch (e) {
         return;
       }
@@ -140,23 +141,23 @@ describe('AnimeBytes', () => {
     let fetchStub: SinonStub;
 
     beforeEach(() => {
-      loggedInStub = sandbox.stub(AnimeBytes, 'ensureLoggedIn');
-      fetchStub = sandbox.stub(AnimeBytes, 'got').resolves({ statusCode: 200, body: Buffer.from('hi') });
+      loggedInStub = sandbox.stub(ABClient, 'ensureLoggedIn');
+      fetchStub = sandbox.stub(ABClient, 'got').resolves({ statusCode: 200, body: Buffer.from('hi') });
     });
 
     it('Calls ensureLoggedIn', async () => {
-      await AnimeBytes.getShows();
+      await ABClient.getShows();
       assert.calledOnce(loggedInStub);
     });
 
     it('Returns the raw buffer from the fetch body', async () => {
-      expect(Buffer.from('hi').equals(await AnimeBytes.getShows())).to.be.true;
+      expect(Buffer.from('hi').equals(await ABClient.getShows())).to.be.true;
     });
 
     it('Throws an error on bad fetch status', async () => {
       fetchStub.resolves({ statusCode: 400 });
       try {
-        await AnimeBytes.getShows();
+        await ABClient.getShows();
       } catch (e) {
         return;
       }

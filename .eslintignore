@@ -1,5 +1,5 @@
-webpack.config.js
-postcss.config.js
+webpack.config.cjs
+postcss.config.cjs
 
 # built artifacts
 dist/

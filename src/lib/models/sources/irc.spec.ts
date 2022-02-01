@@ -1,8 +1,9 @@
 import { SinonSandbox, createSandbox, assert, SinonStub, useFakeTimers } from 'sinon';
 import { expect } from 'chai';
-import * as episodeParser from '../../episodeParser';
-import { IRCManager } from '../../clients/irc/manager';
-import { IRCSource } from './irc';
+
+import { Parser } from '../../parser.js';
+import { IRCManager } from '../../clients/irc/manager.js';
+import { IRCSource } from './irc.js';
 
 describe('IRCSource', () => {
   let sandbox: SinonSandbox;
@@ -79,7 +80,7 @@ describe('IRCSource', () => {
     let clock: any;
 
     beforeEach(() => {
-      parseEpisodeStub = sandbox.stub(episodeParser, 'parseWantedEpisode');
+      parseEpisodeStub = sandbox.stub(Parser, 'parseWantedEpisode');
       ircSource = new IRCSource({} as any, 'http', {
         network: 'network',
         channels: ['channel'],

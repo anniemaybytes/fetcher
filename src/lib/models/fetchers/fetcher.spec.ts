@@ -1,6 +1,7 @@
 import { SinonSandbox, createSandbox, assert } from 'sinon';
 import { expect } from 'chai';
-import { Fetcher } from './fetcher';
+
+import { Fetcher } from './fetcher.js';
 
 describe('Fetcher', () => {
   let sandbox: SinonSandbox;

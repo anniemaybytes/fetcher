@@ -1,15 +1,16 @@
-import { SourceDefaults, FetchOptions } from '../../../types';
-import { Group } from '../group';
+import { SourceDefaults, FetchOptions } from '../../../types.js';
+import { Group } from '../group.js';
 
 export abstract class Source {
+  public type: string; // rss or irc
+  public fetchType: string; // torrent or http
+  public defaults: SourceDefaults;
+  public group: Group;
+
   public static registered: { [type: string]: any } = {}; // public for testing only
   public static activeSources: Source[] = [];
-  type: string; // rss or irc
-  fetchType: string; // torrent or http
-  defaults: SourceDefaults;
-  group: Group;
 
-  constructor(type: string, fetchType: string, defaults: SourceDefaults, group: Group) {
+  protected constructor(type: string, fetchType: string, defaults: SourceDefaults, group: Group) {
     this.type = type;
     this.fetchType = fetchType;
     this.defaults = defaults;

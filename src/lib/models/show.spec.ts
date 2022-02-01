@@ -1,7 +1,8 @@
 import { SinonSandbox, createSandbox } from 'sinon';
 import { expect } from 'chai';
-import { Group } from './group';
-import { Show } from './show';
+
+import { Group } from './group.js';
+import { Show } from './show.js';
 
 describe('Show', () => {
   let sandbox: SinonSandbox;

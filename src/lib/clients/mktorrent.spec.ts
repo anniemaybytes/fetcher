@@ -1,7 +1,8 @@
 import { createSandbox, SinonSandbox, SinonStub, assert } from 'sinon';
 import { expect } from 'chai';
-import { Config } from './config';
-import proxyquire from 'proxyquire';
+
+import { MkTorrent } from './mktorrent.js';
+import { Config } from './config.js';
 
 describe('MkTorrent', () => {
   let sandbox: SinonSandbox;
@@ -14,19 +15,18 @@ describe('MkTorrent', () => {
     sandbox.restore();
   });
 
-  describe('makeTorrentFile', () => {
-    let makeTorrentFile: any;
+  describe('make', () => {
     let execStub: SinonStub;
-    let unlinkStub: SinonStub;
+    let fsStub: SinonStub;
     let episodeStub: any;
 
     beforeEach(() => {
-      execStub = sandbox.stub().yields(undefined);
-      unlinkStub = sandbox.stub().resolves(undefined);
-      makeTorrentFile = proxyquire('./mktorrent', {
-        child_process: { execFile: execStub },
-        fs: { promises: { unlink: unlinkStub } },
-      }).makeTorrentFile;
+      execStub = sandbox.stub().resolves(undefined);
+      fsStub = sandbox.stub().resolves(undefined);
+
+      sandbox.replace(MkTorrent, 'exec', execStub);
+      sandbox.replace(MkTorrent, 'fs', { unlink: fsStub } as any);
+
       episodeStub = {
         getStoragePath: sandbox.stub(),
         getTorrentPath: sandbox.stub(),
@@ -35,7 +35,7 @@ describe('MkTorrent', () => {
     });
 
     it('Calls getStoragePath and getTorrentPath on the provided episode', async () => {
-      await makeTorrentFile(episodeStub);
+      await MkTorrent.make(episodeStub);
       assert.calledOnce(episodeStub.getStoragePath);
       assert.calledOnce(episodeStub.getTorrentPath);
     });
@@ -43,7 +43,7 @@ describe('MkTorrent', () => {
     it('Calls execFile with correct params', async () => {
       episodeStub.getStoragePath.returns('storagepath');
       episodeStub.getTorrentPath.returns('torrentpath');
-      await makeTorrentFile(episodeStub);
+      await MkTorrent.make(episodeStub);
       assert.calledOnce(execStub);
       expect(execStub.getCall(0).args[0]).to.equal('/usr/bin/env');
       expect(execStub.getCall(0).args[1]).to.deep.equal([
@@ -62,22 +62,24 @@ describe('MkTorrent', () => {
     });
 
     it('Throws on unexpected error', async () => {
-      execStub.yields('thing');
+      const error = new Error();
+      execStub.rejects(error);
       try {
-        await makeTorrentFile(episodeStub);
+        await MkTorrent.make(episodeStub);
       } catch (e) {
-        expect(e).to.equal('thing');
+        expect(e).to.equal(error);
         return;
       }
       expect.fail('Did not throw');
     });
 
     it('Deletes existing torrent file if it exists and retries', async () => {
-      execStub.yields({ message: 'file exists' });
+      episodeStub.getTorrentPath.returns('torrentpath');
+      execStub.rejects({ message: 'file exists' });
       try {
-        await makeTorrentFile(episodeStub);
+        await MkTorrent.make(episodeStub);
       } catch (e) {
-        assert.calledOnce(unlinkStub);
+        assert.calledOnceWithExactly(fsStub, 'torrentpath');
         assert.calledTwice(execStub);
         return;
       }

@@ -1,10 +1,11 @@
-import { Source } from './source';
-import { Group } from '../group';
-import { parseWantedEpisode } from '../../episodeParser';
-import { IRCManager } from '../../clients/irc/manager';
-import { ReleaserIRCOptions, MessageEvent } from '../../../types';
-import { getLogger } from '../../logger';
-const logger = getLogger('IRCSource');
+import { Source } from './source.js';
+import { Group } from '../group.js';
+import { Parser } from '../../parser.js';
+import { IRCManager } from '../../clients/irc/manager.js';
+import { ReleaserIRCOptions, MessageEvent } from '../../../types.js';
+
+import { Logger } from '../../logger.js';
+const logger = Logger.get('IRCSource');
 
 interface MessageCache {
   lastUpdated: Date;
@@ -17,12 +18,13 @@ interface Matcher {
 }
 
 export class IRCSource extends Source {
-  listenerClosers: any[];
-  msgCache: { [channelAndNick: string]: MessageCache };
-  multiLine: number;
-  network: string;
-  nicks: string[];
-  matchers: Matcher[];
+  // Public for testing purposes
+  public listenerClosers: any[];
+  public msgCache: { [channelAndNick: string]: MessageCache };
+  public multiLine: number;
+  public network: string;
+  public nicks: string[];
+  public matchers: Matcher[];
 
   constructor(group: Group, fetchType: string, options: ReleaserIRCOptions) {
     super('irc', fetchType, options.meta || {}, group);
@@ -85,7 +87,7 @@ export class IRCSource extends Source {
         });
         if (!params.file || !params.link)
           logger.error(`Could not find file and/or link parameter in message regex; possibly broken IRC matcher for ${this.group.name}`);
-        const episode = parseWantedEpisode(params.file, this.getFetcherOptions(params.link), this);
+        const episode = Parser.parseWantedEpisode(params.file, this.getFetcherOptions(params.link), this);
         if (episode) {
           episode.fetchEpisode();
           return;
