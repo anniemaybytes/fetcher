@@ -15,13 +15,13 @@ export class Parser {
   private static unparseableCache: { [filename: string]: boolean } = {};
 
   private static validResolutions = [
-    '640×360',
+    '640x360',
     '720x480',
     '960x720',
     '704x396',
     '848x480',
     '1024x576',
-    '480×360',
+    '480x360',
     '640x480',
     '960x540',
     '1280x720',
