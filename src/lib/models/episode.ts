@@ -1,6 +1,7 @@
 import path from 'path';
 import { promises as fs } from 'fs';
 
+import { Utils } from '../utils.js';
 import { Config } from '../clients/config.js';
 import { LevelDB } from '../clients/leveldb.js';
 import { IRCManager } from '../clients/irc/manager.js';
@@ -50,7 +51,7 @@ export class Episode {
       return existingState.state === 'complete';
     } catch (e) {
       // Ignore NotFoundError (new item)
-      if (e.type === 'NotFoundError') return false;
+      if (e.code === 'LEVEL_NOT_FOUND') return false;
       logger.error(`Error checking LevelDB for ${this.formattedName()}; can't determine state:`, e);
       return true;
     }
@@ -76,7 +77,7 @@ export class Episode {
       await this.saveToState('uploading');
       const mediaInfo = await MediaInfo.get(this.getStoragePath(), this.saveFileName);
       await MkTorrent.make(this);
-      await ABClient.upload(this, mediaInfo);
+      await Utils.retry((async () => await ABClient.upload(this, mediaInfo)).bind(this), 3, 30000);
       await fs.rename(this.getTorrentPath(), path.resolve(Config.getConfig().torrent_dir || '', `${this.saveFileName}.torrent`));
 
       // Upload is complete, finish up
@@ -163,7 +164,7 @@ export class Episode {
       lastState = current.state;
       createTime = current.created;
     } catch (e) {
-      if (e.type !== 'NotFoundError') throw e; // Ignore NotFoundError
+      if (e.code !== 'LEVEL_NOT_FOUND') throw e; // Ignore NotFoundError
     }
     await LevelDB.put(key, { ...this.asStorageJSON(), lastState, state: status, created: createTime, modified: now, error });
   }

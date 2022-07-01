@@ -68,7 +68,7 @@ export class TorrentFetcher extends Fetcher {
         clearTimeout(timeout);
         if (torrent.files.length !== 1) {
           this.abort = undefined;
-          const err = new Error(`torrent has ${torrent.files.length} files, must have 1`);
+          const err = new Error(`Torrent has ${torrent.files.length} files, must have 1`);
           torrent.destroy({ destroyStore: true });
           return reject(err);
         }
@@ -78,7 +78,7 @@ export class TorrentFetcher extends Fetcher {
           if (Date.now() - startDate >= TorrentFetcher.noPeerTimeout && torrent.numPeers === 0 && torrent.progress < 1) {
             this.abort = undefined;
             torrent.destroy({ destroyStore: true });
-            return reject(new Error('torrent has no peers'));
+            return reject(new Error(`Torrent has seen no peers for ${TorrentFetcher.noPeerTimeout} seconds`));
           }
         });
         torrent.on('error', (err) => {

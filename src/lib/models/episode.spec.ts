@@ -59,12 +59,12 @@ describe('Source', () => {
       sandbox.stub(episode, 'formattedName').returns('formattedName');
     });
 
-    it('Returns false if db get fails with notfound (doesnt yet exist)', async () => {
-      getMock.throws({ type: 'NotFoundError' });
+    it("Returns false if LevelDB.get fails with NotFound (doesn't yet exist)", async () => {
+      getMock.throws({ code: 'LEVEL_NOT_FOUND' });
       expect(await episode.isAlreadyComplete()).to.be.false;
     });
 
-    it('Returns false if existing state from db is not marked as complete', async () => {
+    it('Returns false if existing state from database is not marked as complete', async () => {
       getMock.resolves({ state: 'failed' });
       expect(await episode.isAlreadyComplete()).to.be.false;
     });
@@ -295,7 +295,7 @@ describe('Source', () => {
     });
 
     it('Calls DB put with expected params when no existing state exists', async () => {
-      getMock.throws({ type: 'NotFoundError' });
+      getMock.throws({ code: 'LEVEL_NOT_FOUND' });
       await episode.saveToState('complete');
       assert.calledOnceWithExactly(putMock, 'dbkey', {
         thing: 'whatever',

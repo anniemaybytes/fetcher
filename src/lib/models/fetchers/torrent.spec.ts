@@ -117,7 +117,7 @@ describe('TorrentFetcher', () => {
       clock = useFakeTimers();
       fetcher.fetch().catch((err) => {
         assert.calledOnce(fakeTorrent.destroy);
-        expect(String(err)).to.equal('Error: torrent has no peers');
+        expect(String(err)).to.equal(`Error: Torrent has seen no peers for ${TorrentFetcher.noPeerTimeout} seconds`);
         done();
       });
       fakeTorrent.emit('ready');
@@ -129,7 +129,7 @@ describe('TorrentFetcher', () => {
       fakeTorrent.files = ['more', 'than', 'one'];
       fetcher.fetch().catch((err) => {
         assert.calledOnce(fakeTorrent.destroy);
-        expect(String(err)).to.equal('Error: torrent has 3 files, must have 1');
+        expect(String(err)).to.equal('Error: Torrent has 3 files, must have 1');
         done();
       });
       fakeTorrent.emit('ready');

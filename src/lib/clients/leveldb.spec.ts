@@ -1,6 +1,5 @@
 import { SinonSandbox, createSandbox, assert, SinonStub } from 'sinon';
 import { expect } from 'chai';
-import { EventEmitter } from 'events';
 
 import { Config } from './config.js';
 import { LevelDB } from './leveldb.js';
@@ -11,13 +10,16 @@ describe('LevelDB', () => {
 
   beforeEach(() => {
     sandbox = createSandbox();
-    const emitter = new EventEmitter();
     mockDB = {
       get: sandbox.stub(),
       put: sandbox.stub(),
       del: sandbox.stub(),
+
+      values: sandbox.stub().returns({
+        all: sandbox.stub(),
+      }),
+
       close: sandbox.stub(),
-      createValueStream: sandbox.stub().returns(emitter),
     };
     LevelDB.db = mockDB;
   });
@@ -77,30 +79,10 @@ describe('LevelDB', () => {
   });
 
   describe('list', () => {
-    let listEventEmitter: EventEmitter;
-
-    beforeEach(() => {
-      listEventEmitter = mockDB.createValueStream();
-    });
-
-    it('Returns array of data evens from database', async () => {
-      const promise = LevelDB.list();
-      listEventEmitter.emit('data', 'thing1');
-      listEventEmitter.emit('data', 'thing2');
-      listEventEmitter.emit('end');
-      expect(await promise).to.deep.equal(['thing1', 'thing2']);
-    });
-
-    it('Throws exception on error', async () => {
-      const promise = LevelDB.list();
-      listEventEmitter.emit('error', 'someError');
-      try {
-        await promise;
-      } catch (e) {
-        expect(e).to.equal('someError');
-        return;
-      }
-      expect.fail('Did not throw');
+    it('Returns array of data events from database', async () => {
+      const values = ['thing1', 'thing2'];
+      mockDB.values.returns({ all: sandbox.stub().resolves(values) });
+      expect(await LevelDB.list()).to.deep.equal(values);
     });
   });
 

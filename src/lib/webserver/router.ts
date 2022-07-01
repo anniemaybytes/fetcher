@@ -26,7 +26,7 @@ export class WebServerRouter {
         await episode.abortAndDelete();
         return res.status(200).json({ success: `Deleted ${title}` });
       } catch (e) {
-        if (e.type === 'NotFoundError') return res.status(404).json({ error: 'Requested item was not found' });
+        if (e.code === 'LEVEL_NOT_FOUND') return res.status(404).json({ error: 'Requested item was not found' });
         return res.status(500).json({ error: 'Internal Server Error', exception: e });
       }
     });
