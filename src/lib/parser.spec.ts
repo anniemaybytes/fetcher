@@ -68,16 +68,17 @@ describe('Parser', () => {
         '[TerribleSubs]_Some_アニメ_-_01_[BD720p][123A4BC5].mkv',
         '[TerribleSubs]_Some_アニメ_-_EP01_[720p][123A4BC5].mkv',
         'Some アニメ S02E01 [720p][123A4BC5].mkv',
+        'Some アニメ - S02E01 - 720p WEB H.264 (123A4BC5) -SomeOne.mkv',
         'Some アニメ Ep01 (720p) (123A4BC5).mkv',
         'Some アニメ Episode 1 (720p AAC) (123A4BC5).mkv',
         'Some_アニメ_720p_-_Ep01_-_The Name of the Episode_(123A4BC5).mkv',
         '(DVDアニメ) Some_アニメ 第01話 「のののののの」[23m37s 720p XviD 123A4BC5 MP3 48KHz 128Kbps].mkv',
         '[SomeOne] Some アニメ (123A4BC5) 01 [BD 1280x720 x264 AAC].mkv',
         '[SomeOne]Someアニメ.EP01(BD.720p.FLAC)[123A4BC5].mkv',
+        '[SomeOne].Some.アニメ.-.01.(BD.720p.FLAC).[123A4BC5].mkv',
         '[SomeOne]_Some_アニメ-_01_[h264-720p][123A4BC5].mkv',
         '[SomeOne]_Some_アニメ-_01_[720p_Hi10P_AAC][123A4BC5].mkv',
         '[SomeOne]_Some_アニメ_-_01_[720p_x264]_[10bit]_[123A4BC5].mkv',
-        '[SomeOne]_Some_アニメ_-_01_[720p_x264]_[10bit]_[123A4BC5].mkv.torrent',
       ];
       files.forEach((file) => {
         const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
@@ -117,12 +118,6 @@ describe('Parser', () => {
       episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
       if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
       expect(episode.version).to.equal(2);
-
-      // 20 out of range; should be converted to 1
-      file = '[TerribleSubs] Some アニメ - 01v20 [720p].mkv';
-      episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
-      expect(episode.version).to.equal(1);
 
       // 0 is in range
       file = '[TerribleSubs] Some アニメ - 01v0 [720p].mkv';

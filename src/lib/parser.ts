@@ -11,7 +11,11 @@ const logger = Logger.get('EpisodeParser');
 export class Parser {
   private static whitespaceReplaceRegex = /[_.]/g;
   private static crcRegex = /(..+)([a-f\d]{8}|[A-F\d]{8})(.*)/;
-  private static episodeRegex = /.*[^\w](?:EP|E|S\d+E)?(?<!-)(\d{2,4}|(?<=Episode\s)\d)(?!-)(v0?\d+)?(?:[^\w]|$)/i;
+  private static episodeRegexes = [
+    /.*(?:EP|E|S\d+E)(\d{2,4})(?!-)(v0?\d+)?/i,
+    /.* Episode (\d{1,4})(?!-)(v0?\d+)?/i,
+    /.*\W(?<!-)(\d{2,4})(?!-)(v0?\d+)?(?:\W|$)/i,
+  ];
   private static unparseableCache: { [filename: string]: boolean } = {};
 
   private static validResolutions = [
@@ -126,14 +130,6 @@ export class Parser {
     episode.saveFileName = sanitizeFilename(parsedContainer.saveFileName);
     filename = parsedContainer.filename;
 
-    // Parse (possible) CRC
-    episode.crc = undefined;
-    const crcMatch = filename.replace(Parser.whitespaceReplaceRegex, ' ').match(Parser.crcRegex);
-    if (crcMatch) {
-      episode.crc = crcMatch[2].toUpperCase();
-      filename = crcMatch[1] + crcMatch[3];
-    }
-
     // Parse resolution
     const resolutionParse = Parser.parseResolution(filename, source.defaults.res);
     if (!resolutionParse) {
@@ -146,14 +142,25 @@ export class Parser {
     if (!show.wantedResolutions.includes(resolutionParse.resolution)) return undefined;
 
     episode.resolution = resolutionParse.resolution;
-    filename = resolutionParse.filename;
+    filename = resolutionParse.filename.replace(Parser.whitespaceReplaceRegex, ' ');
+
+    // Parse (possible) CRC
+    episode.crc = undefined;
+    const crcMatch = filename.match(Parser.crcRegex);
+    if (crcMatch) {
+      episode.crc = crcMatch[2].toUpperCase();
+      filename = crcMatch[1] + crcMatch[3];
+    }
 
     // Parse episode and (possible) version
-    const episodeMatch = filename.replace(Parser.whitespaceReplaceRegex, ' ').match(Parser.episodeRegex);
-    episode.episode = parseInt(episodeMatch?.[1] || '', 10);
-    episode.version = episodeMatch?.[2] ? parseInt(episodeMatch[2].substr(1) || '', 10) : 1;
+    Parser.episodeRegexes.some((regex) => {
+      const episodeMatch = filename.replace(Parser.whitespaceReplaceRegex, ' ').match(regex);
+      episode.episode = parseInt(episodeMatch?.[1] || '', 10);
+      episode.version = episodeMatch?.[2] ? parseInt(episodeMatch[2].substr(1) || '', 10) : 1;
 
-    if (episode.version && episode.version > 9) episode.version = 1;
+      return episode.episode && episode.version >= 0; // return after first possible match (prefering higher confidence matches)
+    });
+
     if (!episode.episode || !(episode.version >= 0)) {
       const episodeParse = { episode: episode.episode, version: episode.version };
       Parser.warn(`Release has invalid episode or version, got ${JSON.stringify(episodeParse)}: ${originalFilename}`);

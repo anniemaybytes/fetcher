@@ -3,7 +3,7 @@
     "target": "ES2021",
     "outDir": "./dist/",
     "rootDir": "./src/",
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "module": "ES2020",
     "declaration": false,
     "esModuleInterop": true,

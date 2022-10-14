@@ -51,8 +51,8 @@ export class ABClient {
           username: ABClient.username,
           password: ABClient.password,
           keeplogged: 'on',
-          _CSRF_INDEX: response.body.match(/_CSRF_INDEX"\s+value="(.*)"\s\/></)?.[1],
-          _CSRF_TOKEN: response.body.match(/_CSRF_TOKEN"\s+value="(.*)"\s\/>/)?.[1],
+          _CSRF_INDEX: response.body.match(/_CSRF_INDEX"\s+value="(.*)"(?:\s\/)?>/)?.[1],
+          _CSRF_TOKEN: response.body.match(/_CSRF_TOKEN"\s+value="(.*)"(?:\s\/)?>/)?.[1],
         },
       });
       if (loginResponse.statusCode !== 303) throw new Error(`HTTP status ${loginResponse.statusCode} when logging in`);
