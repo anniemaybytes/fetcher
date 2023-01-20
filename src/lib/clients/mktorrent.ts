@@ -18,7 +18,7 @@ export class MkTorrent {
     const torrentPath = episode.getTorrentPath();
     const { tracker_url, tracker_source } = Config.getConfig();
 
-    return MkTorrent.execute(['mktorrent', '-l', '19', '-p', '-a', tracker_url || '', storagePath, '-o', torrentPath, '-s', tracker_source || '']);
+    return MkTorrent.execute(['mktorrent', '-l', '19', '-p', '-s', tracker_source || '', '-a', tracker_url || '', '-o', torrentPath, storagePath]);
   }
 
   private static async execute(cmd: Array<string>, retry = true): Promise<void> {

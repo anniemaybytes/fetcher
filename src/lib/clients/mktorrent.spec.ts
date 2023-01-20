@@ -51,13 +51,13 @@ describe('MkTorrent', () => {
         '-l',
         '19',
         '-p',
-        '-a',
-        'trackerurl',
-        'storagepath',
-        '-o',
-        'torrentpath',
         '-s',
         'trackersource',
+        '-a',
+        'trackerurl',
+        '-o',
+        'torrentpath',
+        'storagepath',
       ]);
     });
 
