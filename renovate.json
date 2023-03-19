@@ -1,7 +1,9 @@
 {
   "extends": [
     "config:base",
-    "docker:disableMajor"
+    "docker:disableMajor",
+    ":automergeTypes",
+    ":automergeLinters"
   ],
   "labels": [
     "kind/deps"
@@ -17,6 +19,7 @@
   "ignoreDeps": [],
   "lockFileMaintenance": {
     "enabled": true,
+    "automerge": true,
     "schedule": [
       "before 3am on tuesday"
     ]
@@ -34,21 +37,6 @@
       "extends": [
         "schedule:weekends"
       ]
-    },
-    {
-      "matchPackagePatterns": [
-        "^@types/"
-      ],
-      "groupName": "type definitions"
-    },
-    {
-      "matchPackageNames": [
-        "stylelint"
-      ],
-      "matchPackagePrefixes": [
-        "stylelint-config-"
-      ],
-      "groupName": "stylelint monorepo"
     }
   ]
 }
