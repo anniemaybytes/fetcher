@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v6.0.1
+### Fixed
+- Option arguments must be given before target filename when executing mktorrent
+
 ## v6.0.0
 ### Changed
 - Bumped minimum supported Node version to v18.12.0

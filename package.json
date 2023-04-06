@@ -1,6 +1,6 @@
 {
   "name": "fetcher",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "a media downloader",
   "engines": {
     "node": ">=18.12.0"
@@ -36,27 +36,27 @@
     "source-map-support": "0.5.21",
     "tough-cookie": "4.1.2",
     "tslib": "2.5.0",
-    "webtorrent": "2.0.14"
+    "webtorrent": "2.0.16"
   },
   "devDependencies": {
     "@types/chai": "4.3.4",
     "@types/express": "4.17.17",
     "@types/mocha": "10.0.1",
-    "@types/node": "18.15.3",
+    "@types/node": "18.15.11",
     "@types/sinon": "10.0.13",
     "@types/stream-buffers": "3.0.4",
     "@types/tough-cookie": "4.0.2",
     "@types/webtorrent": "0.109.3",
     "@types/xml2js": "0.4.11",
-    "@typescript-eslint/eslint-plugin": "5.55.0",
-    "@typescript-eslint/parser": "5.55.0",
+    "@typescript-eslint/eslint-plugin": "5.57.0",
+    "@typescript-eslint/parser": "5.57.0",
     "c8": "7.13.0",
     "chai": "4.3.7",
     "copy-webpack-plugin": "11.0.0",
     "css-loader": "6.7.3",
-    "cssnano": "5.1.15",
-    "eslint": "8.36.0",
-    "eslint-config-prettier": "8.7.0",
+    "cssnano": "6.0.0",
+    "eslint": "8.37.0",
+    "eslint-config-prettier": "8.8.0",
     "jquery": "3.6.4",
     "mini-css-extract-plugin": "2.7.5",
     "mocha": "10.2.0",
@@ -64,14 +64,14 @@
     "npm-run-all": "4.1.5",
     "postcss": "8.4.21",
     "postcss-loader": "7.1.0",
-    "prettier": "2.8.4",
-    "sinon": "15.0.2",
+    "prettier": "2.8.7",
+    "sinon": "15.0.3",
     "stream-buffers": "3.0.2",
-    "stylelint": "15.3.0",
-    "stylelint-config-standard": "31.0.0",
+    "stylelint": "15.4.0",
+    "stylelint-config-standard": "32.0.0",
     "ts-node": "10.9.1",
-    "typescript": "5.0.2",
-    "webpack": "5.76.2",
+    "typescript": "5.0.3",
+    "webpack": "5.77.0",
     "webpack-cli": "5.0.1",
     "webpack-manifest-plugin": "5.0.0"
   },
@@ -142,6 +142,9 @@
     ]
   },
   "stylelint": {
-    "extends": "stylelint-config-standard"
+    "extends": "stylelint-config-standard",
+    "rules": {
+      "media-feature-range-notation": "prefix"
+    }
   }
 }
