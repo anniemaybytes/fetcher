@@ -13,7 +13,7 @@ export class TorrentFetcher extends Fetcher {
     maxConns: 50,
     dht: true,
     webSeeds: false,
-    utp: false,
+    utp: true,
     tracker: {
       wrtc: false,
     },
@@ -72,13 +72,13 @@ export class TorrentFetcher extends Fetcher {
           torrent.destroy({ destroyStore: true });
           return reject(err);
         }
-        const startDate = Date.now();
+        let lastActivity = Date.now();
         this.length = torrent.length;
         torrent.on('noPeers', () => {
-          if (Date.now() - startDate >= TorrentFetcher.noPeerTimeout && torrent.numPeers === 0 && torrent.progress < 1) {
+          if (Date.now() - lastActivity >= TorrentFetcher.noPeerTimeout && torrent.numPeers === 0) {
             this.abort = undefined;
             torrent.destroy({ destroyStore: true });
-            return reject(new Error(`Torrent has seen no peers for ${TorrentFetcher.noPeerTimeout} seconds`));
+            return reject(new Error(`Torrent has seen no peers for ${TorrentFetcher.noPeerTimeout / 1000} seconds (was ${torrent.progress}%)`));
           }
         });
         torrent.on('error', (err) => {
@@ -87,6 +87,7 @@ export class TorrentFetcher extends Fetcher {
           return reject(err);
         });
         torrent.on('download', () => {
+          lastActivity = Date.now();
           this.fetched = torrent.downloaded;
         });
         torrent.on('done', async () => {

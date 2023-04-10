@@ -113,11 +113,13 @@ describe('TorrentFetcher', () => {
 
     it('Throws on noPeers after timeout', (done) => {
       fakeTorrent.numPeers = 0;
-      fakeTorrent.progress = 0.5;
+      fakeTorrent.progress = 15;
       clock = useFakeTimers();
       fetcher.fetch().catch((err) => {
         assert.calledOnce(fakeTorrent.destroy);
-        expect(String(err)).to.equal(`Error: Torrent has seen no peers for ${TorrentFetcher.noPeerTimeout} seconds`);
+        expect(String(err)).to.equal(
+          `Error: Torrent has seen no peers for ${TorrentFetcher.noPeerTimeout / 1000} seconds (was ${fakeTorrent.progress}%)`
+        );
         done();
       });
       fakeTorrent.emit('ready');
