@@ -10,7 +10,7 @@ import { Utils } from '../../utils.js';
 export class TorrentFetcher extends Fetcher {
   // TODO: Threading solution for torrent, so it doesn't eat the CPU
   public static client = new WebTorrent({
-    maxConns: 50,
+    maxConns: 150,
     dht: true,
     webSeeds: false,
     utp: true,
@@ -78,7 +78,7 @@ export class TorrentFetcher extends Fetcher {
           if (Date.now() - lastActivity >= TorrentFetcher.noPeerTimeout && torrent.numPeers === 0) {
             this.abort = undefined;
             torrent.destroy({ destroyStore: true });
-            return reject(new Error(`Torrent has seen no peers for ${TorrentFetcher.noPeerTimeout / 1000} seconds (was ${torrent.progress}%)`));
+            return reject(new Error(`Torrent has seen no peers for ${TorrentFetcher.noPeerTimeout / 1000} seconds`));
           }
         });
         torrent.on('error', (err) => {
