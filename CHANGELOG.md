@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v6.1.0
+### Fixed
+- Fix milliseconds used in "Torrent has seen no peers for {} seconds" message
+- Fix release year being treated as episode number in edge cases where multi-episode torrent is given
+
+### Changed
+- Don't report torrent percentage in error message
+- Bump maximum number of peers in webtorrent to 150
+- Abort torrent on noPeers even if progress >= 1
+- Enable UTP support in webtorrent
+
 ## v6.0.1
 ### Fixed
 - Option arguments must be given before target filename when executing mktorrent

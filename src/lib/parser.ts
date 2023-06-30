@@ -14,7 +14,7 @@ export class Parser {
   private static episodeRegexes = [
     /.*(?:EP|E|S\d+E)(\d{2,4})(?!-)(v0?\d+)?/i,
     /.* Episode (\d{1,4})(?!-)(v0?\d+)?/i,
-    /.*\W(?<!-)(\d{2,4})(?!-)(v0?\d+)?(?:\W|$)/i,
+    /.*\W(?<![-([])(\d{2,4})(?![-)\]])(v0?\d+)?(?:\W|$)/i,
   ];
   private static unparseableCache: { [filename: string]: boolean } = {};
 
