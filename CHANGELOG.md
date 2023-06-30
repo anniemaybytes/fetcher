@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v6.2.0
+### Changed
+- Revert "Enable UTP support in webtorrent" due to unusual SIGSEGVs on Alpine Linux.
+
 ## v6.1.0
 ### Fixed
 - Fix milliseconds used in "Torrent has seen no peers for {} seconds" message
