@@ -9,6 +9,8 @@ RUN yarn --frozen-lockfile --non-interactive
 COPY . .
 # Build and trim node_modules dependencies
 RUN yarn build && mv yarnclean .yarnclean && yarn --frozen-lockfile --non-interactive --production
+# Rebuild native runtime dependencies to ensure musl compatibility (ref. https://github.com/webtorrent/webtorrent/issues/2604)
+RUN apk --no-cache add build-base python3 && npm rebuild utp-native --build-from-source
 
 FROM base AS release
 ENV NODE_ENV production

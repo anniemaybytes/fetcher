@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v6.3.0
+### Changed
+- Rebuild utp-native for musl compatibility in Dockerfile
+- Re-land "Enable UTP support in webtorrent"
+
 ## v6.2.0
 ### Changed
 - Revert "Enable UTP support in webtorrent" due to unusual SIGSEGVs on Alpine Linux.

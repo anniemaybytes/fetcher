@@ -13,7 +13,7 @@ export class TorrentFetcher extends Fetcher {
     maxConns: 150,
     dht: true,
     webSeeds: false,
-    utp: false,
+    utp: true,
     tracker: {
       wrtc: false,
     },
