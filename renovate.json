@@ -1,6 +1,6 @@
 {
   "extends": [
-    "config:base",
+    "config:recommended",
     "docker:disableMajor",
     ":automergeTypes",
     ":automergeLinters"
@@ -9,11 +9,12 @@
     "kind/deps"
   ],
   "vulnerabilityAlerts": {
+    "enabled": true,
     "labels": [
       "kind/security"
     ]
   },
-  "stabilityDays": 1,
+  "minimumReleaseAge": "3 days",
   "semanticCommits": "disabled",
   "ignorePaths": [],
   "ignoreDeps": [],
@@ -22,11 +23,6 @@
     "automerge": true,
     "schedule": [
       "before 3am on tuesday"
-    ]
-  },
-  "node": {
-    "supportPolicy": [
-      "lts_latest"
     ]
   },
   "packageRules": [

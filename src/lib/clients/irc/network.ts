@@ -44,7 +44,7 @@ export class IRCNetwork {
     this.bot = new IRCNetwork.client({ auto_reconnect: false });
 
     this.bot.on('nick in use', () =>
-      logger.error(`Attempted IRC nickname ${this.connectOptions.nick} is currently in use on ${this.name}; will retry`)
+      logger.error(`Attempted IRC nickname ${this.connectOptions.nick} is currently in use on ${this.name}; will retry`),
     );
     this.bot.on('close', () => {
       if (this.registered && !this.shuttingDown) logger.error(`Disconnected from IRC server ${this.name}`);

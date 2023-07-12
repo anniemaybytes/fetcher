@@ -27,7 +27,7 @@ export class IRCManager {
           logger.error(`Failed to join IRC network ${key}:`, e);
           network.disconnect();
         }
-      })
+      }),
     );
     // Configure the control network settings
     const controlNetworkSettings = Config.getConfig().irc_control;
@@ -35,7 +35,7 @@ export class IRCManager {
     IRCManager.controlChannel = controlNetworkSettings.channel;
     if (!IRCManager.controlNetwork)
       return logger.error(
-        `IRC control network ${controlNetworkSettings.network} either didn't connect or doesn't exist in config; will not use control network`
+        `IRC control network ${controlNetworkSettings.network} either didn't connect or doesn't exist in config; will not use control network`,
       );
     try {
       await IRCManager.addChannelWatcher(controlNetworkSettings.network, IRCManager.controlChannel, IRCControl.handle);

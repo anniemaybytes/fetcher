@@ -12,7 +12,7 @@ export class WebServerUtility {
         data.resolution,
         data.groupName,
         data.container,
-        data.crc
+        data.crc,
       );
       if (Episode.fetchingEpisodesCache[data.saveFileName] && Episode.fetchingEpisodesCache[data.saveFileName].formattedName() === data.formatted) {
         data.progress = Episode.fetchingEpisodesCache[data.saveFileName].getProgressString();

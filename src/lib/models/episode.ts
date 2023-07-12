@@ -123,7 +123,7 @@ export class Episode {
       this.resolution,
       this.groupName,
       this.container,
-      this.crc
+      this.crc,
     );
     return this.formattedFileName;
   }
@@ -135,7 +135,7 @@ export class Episode {
     resolution: string,
     groupName: string,
     container: string,
-    crc?: string
+    crc?: string,
   ) {
     let formatted = `${showName} - ${episode.toString().padStart(2, '0')}`;
     if (version !== 1) formatted += `v${version}`;

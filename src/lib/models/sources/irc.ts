@@ -46,7 +46,7 @@ export class IRCSource extends Source {
 
   public async initialize(channels: string[]) {
     const closers = await Promise.all(
-      channels.map(async (channel) => IRCManager.addChannelWatcher(this.network, channel, this.messageCallback.bind(this)))
+      channels.map(async (channel) => IRCManager.addChannelWatcher(this.network, channel, this.messageCallback.bind(this))),
     );
     closers.forEach((closer) => this.listenerClosers.push(closer));
   }
