@@ -119,7 +119,7 @@ describe('IRCNetwork', () => {
     });
 
     it('Does not throw if rejoining channel fails', async () => {
-      const joinStub = sandbox.stub(network, 'joinRoom').throws('broken');
+      const joinStub = sandbox.stub(network, 'joinRoom').throws(new Error('Could not join'));
       network.previouslyJoinedChannels.add('chan');
       await network.postConnect();
       assert.calledOnceWithExactly(joinStub, 'chan');

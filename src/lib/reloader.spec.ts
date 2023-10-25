@@ -51,7 +51,7 @@ describe('Reloader', () => {
     });
 
     it('Does not throw on unexpected error', async () => {
-      showsReleaserReload.throws(new Error('error'));
+      showsReleaserReload.throws(new Error('Some error message'));
       await Reloader.reloadShowsAndGroups();
     });
   });
@@ -70,7 +70,7 @@ describe('Reloader', () => {
     });
 
     it('Does not throw on individual fetch error', async () => {
-      fakeSource.fetch.throws(new Error('broken'));
+      fakeSource.fetch.throws(new Error('Some error message'));
       await Reloader.refreshSources();
     });
 

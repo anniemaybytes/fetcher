@@ -75,7 +75,7 @@ describe('Source', () => {
     });
 
     it('Returns true if unexpected error from db', async () => {
-      getMock.throws('uh-oh');
+      getMock.throws(new Error('Some error message'));
       expect(await episode.isAlreadyComplete()).to.be.true;
     });
   });
@@ -122,9 +122,9 @@ describe('Source', () => {
     });
 
     it('Saves failed to state on unexpected failure', async () => {
-      fakeFetcher.fetch.throws('nope'); // unexpected error while fetching
+      fakeFetcher.fetch.throws(new Error('Stub error message for testing purposes'));
       await episode.fetchEpisode();
-      assert.calledOnceWithExactly(saveStateStub, 'failed', 'nope');
+      assert.calledOnceWithExactly(saveStateStub, 'failed', 'Error: Stub error message for testing purposes');
     });
 
     it('Gets mediainfo of the download', async () => {

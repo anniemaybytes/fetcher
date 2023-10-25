@@ -49,7 +49,7 @@ describe('IRCManager', () => {
     });
 
     it('Does not throw if adding channel watcher (joining) control room fails', async () => {
-      fakeNetwork.addChannelWatcher.throws('borked');
+      fakeNetwork.addChannelWatcher.throws(new Error('Could not join'));
       await IRCManager.initialize(fakeCreateNetwork);
     });
 
@@ -59,7 +59,7 @@ describe('IRCManager', () => {
     });
 
     it('Does not throw if joining a network fails, and disconnects from said network', async () => {
-      fakeNetwork.waitUntilRegistered.throws('could not join');
+      fakeNetwork.waitUntilRegistered.throws(new Error('Could not join'));
       await IRCManager.initialize(fakeCreateNetwork);
       expect(IRCManager.networks.networkKey).to.be.undefined;
       assert.calledOnce(fakeNetwork.disconnect);
@@ -115,7 +115,7 @@ describe('IRCManager', () => {
     });
 
     it('Does not throw on error', () => {
-      fakeNetwork.message.throws('busted');
+      fakeNetwork.message.throws(new Error('Some error message'));
       IRCManager.controlAnnounce('message');
     });
   });

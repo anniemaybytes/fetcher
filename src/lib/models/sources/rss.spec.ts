@@ -89,7 +89,7 @@ describe('RSSSource', () => {
     });
 
     it('Does not throw on unexpected error', async () => {
-      fakeParser.parseURL.throws('broken');
+      fakeParser.parseURL.throws(new Error('Some error message'));
       await fetch();
     });
   });

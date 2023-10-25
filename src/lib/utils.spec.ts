@@ -61,7 +61,7 @@ describe('Utils', () => {
     });
 
     it('Calls provided function correct number of times when erroring', async () => {
-      fnStub.throws('bleh');
+      fnStub.throws(new Error('Some error message'));
       const retries = 4;
       try {
         await Utils.retry(fnStub, retries);
@@ -85,7 +85,7 @@ describe('Utils', () => {
     });
 
     it('Throws error from provided function if failing after all retries', async () => {
-      const err = new Error('it broke');
+      const err = new Error('Some error message');
       fnStub.throws(err);
       try {
         await Utils.retry(fnStub, 1);
@@ -98,7 +98,7 @@ describe('Utils', () => {
 
     it('Only waits provided time after first failure', async () => {
       const waitTime = 123;
-      fnStub.onFirstCall().throws('err');
+      fnStub.onFirstCall().throws(new Error('Some error message'));
       await Utils.retry(fnStub, 3, waitTime);
       assert.calledWithExactly(sleepStub.firstCall, 0);
       assert.calledWithExactly(sleepStub.secondCall, waitTime);
@@ -107,7 +107,7 @@ describe('Utils', () => {
 
     it('Waits provided time x retry count for multiple failures', async () => {
       const initialWaitTime = 123;
-      fnStub.throws('err');
+      fnStub.throws(new Error('Some error message'));
       try {
         await Utils.retry(fnStub, 3, initialWaitTime);
       } catch {} // eslint-disable-line no-empty

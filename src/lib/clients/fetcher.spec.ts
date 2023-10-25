@@ -58,7 +58,7 @@ describe('ShowFetcher', () => {
     });
 
     it('Uses file cache if getting from AnimeBytes fails', async () => {
-      getShowsMock.throws(new Error());
+      getShowsMock.throws(new Error('Some error message'));
       mock({ 'shows.json': '{"shows":"fileData","releasers":"moreFileData"}' });
       await ShowsReleasersFetcher.reload();
       expect(ShowsReleasersFetcher.showsJSON).to.equal('fileData');

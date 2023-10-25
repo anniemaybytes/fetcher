@@ -130,7 +130,7 @@ describe('IRCSource', () => {
     });
 
     it('Does not throw on unexpected error', async () => {
-      ircSource.nicks = { includes: sandbox.stub().throws('banana') } as any;
+      ircSource.nicks = { includes: sandbox.stub().throws(new Error('Some error message')) } as any;
       await ircSource.messageCallback({ nick: 'nick', target: 'target', message: 'match thing.mkv link' } as any);
       assert.calledOnce(ircSource.nicks.includes as any);
     });

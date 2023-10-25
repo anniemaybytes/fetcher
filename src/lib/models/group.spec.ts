@@ -68,7 +68,7 @@ describe('Group', () => {
     });
 
     it('Does not throw if there was an error creating a source', () => {
-      createSourceStub.throws(new Error('An error'));
+      createSourceStub.throws(new Error('Some error message'));
       Group.loadGroups({
         somegroup: {
           name: 'Some Group',
