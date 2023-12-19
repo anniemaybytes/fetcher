@@ -17,7 +17,7 @@ export class WebServer {
     const bind = Config.getConfig().http_bind || '::';
     app.locals.basePath = Config.getConfig().http_path || '';
 
-    app.use(express.static('dist/static/'));
+    app.use('/static', express.static('dist/static'));
     WebServerRouter.register(app);
 
     WebServer.server = app.listen(port, bind);

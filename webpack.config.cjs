@@ -1,10 +1,7 @@
 const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const { ProvidePlugin } = require('webpack');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
-
-const hashDigestLength = 10;
 
 module.exports = {
   mode: 'production',
@@ -18,8 +15,9 @@ module.exports = {
   devtool: 'source-map',
   output: {
     path: path.resolve(__dirname, 'dist/static'),
+    publicPath: 'static',
     filename: '[name].[chunkhash].js',
-    hashDigestLength: hashDigestLength,
+    hashFunction: 'xxhash64',
     clean: true,
   },
   module: {
@@ -48,19 +46,13 @@ module.exports = {
     ],
   },
   plugins: [
-    new WebpackManifestPlugin({
-      publicPath: '',
-      removeKeyHash: new RegExp(`(\\.[a-f0-9]{${hashDigestLength}})(\\..*)`),
-    }),
+    new WebpackManifestPlugin({}),
     new ProvidePlugin({
       $: 'jquery',
       jQuery: 'jquery',
     }),
     new MiniCssExtractPlugin({
       filename: '[name].[contenthash].css',
-    }),
-    new CopyPlugin({
-      patterns: [{ from: 'views/', to: `../views/` }],
     }),
   ],
   optimization: {
