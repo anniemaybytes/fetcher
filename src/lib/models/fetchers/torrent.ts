@@ -81,7 +81,7 @@ export class TorrentFetcher extends Fetcher {
             return reject(new Error(`Torrent has seen no peers for ${TorrentFetcher.noPeerTimeout / 1000} seconds`));
           }
         });
-        torrent.on('error', (err) => {
+        torrent.on('error', (err: Error) => {
           // Torrent is already destroyed by this point
           this.abort = undefined;
           return reject(err);

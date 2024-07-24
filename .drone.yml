@@ -31,6 +31,7 @@ steps:
         pull: always
         commands:
             - yarn --frozen-lockfile --non-interactive
+            - apk --no-cache add build-base python3 && npm rebuild utp-native --build-from-source
             - yarn test
 
 trigger:
