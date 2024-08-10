@@ -61,7 +61,7 @@ describe('Group', () => {
             ],
           },
         } as any);
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');

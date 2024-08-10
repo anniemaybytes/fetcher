@@ -26,7 +26,7 @@ describe('Fetcher', () => {
     it('Throws an error when trying to create an invalid type', () => {
       try {
         Fetcher.createFetcher('badtype', 'abc', {});
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');

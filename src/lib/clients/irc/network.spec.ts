@@ -26,7 +26,7 @@ describe('IRCNetwork', () => {
 
   describe('constructor', () => {
     it('Sets expected parameters from input', () => {
-      const network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      const network = new IRCNetwork('name', { address: 'host', port: 1234, nickname: 'nick' });
       expect(network.name).to.equal('name');
       expect(network.connectOptions).to.deep.equal({
         host: 'host',
@@ -41,20 +41,20 @@ describe('IRCNetwork', () => {
     });
 
     it('Calls connect on IRCClient', () => {
-      new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      new IRCNetwork('name', { address: 'host', port: 1234, nickname: 'nick' });
       assert.calledOnce(fakeIRCClient.connect);
     });
   });
 
   describe('listeners', () => {
     it('Does not error on nick in use', (done) => {
-      new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      new IRCNetwork('name', { address: 'host', port: 1234, nickname: 'nick' });
       fakeIRCClient.emit('nick in use');
       setTimeout(() => done(), 1);
     });
 
     it('Sets registered to false on close', (done) => {
-      const network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      const network = new IRCNetwork('name', { address: 'host', port: 1234, nickname: 'nick' });
       network.registered = true;
       fakeIRCClient.emit('close');
       setTimeout(() => {
@@ -64,7 +64,7 @@ describe('IRCNetwork', () => {
     });
 
     it('Calls postConnect on registered', (done) => {
-      const network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      const network = new IRCNetwork('name', { address: 'host', port: 1234, nickname: 'nick' });
       const postConnectStub = sandbox.stub(network, 'postConnect');
       fakeIRCClient.emit('registered');
       setTimeout(() => {
@@ -78,7 +78,7 @@ describe('IRCNetwork', () => {
     let network: IRCNetwork;
 
     beforeEach(() => {
-      network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      network = new IRCNetwork('name', { address: 'host', port: 1234, nickname: 'nick' });
       network.registered = false;
       network.joinedChannels = [];
       network.previouslyJoinedChannels = new Set();
@@ -128,7 +128,7 @@ describe('IRCNetwork', () => {
 
   describe('waitUntilRegistered', () => {
     it('Returns if network is registered', async () => {
-      const network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      const network = new IRCNetwork('name', { address: 'host', port: 1234, nickname: 'nick' });
       network.registered = true;
       await network.waitUntilRegistered();
     });
@@ -139,7 +139,7 @@ describe('IRCNetwork', () => {
     let clock: any;
 
     beforeEach(() => {
-      network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      network = new IRCNetwork('name', { address: 'host', port: 1234, nickname: 'nick' });
       network.registered = true;
       network.shuttingDown = false;
     });
@@ -177,7 +177,7 @@ describe('IRCNetwork', () => {
     let network: IRCNetwork;
 
     beforeEach(() => {
-      network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      network = new IRCNetwork('name', { address: 'host', port: 1234, nickname: 'nick' });
       network.registered = true;
       network.shuttingDown = false;
     });
@@ -201,7 +201,7 @@ describe('IRCNetwork', () => {
     let joinStub: SinonStub;
 
     beforeEach(() => {
-      network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      network = new IRCNetwork('name', { address: 'host', port: 1234, nickname: 'nick' });
       joinStub = sandbox.stub(network, 'joinRoom');
     });
 
@@ -230,7 +230,7 @@ describe('IRCNetwork', () => {
 
   describe('disconnect', () => {
     it('Sets appropriate parameters and calls IRCClient quit', () => {
-      const network = new IRCNetwork('name', { host: 'host', port: 1234, nick: 'nick' });
+      const network = new IRCNetwork('name', { address: 'host', port: 1234, nickname: 'nick' });
       fakeIRCClient.quit = sandbox.stub(); // reset stub because it calls quit on creation once
       network.disconnect();
       assert.calledOnce(fakeIRCClient.quit);

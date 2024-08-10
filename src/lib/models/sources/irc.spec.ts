@@ -52,7 +52,7 @@ describe('IRCSource', () => {
           nicks: ['NICK'],
           matchers: [['match (.+\\.mkv) (.+)', 'file', 'link']],
         });
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');

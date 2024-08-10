@@ -106,7 +106,7 @@ describe('Source', () => {
         '/torrents': {},
         '/tmp/saveFileName.torrent': 'data',
       });
-      sandbox.stub(Config, 'getConfig').returns({ temporary_dir: '/tmp', torrent_dir: '/torrents' } as any);
+      sandbox.stub(Config, 'getConfig').returns({ storage: { transient_dir: '/tmp', torrents_dir: '/torrents' } } as any);
     });
 
     it('Does not do anything if file is in episodeCache', async () => {
@@ -164,7 +164,7 @@ describe('Source', () => {
 
   describe('getStoragePath', () => {
     beforeEach(() => {
-      sandbox.stub(Config, 'getConfig').returns({ storage_dir: '/dir' } as any);
+      sandbox.stub(Config, 'getConfig').returns({ storage: { persistent_dir: '/dir' } } as any);
     });
 
     it('Returns expected path', () => {
@@ -176,7 +176,7 @@ describe('Source', () => {
 
   describe('getTorrentPath', () => {
     beforeEach(() => {
-      sandbox.stub(Config, 'getConfig').returns({ temporary_dir: '/dir' } as any);
+      sandbox.stub(Config, 'getConfig').returns({ storage: { transient_dir: '/dir' } } as any);
     });
 
     it('Returns expected path', () => {

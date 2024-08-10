@@ -16,9 +16,9 @@ export class MkTorrent {
   public static async make(episode: Episode): Promise<void> {
     const storagePath = episode.getStoragePath();
     const torrentPath = episode.getTorrentPath();
-    const { tracker_url, tracker_source } = Config.getConfig();
+    const { tracker_uri, source_field } = Config.getConfig().mktorrent;
 
-    return MkTorrent.execute(['mktorrent', '-l', '19', '-p', '-s', tracker_source || '', '-a', tracker_url || '', '-o', torrentPath, storagePath]);
+    return MkTorrent.execute(['mktorrent', '-l', '19', '-p', '-s', source_field || '', '-a', tracker_uri || '', '-o', torrentPath, storagePath]);
   }
 
   private static async execute(cmd: Array<string>, retry = true): Promise<void> {

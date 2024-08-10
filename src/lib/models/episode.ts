@@ -58,6 +58,8 @@ export class Episode {
   }
 
   public async fetchEpisode() {
+    // Exit early if we're running in test mode
+    if (process.env.DISABLE_FETCHER) return;
     // Don't do anything if another instance of episode exists for this episode that's already fetching
     if (Episode.fetchingEpisodesCache[this.saveFileName]) return;
     // Check if this is already marked as completed in state
@@ -78,7 +80,7 @@ export class Episode {
       const mediaInfo = await MediaInfo.get(this.getStoragePath(), this.saveFileName);
       await MkTorrent.make(this);
       await Utils.retry((async () => await ABClient.upload(this, mediaInfo)).bind(this), 3, 30000);
-      await fs.rename(this.getTorrentPath(), path.resolve(Config.getConfig().torrent_dir || '', `${this.saveFileName}.torrent`));
+      await fs.rename(this.getTorrentPath(), path.resolve(Config.getConfig().storage?.torrents_dir || '', `${this.saveFileName}.torrent`));
 
       // Upload is complete, finish up
       logger.info(`Upload complete for ${this.formattedName()}`);
@@ -107,11 +109,11 @@ export class Episode {
   }
 
   public getStoragePath() {
-    return path.resolve(Config.getConfig().storage_dir || '', this.saveFileName);
+    return path.resolve(Config.getConfig().storage?.persistent_dir || '', this.saveFileName);
   }
 
   public getTorrentPath() {
-    return path.resolve(Config.getConfig().temporary_dir || '', `${this.saveFileName}.torrent`);
+    return path.resolve(Config.getConfig().storage?.transient_dir || '', `${this.saveFileName}.torrent`);
   }
 
   public formattedName() {

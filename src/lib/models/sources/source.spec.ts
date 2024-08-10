@@ -27,7 +27,7 @@ describe('Source', () => {
     it('Throws an error when trying to create an invalid type', () => {
       try {
         Source.createSource('badtype', {} as any, 'type', {});
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');
@@ -76,7 +76,7 @@ describe('Source', () => {
       const source = new Source('type', 'unhandled');
       try {
         source.getFetcherOptions('thing');
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');

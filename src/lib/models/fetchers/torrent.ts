@@ -37,7 +37,7 @@ export class TorrentFetcher extends Fetcher {
   }
 
   public async fetch() {
-    const tempDir = Config.getConfig().temporary_dir || '/tmp/fetcher';
+    const tempDir = Config.getConfig().storage?.transient_dir || '/tmp/fetcher2';
     while (TorrentFetcher.client.torrents.length >= TorrentFetcher.maxActiveDownloads) {
       // Throttle if too many torrents are in progress
       await Utils.sleep(10000);
@@ -50,10 +50,10 @@ export class TorrentFetcher extends Fetcher {
         return reject(new Error('Fetch Aborted'));
       };
       /*
-      Due to a design flaw in webtorrent, it can attach many listeners to a single emitter, which is discouraged by nodejs,
-      causing it to output a warning mentioning a 'possible memory leak' because too many listeners are attached.
-      In this case, it is not a memory leak (and is expected behavior), so we disable the max listener warning limit here to silence this message.
-      See this for more info: https://github.com/webtorrent/webtorrent/issues/889
+        Due to a design flaw in webtorrent, it can attach many listeners to a single emitter, which is discouraged by nodejs,
+        causing it to output a warning mentioning a 'possible memory leak' because too many listeners are attached.
+        In this case, it is not a memory leak (and is expected behavior), so we disable the max listener warning limit here to silence this message.
+        See this for more info: https://github.com/webtorrent/webtorrent/issues/889
       */
       torrent.setMaxListeners(0);
       const metadataError = () => {

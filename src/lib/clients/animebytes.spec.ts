@@ -12,7 +12,7 @@ describe('AnimeBytes', () => {
     sandbox = createSandbox();
     ABClient.username = 'testuser';
     ABClient.password = 'testpassword';
-    ABClient.shows_uri = 'testshowsuri';
+    ABClient.base_uri = 'http://example.com';
   });
 
   afterEach(() => {
@@ -21,14 +21,14 @@ describe('AnimeBytes', () => {
 
   describe('initialize', () => {
     beforeEach(() => {
-      sandbox.stub(Config, 'getConfig').returns({ tracker_user: 'user', tracker_pass: 'pass', shows_uri: 'uri' } as any);
+      sandbox.stub(Config, 'getConfig').returns({ animebytes: { username: 'user', password: 'pass', base_uri: 'uri' } } as any);
     });
 
     it('Loads static variables from config', async () => {
       await ABClient.initialize();
       expect(ABClient.username).to.equal('user');
       expect(ABClient.password).to.equal('pass');
-      expect(ABClient.shows_uri).to.equal('uri');
+      expect(ABClient.base_uri).to.equal('uri');
     });
   });
 
@@ -42,7 +42,7 @@ describe('AnimeBytes', () => {
     it('Throws an error when it doesnt receieve a redirect for login page', async () => {
       try {
         await ABClient.ensureLoggedIn();
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');
@@ -52,7 +52,7 @@ describe('AnimeBytes', () => {
       fetchStub.resolves({ statusCode: 303 });
       try {
         await ABClient.ensureLoggedIn();
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');
@@ -90,7 +90,7 @@ describe('AnimeBytes', () => {
       fakeEpisode.groupID = undefined as any;
       try {
         await ABClient.upload(fakeEpisode, fakeMediaInfo);
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');
@@ -100,7 +100,7 @@ describe('AnimeBytes', () => {
       await ABClient.upload(fakeEpisode, fakeMediaInfo);
       assert.calledOnce(fetchStub);
       const args = fetchStub.getCall(0).args;
-      expect(args[0]).to.equal('https://animebytes.tv/upload.php?type=anime&groupid=groupid');
+      expect(args[0]).to.equal('http://example.com/upload.php?type=anime&groupid=groupid');
       expect(args[1].method).to.equal('POST');
       // I don't think there's a way to pull params off of FormData for some reason, so I can't explicitly check request body here
     });
@@ -119,7 +119,7 @@ describe('AnimeBytes', () => {
       fetchStub.resolves({ statusCode: 400, body: 'hi' });
       try {
         await ABClient.upload(fakeEpisode, fakeMediaInfo);
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');
@@ -129,7 +129,7 @@ describe('AnimeBytes', () => {
       fetchStub.resolves({ statusCode: 200, body: 'the following error' });
       try {
         await ABClient.upload(fakeEpisode, fakeMediaInfo);
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');
@@ -158,7 +158,7 @@ describe('AnimeBytes', () => {
       fetchStub.resolves({ statusCode: 400 });
       try {
         await ABClient.getShows();
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');

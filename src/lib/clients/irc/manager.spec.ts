@@ -28,8 +28,10 @@ describe('IRCManager', () => {
       fakeCreateNetwork = sandbox.stub().returns(fakeNetwork);
 
       fakeConfig = {
-        irc_networks: { networkKey: { some: 'options' } },
-        irc_control: { network: 'networkKey', channel: 'channel' },
+        irc: {
+          networks: { networkKey: { some: 'options' } },
+          controller: { network: 'networkKey', channel: 'channel' },
+        },
       };
       sandbox.stub(Config, 'getConfig').returns(fakeConfig);
     });
@@ -54,7 +56,7 @@ describe('IRCManager', () => {
     });
 
     it('Does not throw if control network does not exist in network definitions', async () => {
-      fakeConfig.irc_control.network = 'badnetwork';
+      fakeConfig.irc.controller.network = 'badnetwork';
       await IRCManager.initialize(fakeCreateNetwork);
     });
 
@@ -93,7 +95,7 @@ describe('IRCManager', () => {
     it('Throws an error with unknown network key', async () => {
       try {
         await IRCManager.addChannelWatcher('badnetwork', 'chan', 'fakeCallback' as any);
-      } catch (e) {
+      } catch {
         return;
       }
       expect.fail('Did not throw');

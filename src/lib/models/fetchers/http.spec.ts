@@ -37,7 +37,7 @@ describe('HTTPFetcher', () => {
       HTTPFetcher.got.stream = fakeGot;
       const httpFetcher = new HTTPFetcher('/path/file.ok', { url: 'url' });
       fetchCmd = httpFetcher.fetch.bind(httpFetcher);
-      sandbox.stub(Config, 'getConfig').returns({ temporary_dir: '/dir' } as any);
+      sandbox.stub(Config, 'getConfig').returns({ storage: { transient_dir: '/dir' } } as any);
       mock({ '/path': {}, '/dir': {} });
     });
 

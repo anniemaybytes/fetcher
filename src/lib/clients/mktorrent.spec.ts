@@ -31,7 +31,7 @@ describe('MkTorrent', () => {
         getStoragePath: sandbox.stub(),
         getTorrentPath: sandbox.stub(),
       };
-      sandbox.stub(Config, 'getConfig').returns({ tracker_url: 'trackerurl', tracker_source: 'trackersource' } as any);
+      sandbox.stub(Config, 'getConfig').returns({ mktorrent: { tracker_uri: 'trackerurl', source_field: 'trackersource' } } as any);
     });
 
     it('Calls getStoragePath and getTorrentPath on the provided episode', async () => {
@@ -78,7 +78,7 @@ describe('MkTorrent', () => {
       execStub.rejects({ message: 'file exists' });
       try {
         await MkTorrent.make(episodeStub);
-      } catch (e) {
+      } catch {
         assert.calledOnceWithExactly(fsStub, 'torrentpath');
         assert.calledTwice(execStub);
         return;

@@ -53,7 +53,7 @@ describe('Utils', () => {
     it('Throws error and does not call function if times is less than 0', async () => {
       try {
         await Utils.retry(fnStub, -1);
-      } catch (e) {
+      } catch {
         assert.notCalled(fnStub);
         return;
       }
@@ -65,7 +65,7 @@ describe('Utils', () => {
       const retries = 4;
       try {
         await Utils.retry(fnStub, retries);
-      } catch (e) {
+      } catch {
         assert.callCount(fnStub, retries + 1);
         return;
       }

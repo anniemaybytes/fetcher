@@ -13,9 +13,9 @@ export class WebServer {
   public static async start(imp: any /* for testing */ = express) {
     const app = imp();
 
-    const port = Config.getConfig().http_port || 3004;
-    const bind = Config.getConfig().http_bind || '::';
-    app.locals.basePath = Config.getConfig().http_path || '';
+    const bind = Config.getConfig().http?.bind || '::';
+    const port = Config.getConfig().http?.port || 3004;
+    app.locals.basePath = Config.getConfig().http?.path || '';
 
     app.use('/static', express.static('dist/static'));
     WebServerRouter.register(app);

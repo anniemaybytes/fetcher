@@ -15,7 +15,7 @@ export class ShowsReleasersFetcher {
 
   // Returns true if shows have changed, or false if they have not
   public static async reload() {
-    const showsFile = Config.getConfig().shows_file || 'shows.json';
+    const showsFile = Config.getConfig().storage?.shows_file || 'shows.json';
     let showsBuf: Buffer;
     try {
       showsBuf = await ABClient.getShows();

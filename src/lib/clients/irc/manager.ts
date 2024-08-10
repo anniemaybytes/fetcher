@@ -17,7 +17,7 @@ export class IRCManager {
   public static async initialize(client: any /* for testing */ = IRCNetwork) {
     // Connect to all of the networks in the config
     await Promise.all(
-      Object.entries(Config.getConfig().irc_networks || {}).map(async ([key, options]) => {
+      Object.entries(Config.getConfig().irc?.networks || {}).map(async ([key, options]) => {
         const network = new client(key, options);
         try {
           // if failed to connect/register within timeout period, ignore this network
@@ -30,7 +30,7 @@ export class IRCManager {
       }),
     );
     // Configure the control network settings
-    const controlNetworkSettings = Config.getConfig().irc_control;
+    const controlNetworkSettings = Config.getConfig().irc?.controller;
     IRCManager.controlNetwork = IRCManager.networks[controlNetworkSettings.network];
     IRCManager.controlChannel = controlNetworkSettings.channel;
     if (!IRCManager.controlNetwork)
@@ -39,7 +39,7 @@ export class IRCManager {
       );
     try {
       await IRCManager.addChannelWatcher(controlNetworkSettings.network, IRCManager.controlChannel, IRCControl.handle);
-    } catch (e) {
+    } catch {
       logger.error(`Unable to join control channel ${IRCManager.controlChannel} on ${IRCManager.controlNetwork.name}`);
     }
   }

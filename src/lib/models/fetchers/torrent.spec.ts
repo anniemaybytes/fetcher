@@ -49,7 +49,7 @@ describe('TorrentFetcher', () => {
     let clock: any;
 
     beforeEach(() => {
-      sandbox.stub(Config, 'getConfig').returns({ temporary_dir: '/test' } as any);
+      sandbox.stub(Config, 'getConfig').returns({ storage: { transient_dir: '/test' } } as any);
       fakeTorrent = new EventEmitter();
       fakeTorrent.destroy = sandbox.stub();
       fakeTorrent.pause = sandbox.stub();

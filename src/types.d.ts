@@ -1,33 +1,46 @@
 export interface IRCNetworkConfig {
-  host: string;
+  address: string;
   port: number;
-  nick: string;
-  ssl?: boolean;
-  verify_certificate?: boolean;
+  use_ssl?: boolean;
+  verify_ssl?: boolean;
+  nickname: string;
   nickserv_password?: string;
 }
 
 export interface ConfigFile {
   state_db: string;
-  storage_dir: string;
-  torrent_dir: string;
-  temporary_dir: string;
-  tracker_url: string;
-  tracker_user: string;
-  tracker_pass: string;
-  tracker_source: string;
-  shows_file: string;
-  shows_uri: string;
-  http_bind: string;
-  http_port: number;
-  http_path: string;
-  debug: boolean;
-  irc_networks: {
-    [network: string]: IRCNetworkConfig;
+  storage: {
+    persistent_dir: string;
+    torrents_dir: string;
+    transient_dir: string;
+    shows_file: string;
   };
-  irc_control: {
-    network: string;
-    channel: string;
+  animebytes: {
+    username: string;
+    password: string;
+    m2m: {
+      captcha: string;
+      altcha: string;
+    };
+    base_uri: string;
+  };
+  mktorrent: {
+    tracker_uri: string;
+    source_field: string;
+  };
+  http: {
+    bind: string;
+    port: number;
+    path: string;
+  };
+  irc: {
+    networks: {
+      [network: string]: IRCNetworkConfig;
+    };
+    controller: {
+      network: string;
+      channel: string;
+    };
   };
 }
 

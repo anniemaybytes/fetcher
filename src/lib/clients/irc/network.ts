@@ -29,15 +29,15 @@ export class IRCNetwork {
     this.name = name;
     this.nickservPassword = options.nickserv_password;
 
-    const targetNick = options.nick.replace(/\$/g, Math.random().toString(36).substr(7, 3));
+    const targetNick = options.nickname.replace(/\$/g, Math.random().toString(36).substr(7, 3));
     this.connectOptions = {
-      host: options.host,
+      host: options.address,
       port: options.port || 6667,
       nick: targetNick,
       username: targetNick,
       gecos: targetNick,
-      ssl: options.ssl === undefined ? false : options.ssl,
-      rejectUnauthorized: options.verify_certificate === undefined ? true : options.verify_certificate,
+      ssl: options.use_ssl === undefined ? false : options.use_ssl,
+      rejectUnauthorized: options.verify_ssl === undefined ? true : options.verify_ssl,
     };
 
     // Reconnection handled manually otherwise messages can be dropped when not connected
@@ -92,7 +92,7 @@ export class IRCNetwork {
     for (const channel of this.previouslyJoinedChannels) {
       try {
         await this.joinRoom(channel);
-      } catch (e) {
+      } catch {
         logger.error(`Unable to rejoin IRC channel ${channel} on ${this.name} after reconnect`);
       }
     }

@@ -3,6 +3,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v7.0.0
+### Added
+- Support for machine-to-machine schema for bypassing captcha challenges
+
+### Changed
+- Refactor `config.json` schema
+
 ## v6.3.0
 ### Changed
 - Rebuild utp-native for musl compatibility in Dockerfile

@@ -50,7 +50,7 @@ export class HTTPFetcher extends Fetcher {
           this.length = parseInt(response.headers['content-length'] || '', 10);
           if (!this.length) return end(new Error(`No content-length provided by ${this.url}`));
           // Create writestream to temporary file location
-          const tempFilePath = path.resolve(Config.getConfig().temporary_dir || '/tmp', path.basename(this.path));
+          const tempFilePath = path.resolve(Config.getConfig().storage?.transient_dir || '/tmp/fetcher2', path.basename(this.path));
           pipeline(response.request, fs.createWriteStream(tempFilePath, { mode: 0o644 }), (err) => {
             if (this.aborted) return;
             this.abort = undefined; // Can no longer abort once we get to this point
