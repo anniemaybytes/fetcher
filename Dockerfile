@@ -1,4 +1,4 @@
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 WORKDIR /app
 RUN apk --no-cache add ca-certificates mktorrent mediainfo
 
@@ -7,10 +7,8 @@ COPY package.json .
 COPY yarn.lock .
 RUN yarn --frozen-lockfile --non-interactive
 COPY . .
-# Build and trim node_modules dependencies
 RUN yarn build && mv yarnclean .yarnclean && yarn --frozen-lockfile --non-interactive --production
-# Rebuild native runtime dependencies to ensure musl compatibility (ref. https://github.com/webtorrent/webtorrent/issues/2604)
-RUN apk --no-cache add build-base python3 && npm rebuild utp-native --build-from-source
+RUN apk --no-cache add build-base python3 && npm rebuild utp-native --build-from-source # https://github.com/webtorrent/webtorrent/issues/2604
 
 FROM base AS release
 ENV NODE_ENV production

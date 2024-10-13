@@ -42,6 +42,13 @@
         "webtorrent"
       ],
       "allowedVersions": "<2.3.0"
+    },
+    {
+      "matchPackageNames": [
+        "express",
+        "@types/express"
+      ],
+      "allowedVersions": "<5.0.0"
     }
   ]
 }

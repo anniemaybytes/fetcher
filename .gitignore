@@ -28,7 +28,7 @@ package-lock.json
 # Built TS
 dist/
 
-# ide
+# IDEs
 .idea
 *.swp
 .vscode

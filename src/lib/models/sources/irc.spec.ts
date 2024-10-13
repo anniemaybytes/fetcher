@@ -101,20 +101,20 @@ describe('IRCSource', () => {
     });
 
     it('Adds message to new cache if multiline', async () => {
-      const date = new Date(1234);
-      clock = useFakeTimers(date);
+      const fakeTime = new Date(1234);
+      clock = useFakeTimers({ now: fakeTime, toFake: ['Date'] });
       ircSource.multiLine = 2;
       await ircSource.messageCallback({ nick: 'nick', target: 'target', message: 'match thing.mkv link' } as any);
-      expect(ircSource.msgCache).to.deep.equal({ 'target|nick': { lastUpdated: date, messages: ['match thing.mkv link'] } });
+      expect(ircSource.msgCache).to.deep.equal({ 'target|nick': { lastUpdated: fakeTime, messages: ['match thing.mkv link'] } });
     });
 
     it('Adds message to existing cache if multiline', async () => {
-      const date = new Date(1234);
-      clock = useFakeTimers(date);
+      const fakeTime = new Date(1234);
+      clock = useFakeTimers({ now: fakeTime, toFake: ['Date'] });
       ircSource.multiLine = 3;
-      ircSource.msgCache = { 'target|nick': { lastUpdated: date, messages: ['one'] } } as any;
+      ircSource.msgCache = { 'target|nick': { lastUpdated: fakeTime, messages: ['one'] } } as any;
       await ircSource.messageCallback({ nick: 'nick', target: 'target', message: 'match thing.mkv link' } as any);
-      expect(ircSource.msgCache).to.deep.equal({ 'target|nick': { lastUpdated: date, messages: ['one', 'match thing.mkv link'] } });
+      expect(ircSource.msgCache).to.deep.equal({ 'target|nick': { lastUpdated: fakeTime, messages: ['one', 'match thing.mkv link'] } });
     });
 
     it('Parses episode for matching episode', async () => {

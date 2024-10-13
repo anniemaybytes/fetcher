@@ -276,7 +276,7 @@ describe('Source', () => {
     let clock: SinonFakeTimers;
 
     beforeEach(() => {
-      clock = useFakeTimers(new Date(1585970425775));
+      clock = useFakeTimers({ now: new Date(1585970425775), toFake: ['Date'] });
       getMock = sandbox.stub(LevelDB, 'get');
       putMock = sandbox.stub(LevelDB, 'put');
       episode = new Episode();
