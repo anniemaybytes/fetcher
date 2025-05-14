@@ -10,7 +10,7 @@ import { Utils } from '../../utils.js';
 export class TorrentFetcher extends Fetcher {
   // TODO: Threading solution for torrent, so it doesn't eat the CPU
   public static client = new WebTorrent({
-    maxConns: 150,
+    maxConns: 25,
     dht: true,
     webSeeds: false,
     utp: true,
@@ -19,7 +19,7 @@ export class TorrentFetcher extends Fetcher {
     },
   });
   public static noPeerTimeout = 1000 * 60 * 5; // 5 minutes
-  public static maxActiveDownloads = 5;
+  public static maxActiveDownloads = 3;
 
   uri: string;
   abort?: () => void;

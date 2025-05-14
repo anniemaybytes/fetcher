@@ -3,7 +3,7 @@
     "target": "es2022",
     "outDir": "./dist/",
     "rootDir": "./src/",
-    "module": "node16",
+    "module": "node18",
     "declaration": false,
     "esModuleInterop": true,
     "importHelpers": true,
