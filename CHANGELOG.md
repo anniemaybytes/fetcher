@@ -3,6 +3,14 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v9.0.0
+### Changed
+- Bumped minimum supported Node version to v22.11.0
+- Revert "Bump maximum number of peers in webtorrent to 150"
+- Reduce maximum number of peers in webtorrent to 150
+- Reduce number of active torrent downloads
+- Updated webtorrent to v2.6.8
+
 ## v8.0.0
 ### Changed
 - Bumped minimum supported Node version to v20.9.0

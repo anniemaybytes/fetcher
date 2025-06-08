@@ -17,10 +17,7 @@
   "minimumReleaseAge": "3 days",
   "semanticCommits": "disabled",
   "ignorePaths": [],
-  "ignoreDeps": [
-    "torrent-discovery",
-    "bittorrent-tracker"
-  ],
+  "ignoreDeps": [],
   "lockFileMaintenance": {
     "enabled": true,
     "automerge": true,
@@ -36,12 +33,6 @@
       "extends": [
         "schedule:weekends"
       ]
-    },
-    {
-      "matchPackageNames": [
-        "webtorrent"
-      ],
-      "allowedVersions": "<2.3.0"
     },
     {
       "matchPackageNames": [
