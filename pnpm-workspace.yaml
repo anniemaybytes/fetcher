@@ -1,0 +1,10 @@
+strictDepBuilds: true
+onlyBuiltDependencies:
+  - bufferutil
+  - classic-level
+  - esbuild
+  - node-datachannel
+  - utf-8-validate
+  - utp-native
+ignoredBuiltDependencies:
+  - core-js

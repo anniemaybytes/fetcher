@@ -13,8 +13,6 @@ coverage
 
 # Dependencies
 node_modules/
-package-lock.json
-.yarn-integrity
 
 # Cache directories
 *.tsbuildinfo

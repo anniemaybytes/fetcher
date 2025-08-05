@@ -28,14 +28,14 @@ downloads as well as to remove state information for specific episodes.
 
 ## Installation
 
-fetcher requires NodeJS v22.11 or later and [Yarn package manager](https://classic.yarnpkg.com/).
+fetcher requires NodeJS v22.11 or later and [pnpm](https://pnpm.io/).
 Additionally you need these external tools present in `PATH`:
 
 - `mktorrent` >= 1.1
 - `MediaInfo` CLI + Lib >= 18.03
 
 ```sh
-yarn --frozen-lockfile && yarn build
+pnpm install && pnpm build
 node dist/index.js
 ```
 

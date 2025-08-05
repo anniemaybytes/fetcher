@@ -8,9 +8,10 @@ steps:
         image: node:22-alpine
         pull: always
         commands:
-            - yarn --frozen-lockfile --non-interactive
-            - yarn lint
-            - yarn build
+            - corepack enable
+            - pnpm install
+            - pnpm lint
+            - pnpm build
 
 trigger:
     ref:
@@ -30,9 +31,10 @@ steps:
         image: node:22-alpine
         pull: always
         commands:
-            - yarn --frozen-lockfile --non-interactive
-            - apk --no-cache add build-base python3 && npm rebuild utp-native --build-from-source
-            - yarn test
+            - corepack enable
+            - pnpm install
+            - apk --no-cache add build-base python3 && pnpm --config.build-from-source rebuild utp-native
+            - pnpm test
 
 trigger:
     ref:
