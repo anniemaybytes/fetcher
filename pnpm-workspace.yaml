@@ -1,3 +1,4 @@
+strictPeerDependencies: true
 strictDepBuilds: true
 onlyBuiltDependencies:
   - bufferutil
