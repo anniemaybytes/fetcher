@@ -1,9 +1,16 @@
 {
   "extends": [
-    "config:recommended",
+    "config:best-practices",
     "docker:disableMajor",
+    "npm:unpublishSafe",
+    "security:openssf-scorecard",
     ":automergeTypes",
     ":automergeLinters"
+  ],
+  "ignorePresets": [
+    "mergeConfidence:all-badges",
+    "mergeConfidence:age-confidence-badges",
+    "docker:pinDigests"
   ],
   "labels": [
     "kind/deps"
@@ -14,7 +21,6 @@
       "kind/security"
     ]
   },
-  "minimumReleaseAge": "3 days",
   "semanticCommits": "disabled",
   "ignorePaths": [],
   "ignoreDeps": [],

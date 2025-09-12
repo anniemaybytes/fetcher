@@ -1,6 +1,9 @@
-FROM node:22-alpine AS base
+FROM node:22-slim AS base
 WORKDIR /app
-RUN apk --no-cache add ca-certificates mktorrent mediainfo
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && \
+    apt-get install --no-install-recommends -y ca-certificates mediainfo mktorrent && \
+    rm -rf /var/lib/apt/lists/*
 
 FROM base AS builder
 RUN corepack enable
@@ -9,9 +12,7 @@ COPY pnpm-lock.yaml .
 COPY pnpm-workspace.yaml .
 RUN pnpm install --frozen-lockfile
 COPY . .
-RUN pnpm build
-RUN apk --no-cache add build-base python3 && pnpm --config.build-from-source rebuild utp-native # https://github.com/webtorrent/webtorrent/issues/2604
-RUN pnpm prune --prod
+RUN pnpm build && pnpm prune --prod
 
 FROM base AS release
 ENV NODE_ENV production

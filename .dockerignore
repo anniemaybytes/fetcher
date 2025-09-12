@@ -15,7 +15,6 @@ coverage
 node_modules/
 
 # Cache directories
-*.tsbuildinfo
 .npm
 .eslintcache
 .cache
@@ -26,7 +25,7 @@ node_modules/
 # Built TS
 dist/
 
-# ide
+# IDEs
 .idea
 *.swp
 .vscode
@@ -37,8 +36,14 @@ desktop.ini
 .direnv
 .env
 
+# Repository Metadata
+.gitignore
+.git
+.forgejo/
+.editorconfig
+renovate.json
+
 # Application/Config
-/file_storage/
-/state.ldb
+state.ldb
 shows.json
 config.json
