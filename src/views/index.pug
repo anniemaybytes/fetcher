@@ -17,8 +17,7 @@ block content
         th Action
       each file in files
         tr
-          td
-            span(title=file.saveFileName)= file.formatted
+          td= file.formatted
           td= file.progress
           td= file.modified
           td= file.error

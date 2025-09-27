@@ -24,6 +24,11 @@ export interface ConfigFile {
     };
     base_uri: string;
   };
+  webtorrent: {
+    max_conns: number;
+    utp: boolean;
+    concurrency: number;
+  };
   mktorrent: {
     tracker_uri: string;
     source_field: string;

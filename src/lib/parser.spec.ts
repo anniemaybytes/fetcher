@@ -18,7 +18,7 @@ describe('Parser', () => {
     let fakeShow: any;
     let fakeSource: any;
     const fakeFetchOptions: any = 'fetchOptions';
-    const validFileName = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv';
+    const validTitle = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv';
 
     beforeEach(() => {
       Parser.clearUnpasableCache();
@@ -45,14 +45,14 @@ describe('Parser', () => {
     });
 
     it('Assigns fetchOptions to parsed episode', () => {
-      const episode = Parser.parseWantedEpisode(validFileName, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${validFileName} did not parse properly`);
+      const episode = Parser.parseWantedEpisode(validTitle, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${validTitle} did not parse properly`);
       expect(episode.fetchOptions).to.equal('fetchOptions');
     });
 
     it('Assigns options from provided source', () => {
-      const episode = Parser.parseWantedEpisode(validFileName, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${validFileName} did not parse properly`);
+      const episode = Parser.parseWantedEpisode(validTitle, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${validTitle} did not parse properly`);
       expect(episode.showName).to.equal(fakeShow.name);
       expect(episode.groupID).to.equal(fakeShow.groupID);
       expect(episode.media).to.equal(fakeShow.releasers.groupKey.media);
@@ -61,9 +61,9 @@ describe('Parser', () => {
       expect(episode.fetchType).to.equal(fakeSource.fetchType);
     });
 
-    it('Correctly parses filenames into episodes with expected values', () => {
+    it('Correctly parses titles into episodes with expected values', () => {
       // covers single and 2-digit episodes and rest of metadata
-      let files = [
+      let titles = [
         '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv',
         '[TerribleSubs]_Some_アニメ_-_01_[BD720p][123A4BC5].mkv',
         '[TerribleSubs]_Some_アニメ_-_EP01_[720p][123A4BC5].mkv',
@@ -81,9 +81,9 @@ describe('Parser', () => {
         '[SomeOne]_Some_アニメ_-_01_[720p_x264]_[10bit]_[123A4BC5].mkv',
         '[Broken-Stuff] Pocket Bugs (2019) 001 (720p) [123A4BC5].mkv',
       ];
-      files.forEach((file) => {
-        const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-        if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      titles.forEach((title) => {
+        const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+        if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
         expect(episode.episode).to.equal(1);
         expect(episode.version).to.equal(1);
         expect(episode.resolution).to.equal('720p');
@@ -92,69 +92,66 @@ describe('Parser', () => {
       });
 
       // covers 3-digit episodes
-      files = ['Some アニメ Episode 100 (720p AAC) (123A4BC5).mkv', '[TerribleSubs] Some アニメ - 100 [720p][123A4BC5].mkv'];
-      files.forEach((file) => {
-        const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-        if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      titles = ['Some アニメ Episode 100 (720p AAC) (123A4BC5).mkv', '[TerribleSubs] Some アニメ - 100 [720p][123A4BC5].mkv'];
+      titles.forEach((title) => {
+        const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+        if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
         expect(episode.episode).to.equal(100);
       });
 
       // covers 4-digit episodes
-      files = ['Some アニメ Episode 1000 (720p AAC) (123A4BC5).mkv', '[TerribleSubs] Some アニメ - 1000 [720p][123A4BC5].mkv'];
-      files.forEach((file) => {
-        const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-        if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      titles = ['Some アニメ Episode 1000 (720p AAC) (123A4BC5).mkv', '[TerribleSubs] Some アニメ - 1000 [720p][123A4BC5].mkv'];
+      titles.forEach((title) => {
+        const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+        if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
         expect(episode.episode).to.equal(1000);
       });
     });
 
     it('Should use the last possible match for the episode', () => {
-      const files = ['[TerribleSubs] Some 99 Thing - 10 [720p][123A4BC5].mkv', 'Some 99 Things Episode 10 (720p) (123A4BC5).mkv'];
-      files.forEach((file) => {
-        const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-        if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      const titles = ['[TerribleSubs] Some 99 Thing - 10 [720p][123A4BC5].mkv', 'Some 99 Things Episode 10 (720p) (123A4BC5).mkv'];
+      titles.forEach((title) => {
+        const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+        if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
         expect(episode.episode).to.equal(10);
       });
     });
 
     it('Should not parse with multi-episode', () => {
-      const files = [
+      const titles = [
         '[TerribleSubs] Some アニメ - 01-12 [720p][123A4BC5].mkv',
         '[Broken-Stuff] Pocket Bugs (2019) 001-012 (1080p)',
         '[Broken-Stuff] Pocket Bugs [2019] 001-012 [720p] (123A4BC5)',
       ];
-      files.forEach((file) => {
-        const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      titles.forEach((title) => {
+        const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
         expect(episode).to.be.undefined;
       });
     });
 
     it('Should parse the version if it exists and is within range', function () {
-      let file = '[TerribleSubs] Some アニメ - 01v2 [720p].mkv';
-      let episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      let title = '[TerribleSubs] Some アニメ - 01v2 [720p].mkv';
+      let episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
       expect(episode.version).to.equal(2);
 
-      // should be able to properly parse with a leading 0 in the version
-      file = '[TerribleSubs] Some アニメ - 01v02 [720p].mkv';
-      episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      title = '[TerribleSubs] Some アニメ - 01v02 [720p].mkv'; // leading 0 in the version
+      episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
       expect(episode.version).to.equal(2);
 
-      // 0 is in range
-      file = '[TerribleSubs] Some アニメ - 01v0 [720p].mkv';
-      episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      title = '[TerribleSubs] Some アニメ - 01v0 [720p].mkv'; // 0 is in range
+      episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
       expect(episode.version).to.equal(0);
 
-      // negative number should be an error
-      file = '[TerribleSubs] Some アニメ - 01v-1 [720p].mkv';
-      episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      title = '[TerribleSubs] Some アニメ - 01v-1 [720p].mkv'; // negative number should be an error
+      episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
       expect(episode).to.be.undefined;
     });
 
     it('Should detect a bunch of valid resolutions', () => {
-      const files = {
+      const titles = {
         'Some アニメ - 01 720p.mkv': '720p',
         'Some アニメ - 01 [1080p].mkv': '1080p',
         'Some アニメ - 01 BD480p.mkv': '848x480',
@@ -164,135 +161,134 @@ describe('Parser', () => {
         'Some アニメ - 01 (540p).mkv': '960x540',
       };
 
-      Object.entries(files).forEach(([filename, expectedRes]) => {
-        const episode = Parser.parseWantedEpisode(filename, fakeFetchOptions, fakeSource);
-        if (!episode) expect.fail(`Episode for file ${filename} did not parse properly`);
+      Object.entries(titles).forEach(([title, expectedRes]) => {
+        const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+        if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
         expect(episode.resolution).to.equal(expectedRes);
       });
     });
 
     it('Should parse the CRC if it exists', () => {
-      let file = '[TerribleSubs] Some アニメ - 01 [720p].mkv';
-      let episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      let title = '[TerribleSubs] Some アニメ - 01 [720p].mkv';
+      let episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
       expect(episode.crc).to.be.undefined;
 
-      file = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv';
-      episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      title = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv';
+      episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
       expect(episode.crc).to.equal('123A4BC5');
 
-      file = '[TerribleSubs] Some アニメ - 01 [720p][123a4bc5].mkv'; // Lowercase
-      episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      title = '[TerribleSubs] Some アニメ - 01 [720p][123a4bc5].mkv'; // lowercase
+      episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
       expect(episode.crc).to.equal('123A4BC5');
     });
 
     it('Should use the last possible match for the CRC', () => {
-      const file = '[TerribleSubs] Some アニメ [12345678] - 01 [720p][123A4BC5].mkv';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      const title = '[TerribleSubs] Some アニメ [12345678] - 01 [720p][123A4BC5].mkv';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
       expect(episode.crc).to.equal('123A4BC5');
     });
 
     it('Should not match inconsistently formatted CRCs', () => {
-      const file = '[TerribleSubs] Some アニメ - 01 [720p][Abcdabcd].mkv';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      const title = '[TerribleSubs] Some アニメ - 01 [720p][AbcdaBcd].mkv';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
       expect(episode.crc).to.be.undefined;
     });
 
-    it('Should not match CRCs at the start of the filename', () => {
-      const file = '[12345678] Some アニメ - 01 [720p].mkv';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+    it('Should not match CRCs at the start of the title', () => {
+      const title = '[12345678] Some アニメ - 01 [720p].mkv';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
       expect(episode.crc).to.be.undefined;
     });
 
     it('Should not parse if it cannot find a matching show', () => {
       fakeSource.group.findShow.returns(undefined);
-      const episode = Parser.parseWantedEpisode(validFileName, fakeFetchOptions, fakeSource);
+      const episode = Parser.parseWantedEpisode(validTitle, fakeFetchOptions, fakeSource);
       expect(episode).to.be.undefined;
     });
 
     it('Should not match container with whitespaces', () => {
-      const file = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv v2';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      const title = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv v2';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
       expect(episode).to.be.undefined;
     });
 
     it('Should not match with missing container', () => {
-      const file = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5]';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      const title = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5]';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
       expect(episode).to.be.undefined;
     });
 
-    it('Should use default container from source if not found in file', () => {
+    it('Should use default container from source if not found in title', () => {
       fakeSource.defaults.container = 'mkv';
-      const file = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5]';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      const title = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5]';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
       expect(episode.container).to.equal('mkv');
-      expect(episode.saveFileName.endsWith('.mkv')).to.be.true;
     });
 
     it('Should not parse if discovered container is different from source expected container', () => {
       fakeSource.defaults.container = 'mp4';
-      const file = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      const title = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
       expect(episode).to.be.undefined;
     });
 
-    it('Should use default resolution from source if not found in file', () => {
+    it('Should use default resolution from source if not found in title', () => {
       fakeSource.defaults.res = '1080p';
-      const file = '[TerribleSubs] Some アニメ - 01 [123A4BC5].mkv';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
+      const title = '[TerribleSubs] Some アニメ - 01 [123A4BC5].mkv';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
+      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
       expect(episode.resolution).to.equal('1080p');
     });
 
     it('Should not parse if resolution is not wanted on the show', () => {
       fakeShow.wantedResolutions = ['1080p'];
-      const file = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      const title = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
       expect(episode).to.be.undefined;
     });
 
     it('Should not parse if resolution is not known', () => {
-      const file = '[TerribleSubs] Some アニメ - 01 [100x100][123A4BC5].mkv';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      const title = '[TerribleSubs] Some アニメ - 01 [100x100][123A4BC5].mkv';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
       expect(episode).to.be.undefined;
     });
 
     it('Should not parse with no resolution', () => {
-      const file = '[TerribleSubs] Some アニメ - 01 [123A4BC5].mkv';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      const title = '[TerribleSubs] Some アニメ - 01 [123A4BC5].mkv';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
       expect(episode).to.be.undefined;
     });
 
     it('Should not parse with invalid episode', () => {
-      const file = '[TerribleSubs] Some アニメ - 0v1 [720p][123A4BC5].mkv';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
+      const title = '[TerribleSubs] Some アニメ - 0v1 [720p][123A4BC5].mkv';
+      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
       expect(episode).to.be.undefined;
     });
 
-    it('Should not parse with empty filename', () => {
+    it('Should not parse with empty title', () => {
       const episode = Parser.parseWantedEpisode('', fakeFetchOptions, fakeSource);
       expect(episode).to.be.undefined;
     });
 
-    it('Should use unparseableCache to return early if parsing known bad filename', () => {
+    it('Should use unparseableCache to return early if parsing known bad title', () => {
       Parser.parseWantedEpisode('bad', fakeFetchOptions, fakeSource);
       Parser.parseWantedEpisode('bad', fakeFetchOptions, fakeSource);
       // ensure this was only called once, even though we called function twice with same inputs
       assert.calledOnce(fakeSource.group.findShow);
     });
 
-    it('Trims .torrent off of provided filename', () => {
+    it('Trims .torrent off of provided title', () => {
       const file = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv.torrent';
       const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for file ${file} did not parse properly`);
-      expect(episode.saveFileName).to.equal('[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv');
+      if (!episode) expect.fail(`Episode for ${file} did not parse properly`);
+      expect(episode?.container).to.equal('mkv');
     });
   });
 });

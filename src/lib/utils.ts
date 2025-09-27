@@ -1,3 +1,7 @@
+import { existsSync, mkdirSync, promises as fs } from 'fs';
+import os from 'os';
+import path from 'path';
+
 import { Logger } from './logger.js';
 const logger = Logger.get('Utils');
 
@@ -29,5 +33,22 @@ export class Utils {
       }
     }
     throw lastError;
+  }
+
+  public static async moveFile(oldPath: string, newPath: string): Promise<void> {
+    try {
+      await fs.rename(oldPath, newPath);
+    } catch (e) {
+      if (e.code === 'EXDEV') {
+        await fs.copyFile(oldPath, newPath);
+        await fs.unlink(oldPath);
+      } else throw e;
+    }
+  }
+
+  public static getTemporaryDir(): string {
+    const tempPath = path.resolve(os.tmpdir(), 'fetcher2');
+    if (!existsSync(tempPath)) mkdirSync(tempPath);
+    return tempPath;
   }
 }

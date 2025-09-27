@@ -4,7 +4,7 @@ import { Episode } from '../models/episode.js';
 export class WebServerUtility {
   public static async getEpisodeData() {
     const rawData = await LevelDB.list();
-    rawData.forEach((data) => {
+    rawData.forEach(([levelDbKey, data]) => {
       data.formatted = Episode.episodeFormattedName(
         data.showName,
         data.episode,
@@ -14,12 +14,12 @@ export class WebServerUtility {
         data.container,
         data.crc,
       );
-      if (Episode.fetchingEpisodesCache[data.saveFileName] && Episode.fetchingEpisodesCache[data.saveFileName].formattedName() === data.formatted) {
-        data.progress = Episode.fetchingEpisodesCache[data.saveFileName].getProgressString();
+      if (Episode.fetchingEpisodesCache[levelDbKey]) {
+        data.progress = Episode.fetchingEpisodesCache[levelDbKey].getProgressString();
       } else {
         data.progress = data.state;
       }
     });
-    return rawData;
+    return rawData.map((item) => item.pop());
   }
 }

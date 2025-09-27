@@ -1,5 +1,7 @@
 import { SinonSandbox, createSandbox, SinonStub, assert } from 'sinon';
 import { expect } from 'chai';
+import { readFile, existsSync } from 'fs';
+import mock from 'mock-fs';
 
 import { Utils } from './utils.js';
 
@@ -114,6 +116,26 @@ describe('Utils', () => {
       assert.callCount(sleepStub, 4);
       assert.calledWithExactly(sleepStub.getCall(2), initialWaitTime * 2);
       assert.calledWithExactly(sleepStub.getCall(3), initialWaitTime * 3);
+    });
+  });
+
+  describe('moveFile', () => {
+    beforeEach(() => {
+      mock({
+        '/new': {},
+        '/old/filename.dat': 'data',
+      });
+    });
+
+    it('Moves file properly', (done) => {
+      Utils.moveFile('/old/filename.dat', '/new/filename.dat').then(() => {
+        readFile('/new/filename.dat', (err, data) => {
+          expect(!!err).to.be.false;
+          expect(data.toString()).to.equal('data'); // check file contents
+          expect(existsSync('/old/filename.dat')).to.be.false; // ensure file does not exist at old path anymore
+          done();
+        });
+      });
     });
   });
 });

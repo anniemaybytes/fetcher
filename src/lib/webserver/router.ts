@@ -14,17 +14,17 @@ export class WebServerRouter {
   static registerApi(app: express.Application) {
     const router = express.Router();
 
-    router.delete('/episode/:formattedShowName', async (req, res) => {
-      const title = req.params.formattedShowName;
-      if (!title) return res.status(400).json({ error: 'Must provide episode formatted name to delete' });
+    router.delete('/episode/:formattedName', async (req, res) => {
+      const name = req.params.formattedName;
+      if (!name) return res.status(400).json({ error: 'Must provide episode formatted name to delete' });
       try {
-        const state = await LevelDB.get(`file::${title}`);
+        const state = await LevelDB.get(`file::${name}`);
         // Use currently fetching episode if it exists, otherwise create new episode model from state
-        let episode = Episode.fetchingEpisodesCache[state.saveFileName];
-        if (!episode || episode.formattedName() !== title) episode = Episode.fromStorageJSON(state);
+        let episode = Episode.fetchingEpisodesCache[`file::${name}`];
+        if (!episode) episode = Episode.fromStorageJSON(state);
         // Abort fetching episode (if necessary) and delete it from state
         await episode.abortAndDelete();
-        return res.status(200).json({ success: `Deleted ${title}` });
+        return res.status(200).json({ success: `Deleted ${name}` });
       } catch (e) {
         if (e.code === 'LEVEL_NOT_FOUND') return res.status(404).json({ error: 'Requested item was not found' });
         return res.status(500).json({ error: 'Internal Server Error', exception: e });
@@ -42,14 +42,14 @@ export class WebServerRouter {
     router.use(WebServerMiddleware.generateBreadcrumbsMiddleware);
     router.use(WebServerMiddleware.loadWebpackManifest);
 
-    router.get('/', async (req, res) => {
+    router.get('/', async (_req, res) => {
       const episodes = await WebServerUtility.getEpisodeData();
-      const grouped = episodes.reduce((r, v, i, a, k = v.state) => ((r[k] || (r[k] = [])).push(v), r), {});
+      const grouped = episodes.reduce((r, v, _i, _a, k = v.state) => ((r[k] || (r[k] = [])).push(v), r), {});
       delete grouped.complete;
       res.render('index', { input: grouped });
     });
 
-    router.get('/shows', async (req, res) => {
+    router.get('/shows', async (_req, res) => {
       const episodes = await WebServerUtility.getEpisodeData();
       const shows: { [showName: string]: { latestEpisode: number; lastModified: string } } = {};
       episodes.forEach((episode) => {
@@ -69,10 +69,10 @@ export class WebServerRouter {
       res.render('shows', { input: shows });
     });
 
-    router.get('/shows/:title', async (req, res) => {
-      const title = req.params.title;
+    router.get('/shows/:showName', async (req, res) => {
+      const name = req.params.showName;
       let episodes = await WebServerUtility.getEpisodeData();
-      episodes = episodes.filter((episode) => episode.showName === title).sort((a, b) => a.formatted.localeCompare(b.formatted));
+      episodes = episodes.filter((episode) => episode.showName === name).sort((a, b) => a.formatted.localeCompare(b.formatted));
       res.render('show', { input: episodes });
     });
 

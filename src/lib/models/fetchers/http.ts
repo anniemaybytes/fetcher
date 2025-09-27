@@ -1,10 +1,12 @@
 import path from 'path';
-import fs from 'fs';
+import { createWriteStream } from 'fs';
+import { URL } from 'url';
 import { pipeline } from 'stream';
 import got, { Response } from 'got';
 
 import { Fetcher } from './fetcher.js';
 import { Config } from '../../clients/config.js';
+import { Utils } from '../../utils.js';
 import { HTTPFetchOptions } from '../../../types.js';
 
 export class HTTPFetcher extends Fetcher {
@@ -15,15 +17,21 @@ export class HTTPFetcher extends Fetcher {
   });
 
   public url: string;
+  public filename: string;
   public abort?: () => void;
 
-  constructor(path: string, options: HTTPFetchOptions) {
-    super('http', path);
+  constructor(options: HTTPFetchOptions) {
+    super('http');
+
+    const filename = new URL(options.url).pathname.replace('/', '');
+    if (filename == '') throw new Error(`No valid filename can be infered from ${options.url}`);
+
     this.url = options.url;
+    this.filename = filename;
   }
 
   public async fetch() {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<string>((resolve, reject) => {
       // Make initial http request
       this.fetched = 0;
       HTTPFetcher.got
@@ -38,26 +46,34 @@ export class HTTPFetcher extends Fetcher {
             this.abort = undefined;
             if (err) reject(err);
             response.request.destroy();
-            resolve();
+            resolve(this.filename);
           };
           this.abort = () => {
             this.aborted = true;
             end(new Error('Fetch aborted'));
           };
 
-          if (Math.floor(response.statusCode / 100) !== 2)
-            return end(new Error(`Error fetching HTTP content from ${this.url} - HTTP status ${response.statusCode}`));
+          if (Math.floor(response.statusCode / 100) !== 2) {
+            return end(new Error(`Error fetching content from ${this.url} - HTTP status ${response.statusCode}`));
+          }
           this.length = parseInt(response.headers['content-length'] || '', 10);
-          if (!this.length) return end(new Error(`No content-length provided by ${this.url}`));
+          if (!this.length) return end(new Error(`No Content-Length provided by ${this.url}`));
+
           // Create writestream to temporary file location
-          const tempFilePath = path.resolve(Config.getConfig().storage?.transient_dir || '/tmp/fetcher2', path.basename(this.path));
-          pipeline(response.request, fs.createWriteStream(tempFilePath, { mode: 0o644 }), (err) => {
-            if (this.aborted) return;
-            this.abort = undefined; // Can no longer abort once we get to this point
-            if (err) return end(err);
-            // Move completed file download to final location
-            fs.rename(tempFilePath, this.path, end);
-          });
+          pipeline(
+            response.request,
+            createWriteStream(path.resolve(Config.getConfig().storage?.transient_dir || Utils.getTemporaryDir(), this.filename), { mode: 0o644 }),
+            (err) => {
+              if (this.aborted) return;
+              this.abort = undefined; // Can no longer abort once we get to this point
+              if (err) return end(err);
+              // Move completed file download to final location
+              Utils.moveFile(
+                path.resolve(Config.getConfig().storage?.transient_dir || Utils.getTemporaryDir(), this.filename),
+                path.resolve(Config.getConfig().storage?.persistent_dir || '', this.filename),
+              ).then(() => end());
+            },
+          );
         });
     });
   }

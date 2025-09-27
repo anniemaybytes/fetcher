@@ -10,8 +10,8 @@ describe('AnimeBytes', () => {
 
   beforeEach(() => {
     sandbox = createSandbox();
-    ABClient.username = 'testuser';
-    ABClient.password = 'testpassword';
+    ABClient.username = 'username';
+    ABClient.password = 'password';
     ABClient.base_uri = 'http://example.com';
   });
 
@@ -21,14 +21,16 @@ describe('AnimeBytes', () => {
 
   describe('initialize', () => {
     beforeEach(() => {
-      sandbox.stub(Config, 'getConfig').returns({ animebytes: { username: 'user', password: 'pass', base_uri: 'uri' } } as any);
+      sandbox
+        .stub(Config, 'getConfig')
+        .returns({ animebytes: { username: 'username', password: 'password', base_uri: 'http://example.com' } } as any);
     });
 
     it('Loads static variables from config', async () => {
       await ABClient.initialize();
-      expect(ABClient.username).to.equal('user');
-      expect(ABClient.password).to.equal('pass');
-      expect(ABClient.base_uri).to.equal('uri');
+      expect(ABClient.username).to.equal('username');
+      expect(ABClient.password).to.equal('password');
+      expect(ABClient.base_uri).to.equal('http://example.com');
     });
   });
 
@@ -73,7 +75,6 @@ describe('AnimeBytes', () => {
         episode: 1,
         resolution: 'resolution',
         container: 'container',
-        saveFileName: 'savefilename',
         groupID: 'groupid',
         media: 'media',
         subbing: 'subbing',
@@ -82,14 +83,14 @@ describe('AnimeBytes', () => {
     });
 
     it('Calls ensureLoggedIn', async () => {
-      await ABClient.upload(fakeEpisode, fakeMediaInfo);
+      await ABClient.upload(fakeEpisode, fakeMediaInfo, 'torrentPath');
       assert.calledOnce(loggedInStub);
     });
 
     it('Throws error if no groupID', async () => {
       fakeEpisode.groupID = undefined as any;
       try {
-        await ABClient.upload(fakeEpisode, fakeMediaInfo);
+        await ABClient.upload(fakeEpisode, fakeMediaInfo, 'torrentPath');
       } catch {
         return;
       }
@@ -97,7 +98,7 @@ describe('AnimeBytes', () => {
     });
 
     it('Calls fetch with proper URL', async () => {
-      await ABClient.upload(fakeEpisode, fakeMediaInfo);
+      await ABClient.upload(fakeEpisode, fakeMediaInfo, 'torrentPath');
       assert.calledOnce(fetchStub);
       const args = fetchStub.getCall(0).args;
       expect(args[0]).to.equal('http://example.com/upload.php?type=anime&groupid=groupid');
@@ -106,19 +107,19 @@ describe('AnimeBytes', () => {
     });
 
     it('Returns if receieved a 409 (conflict)', async () => {
-      fetchStub.resolves({ statusCode: 409, body: 'hi' });
-      await ABClient.upload(fakeEpisode, fakeMediaInfo);
+      fetchStub.resolves({ statusCode: 409, body: 'some text' });
+      await ABClient.upload(fakeEpisode, fakeMediaInfo, 'torrentPath');
     });
 
     it('Returns if torrent already exists', async () => {
       fetchStub.resolves({ statusCode: 200, body: 'torrent file already exists' });
-      await ABClient.upload(fakeEpisode, fakeMediaInfo);
+      await ABClient.upload(fakeEpisode, fakeMediaInfo, 'torrentPath');
     });
 
     it('Throws an error for non-200 response', async () => {
-      fetchStub.resolves({ statusCode: 400, body: 'hi' });
+      fetchStub.resolves({ statusCode: 400, body: 'some text' });
       try {
-        await ABClient.upload(fakeEpisode, fakeMediaInfo);
+        await ABClient.upload(fakeEpisode, fakeMediaInfo, 'torrentPath');
       } catch {
         return;
       }
@@ -128,7 +129,7 @@ describe('AnimeBytes', () => {
     it('Throws an error if `the following error` found in response body', async () => {
       fetchStub.resolves({ statusCode: 200, body: 'the following error' });
       try {
-        await ABClient.upload(fakeEpisode, fakeMediaInfo);
+        await ABClient.upload(fakeEpisode, fakeMediaInfo, 'torrentPath');
       } catch {
         return;
       }

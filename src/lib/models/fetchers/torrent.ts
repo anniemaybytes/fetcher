@@ -1,5 +1,4 @@
 import path from 'path';
-import { promises as fs } from 'fs';
 import WebTorrent from 'webtorrent';
 
 import { Fetcher } from './fetcher.js';
@@ -10,22 +9,22 @@ import { Utils } from '../../utils.js';
 export class TorrentFetcher extends Fetcher {
   // TODO: Threading solution for torrent, so it doesn't eat the CPU
   public static client = new WebTorrent({
-    maxConns: 25,
+    maxConns: Config.getConfig().webtorrent?.max_conns || 25,
     dht: true,
     webSeeds: false,
-    utp: true,
+    utp: Config.getConfig().webtorrent?.utp || false,
     tracker: {
       wrtc: false,
     },
   });
   public static noPeerTimeout = 1000 * 60 * 5; // 5 minutes
-  public static maxActiveDownloads = 3;
+  public static maxActiveDownloads = Config.getConfig().webtorrent?.concurrency || 3;
 
   uri: string;
   abort?: () => void;
 
-  constructor(path: string, options: TorrentFetchOptions) {
-    super('torrent', path);
+  constructor(options: TorrentFetchOptions) {
+    super('torrent');
     this.uri = options.uri;
   }
 
@@ -37,18 +36,20 @@ export class TorrentFetcher extends Fetcher {
   }
 
   public async fetch() {
-    const tempDir = Config.getConfig().storage?.transient_dir || '/tmp/fetcher2';
     while (TorrentFetcher.client.torrents.length >= TorrentFetcher.maxActiveDownloads) {
       // Throttle if too many torrents are in progress
       await Utils.sleep(10000);
-      if (this.aborted) return new Promise<void>((resolve, reject) => reject(new Error('Fetch Aborted')));
+      if (this.aborted) return new Promise<string>((_resolve, reject) => reject(new Error('Fetch Aborted')));
     }
-    return new Promise<void>((resolve, reject) => {
-      const torrent = TorrentFetcher.client.add(this.uri, { path: tempDir });
+
+    return new Promise<string>((resolve, reject) => {
+      const torrent = TorrentFetcher.client.add(this.uri, { path: Config.getConfig().storage?.transient_dir || Utils.getTemporaryDir() });
+
       this.abort = () => {
         torrent.destroy({ destroyStore: true });
         return reject(new Error('Fetch Aborted'));
       };
+
       /*
         Due to a design flaw in webtorrent, it can attach many listeners to a single emitter, which is discouraged by nodejs,
         causing it to output a warning mentioning a 'possible memory leak' because too many listeners are attached.
@@ -56,12 +57,14 @@ export class TorrentFetcher extends Fetcher {
         See this for more info: https://github.com/webtorrent/webtorrent/issues/889
       */
       torrent.setMaxListeners(0);
+
       const metadataError = () => {
         this.abort = undefined;
         torrent.destroy({ destroyStore: true });
         return reject(new Error('Took too long or failed to fetch metadata'));
       };
       const timeout = setTimeout(metadataError, 90 * 1000); // If torrent metadata isn't fetched/resolved in 90 seconds, consider it a failure
+
       torrent.on('error', metadataError); // Interim error handler required until metadata is ready
       torrent.on('ready', () => {
         torrent.removeListener('error', metadataError);
@@ -91,11 +94,17 @@ export class TorrentFetcher extends Fetcher {
           this.fetched = torrent.downloaded;
         });
         torrent.on('done', async () => {
+          const resolvedFileName = torrent.files[0].path;
+
           torrent.pause();
-          await fs.rename(path.resolve(tempDir, torrent.files[0].path), this.path);
+          await Utils.moveFile(
+            path.resolve(Config.getConfig().storage?.transient_dir || Utils.getTemporaryDir(), resolvedFileName),
+            path.resolve(Config.getConfig().storage?.persistent_dir || '', resolvedFileName),
+          );
+
           this.abort = undefined;
           torrent.destroy({ destroyStore: false }); // Do not attempt to remove file, it has already been moved
-          resolve();
+          resolve(resolvedFileName);
         });
       });
     });

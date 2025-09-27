@@ -20,9 +20,8 @@ describe('HTTPFetcher', () => {
 
   describe('constructor', () => {
     it('Assigns relevant parameters', () => {
-      const fetcher = new HTTPFetcher('/path', { url: 'thing' });
-      expect(fetcher.url).to.equal('thing');
-      expect(fetcher.path).to.equal('/path');
+      const fetcher = new HTTPFetcher({ url: 'http://example.com/filename.txt' });
+      expect(fetcher.url).to.equal('http://example.com/filename.txt');
     });
   });
 
@@ -35,22 +34,22 @@ describe('HTTPFetcher', () => {
       fakeSocket = new streamBuffers.ReadableStreamBuffer();
       fakeGot = sandbox.stub().returns(fakeSocket);
       HTTPFetcher.got.stream = fakeGot;
-      const httpFetcher = new HTTPFetcher('/path/file.ok', { url: 'url' });
+      const httpFetcher = new HTTPFetcher({ url: 'http://example.com/filename.txt' });
       fetchCmd = httpFetcher.fetch.bind(httpFetcher);
-      sandbox.stub(Config, 'getConfig').returns({ storage: { transient_dir: '/dir' } } as any);
-      mock({ '/path': {}, '/dir': {} });
+      sandbox.stub(Config, 'getConfig').returns({ storage: { persistent_dir: '/persistent', transient_dir: '/transient' } } as any);
+      mock({ '/persistent': {}, '/transient': {} });
     });
 
     afterEach(() => {
       mock.restore();
     });
 
-    it('Throws if fetch response is not ok', (done) => {
+    it('Throws if fetch response is not OK', (done) => {
       fetchCmd().catch(() => done());
       fakeSocket.emit('response', { statusCode: 400, request: fakeSocket });
     });
 
-    it('Throws if content-length is not provided', (done) => {
+    it('Throws if Content-Length is not provided', (done) => {
       fetchCmd().catch(() => done());
       fakeSocket.emit('response', { statusCode: 200, headers: { 'content-length': undefined }, request: fakeSocket });
     });
@@ -71,7 +70,7 @@ describe('HTTPFetcher', () => {
         }, 1);
       }, 5);
       await promise;
-      expect(await fs.readFile('/path/file.ok', 'utf8')).to.equal('data');
+      expect(await fs.readFile('/persistent/filename.txt', 'utf8')).to.equal('data');
     });
   });
 
@@ -79,7 +78,7 @@ describe('HTTPFetcher', () => {
     let fetcher: HTTPFetcher;
 
     beforeEach(() => {
-      fetcher = new HTTPFetcher('/path/file.ok', { url: 'url' });
+      fetcher = new HTTPFetcher({ url: 'http://example.com/filename.txt' });
     });
 
     it('Calls abort function if it exists', async () => {

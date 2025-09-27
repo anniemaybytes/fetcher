@@ -84,7 +84,7 @@ export class ABClient {
     if (uploadPageResponse.statusCode !== 200) throw new Error(`HTTP status ${uploadPageResponse.statusCode} when checking for upload ability`);
   }
 
-  public static async upload(episode: Episode, mediaInfo: MediaInfoInfo) {
+  public static async upload(episode: Episode, mediaInfo: MediaInfoInfo, torrentPath: string) {
     if (!episode.groupID) throw new Error('Cannot upload without groupID');
     const formData = {
       groupid: episode.groupID,
@@ -93,7 +93,7 @@ export class ABClient {
       section: 'anime',
       add_format: '1',
       CatID: '1',
-      file_input: createReadStream(episode.getTorrentPath()),
+      file_input: createReadStream(torrentPath),
       downmultiplier: '0', // Airing episodes are freeleech
       upmultiplier: '1',
       media: episode.media,

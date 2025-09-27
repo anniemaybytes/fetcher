@@ -2,6 +2,9 @@ import { readFileSync } from 'fs';
 
 import { ConfigFile } from '../../types.js';
 
+import { Logger } from '../logger.js';
+const logger = Logger.get('Config');
+
 const configFilePath = 'config.json';
 
 export class Config {
@@ -14,6 +17,11 @@ export class Config {
 
   public static reloadConfig() {
     // Using readFileSync intentionally here to make this a synchronous function
-    Config.configCache = JSON.parse(readFileSync(configFilePath, 'utf8'));
+    try {
+      Config.configCache = JSON.parse(readFileSync(configFilePath, 'utf8'));
+    } catch (e) {
+      logger.error(`Unable to load configuration file: ${e}`);
+      Config.configCache = {} as ConfigFile;
+    }
   }
 }

@@ -1,5 +1,4 @@
 import path from 'path';
-import { promises as fs } from 'fs';
 
 import { Utils } from '../utils.js';
 import { Config } from '../clients/config.js';
@@ -24,7 +23,6 @@ export class Episode {
   public resolution: string;
   public container: string;
   public crc?: string;
-  public saveFileName: string;
   public showName: string;
   public groupID: string;
   public media: string;
@@ -32,14 +30,14 @@ export class Episode {
   public groupName: string;
   public fetchType: string;
   public fetchOptions: FetchOptions;
-  public formattedFileName?: string;
+  public formattedEpisodeName?: string;
   public fetcher?: Fetcher;
   public state?: fetchStatus;
 
   public static async start() {
-    (await LevelDB.list()).forEach((item) => {
-      if (item.state && item.state !== 'complete') {
-        const episode = Episode.fromStorageJSON(item);
+    (await LevelDB.list()).forEach(([, data]) => {
+      if (data.state && data.state !== 'complete') {
+        const episode = Episode.fromStorageJSON(data);
         episode.fetchEpisode();
       }
     });
@@ -50,7 +48,6 @@ export class Episode {
       const existingState = await LevelDB.get(this.levelDBKey());
       return existingState.state === 'complete';
     } catch (e) {
-      // Ignore NotFoundError (new item)
       if (e.code === 'LEVEL_NOT_FOUND') return false;
       logger.error(`Error checking LevelDB for ${this.formattedName()}; can't determine state:`, e);
       return true;
@@ -61,34 +58,35 @@ export class Episode {
     // Exit early if we're running in test mode
     if (process.env.DISABLE_FETCHER) return;
     // Don't do anything if another instance of episode exists for this episode that's already fetching
-    if (Episode.fetchingEpisodesCache[this.saveFileName]) return;
+    if (Episode.fetchingEpisodesCache[this.levelDBKey()]) return;
     // Check if this is already marked as completed in state
     if (await this.isAlreadyComplete()) return;
     // Actually fetch the episode
     try {
       logger.info(`Starting fetch for ${this.formattedName()}`);
-      this.fetcher = Fetcher.createFetcher(this.fetchType, this.getStoragePath(), this.fetchOptions);
+      this.fetcher = Fetcher.createFetcher(this.fetchType, this.fetchOptions);
       const promise = this.fetcher.fetch();
-      Episode.fetchingEpisodesCache[this.saveFileName] = this;
+      Episode.fetchingEpisodesCache[this.levelDBKey()] = this;
       await this.saveToState('fetching');
       IRCManager.controlAnnounce(`AIRING | fetching: ${this.formattedName()}`);
-      await promise;
+      const resolvedFileName = await promise;
 
       // Fetch is complete, get mediainfo, create torrent, and upload
       logger.info(`Finished fetch for ${this.formattedName()}; gathering metadata and uploading`);
       await this.saveToState('uploading');
-      const mediaInfo = await MediaInfo.get(this.getStoragePath(), this.saveFileName);
-      await MkTorrent.make(this);
-      await Utils.retry((async () => await ABClient.upload(this, mediaInfo)).bind(this), 3, 30000);
-      await fs.rename(this.getTorrentPath(), path.resolve(Config.getConfig().storage?.torrents_dir || '', `${this.saveFileName}.torrent`));
+      const mediaInfo = await MediaInfo.get(path.resolve(Config.getConfig().storage?.persistent_dir || '', resolvedFileName));
+      const torrentPath = path.resolve(Utils.getTemporaryDir(), `${this.formattedName()}.torrent`);
+      await MkTorrent.make(torrentPath, path.resolve(Config.getConfig().storage?.persistent_dir || '', resolvedFileName));
+      await Utils.retry((async () => await ABClient.upload(this, mediaInfo, torrentPath)).bind(this), 3, 30000);
+      await Utils.moveFile(torrentPath, path.resolve(Config.getConfig().storage?.torrents_dir || '', `${this.formattedName()}.torrent`));
 
       // Upload is complete, finish up
       logger.info(`Upload complete for ${this.formattedName()}`);
-      delete Episode.fetchingEpisodesCache[this.saveFileName];
+      delete Episode.fetchingEpisodesCache[this.levelDBKey()];
       await this.saveToState('complete');
       IRCManager.controlAnnounce(`AIRING | completed: ${this.formattedName()}`);
     } catch (e) {
-      delete Episode.fetchingEpisodesCache[this.saveFileName];
+      delete Episode.fetchingEpisodesCache[this.levelDBKey()];
       if (this.fetcher?.aborted) return; // If the fetch was aborted, we do not want to save failed state
       logger.error(`Failed to fetch or upload ${this.formattedName()}`, e);
       await this.saveToState('failed', String(e));
@@ -108,17 +106,9 @@ export class Episode {
     await this.deleteFromState();
   }
 
-  public getStoragePath() {
-    return path.resolve(Config.getConfig().storage?.persistent_dir || '', this.saveFileName);
-  }
-
-  public getTorrentPath() {
-    return path.resolve(Config.getConfig().storage?.transient_dir || '', `${this.saveFileName}.torrent`);
-  }
-
   public formattedName() {
-    if (this.formattedFileName) return this.formattedFileName;
-    this.formattedFileName = Episode.episodeFormattedName(
+    if (this.formattedEpisodeName) return this.formattedEpisodeName;
+    this.formattedEpisodeName = Episode.episodeFormattedName(
       this.showName,
       this.episode,
       this.version,
@@ -127,7 +117,7 @@ export class Episode {
       this.container,
       this.crc,
     );
-    return this.formattedFileName;
+    return this.formattedEpisodeName;
   }
 
   public static episodeFormattedName(
@@ -190,7 +180,6 @@ export class Episode {
       resolution: this.resolution,
       container: this.container,
       crc: this.crc,
-      saveFileName: this.saveFileName,
       groupID: this.groupID,
       media: this.media,
       subbing: this.subbing,
@@ -207,7 +196,6 @@ export class Episode {
     episode.resolution = storageJSON.resolution;
     episode.container = storageJSON.container;
     episode.crc = storageJSON.crc;
-    episode.saveFileName = storageJSON.saveFileName;
     episode.showName = storageJSON.showName;
     episode.groupID = storageJSON.groupID;
     episode.media = storageJSON.media;

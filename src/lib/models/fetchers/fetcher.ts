@@ -2,20 +2,18 @@ export abstract class Fetcher {
   public static registered: { [type: string]: any } = {}; // public for testing only
 
   public type: string;
-  public path: string;
   public aborted: boolean;
   public length: number;
   public fetched = 0;
 
-  protected constructor(type: string, path: string) {
+  protected constructor(type: string) {
     this.type = type;
-    this.path = path;
     this.aborted = false;
   }
 
-  public static createFetcher(type: string, path: string, options: any) {
+  public static createFetcher(type: string, options: any) {
     if (!Fetcher.registered[type]) throw new Error(`Fetcher type ${type} does not exist`);
-    const fetcher: Fetcher = new Fetcher.registered[type](path, options);
+    const fetcher: Fetcher = new Fetcher.registered[type](options);
     return fetcher;
   }
 
@@ -23,7 +21,7 @@ export abstract class Fetcher {
     Fetcher.registered[type] = cls;
   }
 
-  abstract fetch(): Promise<void>;
+  abstract fetch(): Promise<string>;
 
   abstract abortFetch(): Promise<void>;
 }

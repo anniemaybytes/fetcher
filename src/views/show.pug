@@ -11,8 +11,7 @@ block content
       th Action
     each file in input
       tr
-        td
-          span(title=file.saveFileName)= file.formatted
+        td= file.formatted
         td= file.fetchType
         td= file.progress
         td= file.created

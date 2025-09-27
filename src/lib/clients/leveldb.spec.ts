@@ -15,7 +15,7 @@ describe('LevelDB', () => {
       put: sandbox.stub(),
       del: sandbox.stub(),
 
-      values: sandbox.stub().returns({
+      iterator: sandbox.stub().returns({
         all: sandbox.stub(),
       }),
 
@@ -80,9 +80,13 @@ describe('LevelDB', () => {
 
   describe('list', () => {
     it('Returns array of data events from database', async () => {
-      const values = ['thing1', 'thing2'];
-      mockDB.values.returns({ all: sandbox.stub().resolves(values) });
-      expect(await LevelDB.list()).to.deep.equal(values);
+      const kvPairs = [
+        ['key1', 'value1'],
+        ['key2', 'value2'],
+        ['key3', 'value3'],
+      ];
+      mockDB.iterator.returns({ all: sandbox.stub().resolves(kvPairs) });
+      expect(await LevelDB.list()).to.deep.equal(kvPairs);
     });
   });
 

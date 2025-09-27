@@ -1,5 +1,3 @@
-import sanitizeFilename from 'sanitize-filename';
-
 import { IRCManager } from './clients/irc/manager.js';
 import { Episode } from './models/episode.js';
 import { Source } from './models/sources/source.js';
@@ -16,7 +14,7 @@ export class Parser {
     /.* Episode (\d{1,4})(?!-)(v0?\d+)?/i,
     /.*\W(?<![-([])(\d{2,4})(?![-)\]])(v0?\d+)?(?:\W|$)/i,
   ];
-  private static unparseableCache: { [filename: string]: boolean } = {};
+  private static unparseableCache: { [key: string]: boolean } = {};
 
   private static validResolutions = [
     '640x360',
@@ -48,67 +46,65 @@ export class Parser {
     IRCManager.controlAnnounce(`WARN: ${msg}`);
   }
 
-  private static parseContainer(filename: string, defaultContainer?: string) {
-    let saveFileName = filename;
+  private static parseContainer(name: string, defaultContainer?: string) {
     let container = defaultContainer;
-    const containerLocation = filename.lastIndexOf('.');
-    const parsedContainer = filename.substring(containerLocation + 1).toLowerCase();
+    const containerLocation = name.lastIndexOf('.');
+    const parsedContainer = name.substring(containerLocation + 1).toLowerCase();
 
     // If container extension is missing or invalid
     if (containerLocation === -1 || parsedContainer.includes(' ')) {
       if (!defaultContainer) {
-        Parser.warn(`Release missing container: ${filename}`);
+        Parser.warn(`Release missing container: ${name}`);
         return undefined;
       }
-      saveFileName += `.${defaultContainer}`;
     } else {
       if (defaultContainer && parsedContainer !== defaultContainer) {
-        Parser.warn(`Release has invalid extension (want ${defaultContainer}): ${filename}`);
+        Parser.warn(`Release has invalid extension (want ${defaultContainer}): ${name}`);
         return undefined;
       }
-      filename = filename.substring(0, containerLocation);
+      name = name.substring(0, containerLocation);
       container = parsedContainer;
     }
 
     if (!container) return undefined;
 
-    return { saveFileName, container, filename };
+    return { container, name };
   }
 
-  private static parseResolution(filename: string, defaultRes?: string) {
+  private static parseResolution(name: string, defaultRes?: string) {
     for (const res of Parser.validResolutions) {
-      const index = filename.indexOf(res);
+      const index = name.indexOf(res);
       if (index === -1) continue;
       return {
         resolution: Parser.convertedResolutions[res] || res,
-        filename: filename.substring(0, index) + filename.substring(index + res.length),
+        name: name.substring(0, index) + name.substring(index + res.length),
       };
     }
 
     if (defaultRes) {
       return {
         resolution: Parser.convertedResolutions[defaultRes] || defaultRes,
-        filename,
+        name: name,
       };
     }
 
     return undefined;
   }
 
-  // Parse a filename and return an instance of Episode if it is wanted by the provided source
-  public static parseWantedEpisode(filename: string, fetchOptions: FetchOptions, source: Source) {
+  // Parse a name and return an instance of Episode if it is wanted by the provided source
+  public static parseWantedEpisode(name: string, fetchOptions: FetchOptions, source: Source) {
     // Do pre-checks
-    if (!filename) return undefined;
-    if (filename.endsWith('.torrent')) filename = filename.substring(0, filename.length - 8);
+    if (!name) return undefined;
+    if (name.endsWith('.torrent')) name = name.substring(0, name.length - 8);
 
-    const originalFilename = filename;
-    if (Parser.unparseableCache[originalFilename]) return undefined;
+    const originalName = name;
+    if (Parser.unparseableCache[originalName]) return undefined;
 
     // Create the episode we will build
     const episode = new Episode();
 
     // Find matching show (if it exists)
-    const show = source.group.findShow(filename);
+    const show = source.group.findShow(name);
     if (!show || !show.releasers[source.group.key]) return undefined;
 
     episode.showName = show.name;
@@ -120,21 +116,19 @@ export class Parser {
     episode.fetchOptions = fetchOptions;
 
     // Parse container
-    const parsedContainer = Parser.parseContainer(filename, source.defaults.container?.toLowerCase());
+    const parsedContainer = Parser.parseContainer(name, source.defaults.container?.toLowerCase());
     if (!parsedContainer) {
-      Parser.unparseableCache[originalFilename] = true;
+      Parser.unparseableCache[originalName] = true;
       return undefined;
     }
 
     episode.container = parsedContainer.container;
-    episode.saveFileName = sanitizeFilename(parsedContainer.saveFileName);
-    filename = parsedContainer.filename;
 
     // Parse resolution
-    const resolutionParse = Parser.parseResolution(filename, source.defaults.res);
+    const resolutionParse = Parser.parseResolution(name, source.defaults.res);
     if (!resolutionParse) {
-      Parser.warn(`Release has invalid or missing resolution: ${originalFilename}`);
-      Parser.unparseableCache[originalFilename] = true;
+      Parser.warn(`Release has invalid or missing resolution: ${originalName}`);
+      Parser.unparseableCache[originalName] = true;
       return undefined;
     }
 
@@ -142,19 +136,19 @@ export class Parser {
     if (!show.wantedResolutions.includes(resolutionParse.resolution)) return undefined;
 
     episode.resolution = resolutionParse.resolution;
-    filename = resolutionParse.filename.replace(Parser.whitespaceReplaceRegex, ' ');
+    name = resolutionParse.name.replace(Parser.whitespaceReplaceRegex, ' ');
 
     // Parse (possible) CRC
     episode.crc = undefined;
-    const crcMatch = filename.match(Parser.crcRegex);
+    const crcMatch = name.match(Parser.crcRegex);
     if (crcMatch) {
       episode.crc = crcMatch[2].toUpperCase();
-      filename = crcMatch[1] + crcMatch[3];
+      name = crcMatch[1] + crcMatch[3];
     }
 
     // Parse episode and (possible) version
     Parser.episodeRegexes.some((regex) => {
-      const episodeMatch = filename.replace(Parser.whitespaceReplaceRegex, ' ').match(regex);
+      const episodeMatch = name.replace(Parser.whitespaceReplaceRegex, ' ').match(regex);
       episode.episode = parseInt(episodeMatch?.[1] || '', 10);
       episode.version = episodeMatch?.[2] ? parseInt(episodeMatch[2].substr(1) || '', 10) : 1;
 
@@ -163,8 +157,8 @@ export class Parser {
 
     if (!episode.episode || !(episode.version >= 0)) {
       const episodeParse = { episode: episode.episode, version: episode.version };
-      Parser.warn(`Release has invalid episode or version, got ${JSON.stringify(episodeParse)}: ${originalFilename}`);
-      Parser.unparseableCache[originalFilename] = true;
+      Parser.warn(`Release has invalid episode or version, got ${JSON.stringify(episodeParse)}: ${originalName}`);
+      Parser.unparseableCache[originalName] = true;
       return undefined;
     }
 

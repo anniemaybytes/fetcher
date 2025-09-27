@@ -22,7 +22,7 @@ export class LevelDB {
   }
 
   public static async list(): Promise<any[]> {
-    return LevelDB.db.values().all();
+    return LevelDB.db.iterator().all();
   }
 
   public static async shutDown() {

@@ -11,6 +11,8 @@ import { ABClient } from '../clients/animebytes.js';
 import { IRCManager } from '../clients/irc/manager.js';
 import { Fetcher } from './fetchers/fetcher.js';
 import { Episode } from './episode.js';
+import { Utils } from '../utils.js';
+import { MediaInfoInfo } from '../../types.js';
 
 describe('Source', () => {
   let sandbox: SinonSandbox;
@@ -35,13 +37,13 @@ describe('Source', () => {
     });
 
     it('Does not create episodes for state that is complete', async () => {
-      dbListMock.resolves([{ state: 'complete' }]);
+      dbListMock.resolves([['file::formattedName', { state: 'complete' }]]);
       await Episode.start();
       assert.notCalled(fromStorageMock);
     });
 
     it('Starts episode fetch for items recovered from state', async () => {
-      dbListMock.resolves([{ state: 'fetching' }]);
+      dbListMock.resolves([['file::formattedName', { state: 'fetching' }]]);
       await Episode.start();
       assert.calledOnceWithExactly(fromStorageMock, { state: 'fetching' });
       assert.calledOnce(episodeStub.fetchEpisode);
@@ -55,7 +57,7 @@ describe('Source', () => {
     beforeEach(() => {
       getMock = sandbox.stub(LevelDB, 'get');
       episode = new Episode();
-      sandbox.stub(episode, 'levelDBKey').returns('dbkey');
+      sandbox.stub(episode, 'levelDBKey').returns('levelDBKey');
       sandbox.stub(episode, 'formattedName').returns('formattedName');
     });
 
@@ -89,28 +91,28 @@ describe('Source', () => {
     let uploadStub: SinonStub;
 
     beforeEach(() => {
-      fakeFetcher = { fetch: sandbox.stub() };
+      fakeFetcher = { fetch: sandbox.stub().resolves('filename.txt') };
       Episode.fetchingEpisodesCache = {};
       episode = new Episode();
-      episode.saveFileName = 'saveFileName';
+      sandbox.stub(episode, 'levelDBKey').returns('levelDBKey');
       sandbox.stub(episode, 'formattedName').returns('formattedName');
       sandbox.stub(episode, 'isAlreadyComplete').resolves(false);
       saveStateStub = sandbox.stub(episode, 'saveToState');
-      sandbox.stub(episode, 'getStoragePath').returns('storagepath');
       sandbox.stub(Fetcher, 'createFetcher').returns(fakeFetcher);
       sandbox.stub(IRCManager, 'controlAnnounce');
+      sandbox.stub(Utils, 'getTemporaryDir').returns('/tmp/fetcher2');
       mktorrentStub = sandbox.stub(MkTorrent, 'make');
-      mediainfoStub = sandbox.stub(MediaInfo, 'get');
+      mediainfoStub = sandbox.stub(MediaInfo, 'get').resolves({ text: 'mediaInfoText' } as MediaInfoInfo);
       uploadStub = sandbox.stub(ABClient, 'upload');
       mock({
         '/torrents': {},
-        '/tmp/saveFileName.torrent': 'data',
+        '/tmp/fetcher2/formattedName.torrent': 'data',
       });
-      sandbox.stub(Config, 'getConfig').returns({ storage: { transient_dir: '/tmp', torrents_dir: '/torrents' } } as any);
+      sandbox.stub(Config, 'getConfig').returns({ storage: { persistent_dir: '/persistent', torrents_dir: '/torrents' } } as any);
     });
 
     it('Does not do anything if file is in episodeCache', async () => {
-      Episode.fetchingEpisodesCache.saveFileName = true as any;
+      Episode.fetchingEpisodesCache['levelDBKey'] = true as any;
       await episode.fetchEpisode();
       assert.notCalled(fakeFetcher.fetch);
     });
@@ -129,24 +131,22 @@ describe('Source', () => {
 
     it('Gets mediainfo of the download', async () => {
       await episode.fetchEpisode();
-      assert.calledOnceWithExactly(mediainfoStub, 'storagepath', 'saveFileName');
+      assert.calledOnceWithExactly(mediainfoStub, '/persistent/filename.txt');
     });
 
     it('Makes a torrent file of the download', async () => {
       await episode.fetchEpisode();
-      assert.calledOnceWithExactly(mktorrentStub, episode);
+      assert.calledOnceWithExactly(mktorrentStub, `/tmp/fetcher2/formattedName.torrent`, '/persistent/filename.txt');
     });
 
     it('Calls AB upload with episode and mediainfo', async () => {
-      mediainfoStub.resolves('info');
       await episode.fetchEpisode();
-      assert.calledOnceWithExactly(uploadStub, episode, 'info');
+      assert.calledOnceWithExactly(uploadStub, episode, { text: 'mediaInfoText' }, `/tmp/fetcher2/formattedName.torrent`);
     });
 
     it('Moves torrent file from temporary to torrents directory', (done) => {
       episode.fetchEpisode().then(() => {
-        readFile('/torrents/saveFileName.torrent', (err, data) => {
-          // ensure file moved to final path
+        readFile('/torrents/formattedName.torrent', (err, data) => {
           expect(!!err).to.be.false;
           expect(data.toString()).to.equal('data'); // check file contents
           done();
@@ -162,81 +162,57 @@ describe('Source', () => {
     });
   });
 
-  describe('getStoragePath', () => {
-    beforeEach(() => {
-      sandbox.stub(Config, 'getConfig').returns({ storage: { persistent_dir: '/dir' } } as any);
-    });
-
-    it('Returns expected path', () => {
-      const episode = new Episode();
-      episode.saveFileName = 'file.name';
-      expect(episode.getStoragePath()).to.equal('/dir/file.name');
-    });
-  });
-
-  describe('getTorrentPath', () => {
-    beforeEach(() => {
-      sandbox.stub(Config, 'getConfig').returns({ storage: { transient_dir: '/dir' } } as any);
-    });
-
-    it('Returns expected path', () => {
-      const episode = new Episode();
-      episode.saveFileName = 'file.name';
-      expect(episode.getTorrentPath()).to.equal('/dir/file.name.torrent');
-    });
-  });
-
   describe('formattedName', () => {
     it('Uses existing computed formattedName if it exists', () => {
       const episode = new Episode();
-      episode.formattedFileName = 'thing';
-      expect(episode.formattedName()).to.equal('thing');
+      episode.formattedEpisodeName = 'formattedName';
+      expect(episode.formattedName()).to.equal('formattedName');
     });
 
     it('Formats name as expected', () => {
       const episode = new Episode();
       episode.episode = 2;
-      episode.showName = 'showname';
+      episode.showName = 'showName';
       episode.version = 1;
       episode.resolution = 'resolution';
       episode.groupName = 'groupName';
-      episode.container = 'container';
-      expect(episode.formattedName()).to.equal('showname - 02 [resolution][groupName].container');
+      episode.container = 'mkv';
+      expect(episode.formattedName()).to.equal('showName - 02 [resolution][groupName].mkv');
     });
 
     it('Formats name with version if version > 1', () => {
       const episode = new Episode();
       episode.episode = 2;
-      episode.showName = 'showname';
+      episode.showName = 'showName';
       episode.version = 2;
       episode.resolution = 'resolution';
       episode.groupName = 'groupName';
-      episode.container = 'container';
-      expect(episode.formattedName()).to.equal('showname - 02v2 [resolution][groupName].container');
+      episode.container = 'mkv';
+      expect(episode.formattedName()).to.equal('showName - 02v2 [resolution][groupName].mkv');
     });
 
     it('Formats name with crc if it exists', () => {
       const episode = new Episode();
       episode.episode = 2;
-      episode.showName = 'showname';
+      episode.showName = 'showName';
       episode.version = 1;
       episode.resolution = 'resolution';
       episode.groupName = 'groupName';
-      episode.container = 'container';
+      episode.container = 'mkv';
       episode.crc = 'crc';
-      expect(episode.formattedName()).to.equal('showname - 02 [resolution][groupName][crc].container');
+      expect(episode.formattedName()).to.equal('showName - 02 [resolution][groupName][crc].mkv');
     });
 
     it('Saves formatted name for future use', () => {
       const episode = new Episode();
       episode.episode = 2;
-      episode.showName = 'showname';
+      episode.showName = 'showName';
       episode.version = 1;
       episode.resolution = 'resolution';
       episode.groupName = 'groupName';
-      episode.container = 'container';
+      episode.container = 'mkv';
       episode.formattedName();
-      expect(episode.formattedFileName).to.equal('showname - 02 [resolution][groupName].container');
+      expect(episode.formattedEpisodeName).to.equal('showName - 02 [resolution][groupName].mkv');
     });
   });
 
@@ -260,12 +236,12 @@ describe('Source', () => {
     beforeEach(() => {
       deleteMock = sandbox.stub(LevelDB, 'delete');
       episode = new Episode();
-      sandbox.stub(episode, 'levelDBKey').returns('dbkey');
+      sandbox.stub(episode, 'levelDBKey').returns('dbKey');
     });
 
     it('Calls delete on DB', async () => {
       await episode.deleteFromState();
-      assert.calledOnceWithExactly(deleteMock, 'dbkey');
+      assert.calledOnceWithExactly(deleteMock, 'dbKey');
     });
   });
 
@@ -280,7 +256,7 @@ describe('Source', () => {
       getMock = sandbox.stub(LevelDB, 'get');
       putMock = sandbox.stub(LevelDB, 'put');
       episode = new Episode();
-      sandbox.stub(episode, 'levelDBKey').returns('dbkey');
+      sandbox.stub(episode, 'levelDBKey').returns('dbKey');
       sandbox.stub(episode, 'asStorageJSON').returns({ thing: 'whatever' } as any);
     });
 
@@ -291,13 +267,13 @@ describe('Source', () => {
     it('Calls DB get to check for existing state', async () => {
       getMock.resolves({ state: 'thing', created: 'thing' });
       await episode.saveToState('complete');
-      assert.calledOnceWithExactly(getMock, 'dbkey');
+      assert.calledOnceWithExactly(getMock, 'dbKey');
     });
 
     it('Calls DB put with expected params when no existing state exists', async () => {
       getMock.throws({ code: 'LEVEL_NOT_FOUND' });
       await episode.saveToState('complete');
-      assert.calledOnceWithExactly(putMock, 'dbkey', {
+      assert.calledOnceWithExactly(putMock, 'dbKey', {
         thing: 'whatever',
         created: 'Sat, 04 Apr 2020 03:20:25 GMT',
         error: undefined,
@@ -310,7 +286,7 @@ describe('Source', () => {
     it('Calls DB put with expected params when no existing state exists', async () => {
       getMock.resolves({ state: 'oldState', created: 'sometime' });
       await episode.saveToState('complete');
-      assert.calledOnceWithExactly(putMock, 'dbkey', {
+      assert.calledOnceWithExactly(putMock, 'dbKey', {
         thing: 'whatever',
         created: 'sometime',
         error: undefined,
@@ -351,7 +327,6 @@ describe('Source', () => {
     episode.resolution = 'resolution';
     episode.container = 'container';
     episode.crc = 'crc';
-    episode.saveFileName = 'saveFileName';
     episode.showName = 'showName';
     episode.groupID = 'groupID';
     episode.media = 'media';
@@ -366,7 +341,6 @@ describe('Source', () => {
       resolution: 'resolution',
       container: 'container',
       crc: 'crc',
-      saveFileName: 'saveFileName',
       groupID: 'groupID',
       media: 'media',
       subbing: 'subbing',
@@ -385,7 +359,6 @@ describe('Source', () => {
         resolution: 'resolution',
         container: 'container',
         crc: 'crc',
-        saveFileName: 'saveFileName',
         groupID: 'groupID',
         media: 'media',
         subbing: 'subbing',
@@ -399,7 +372,6 @@ describe('Source', () => {
       expect(episode.resolution).to.equal('resolution');
       expect(episode.container).to.equal('container');
       expect(episode.crc).to.equal('crc');
-      expect(episode.saveFileName).to.equal('saveFileName');
       expect(episode.groupID).to.equal('groupID');
       expect(episode.media).to.equal('media');
       expect(episode.subbing).to.equal('subbing');

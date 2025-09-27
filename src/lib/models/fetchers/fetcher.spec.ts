@@ -25,7 +25,7 @@ describe('Fetcher', () => {
   describe('createFetcher', () => {
     it('Throws an error when trying to create an invalid type', () => {
       try {
-        Fetcher.createFetcher('badtype', 'abc', {});
+        Fetcher.createFetcher('badtype', {});
       } catch {
         return;
       }
@@ -34,8 +34,8 @@ describe('Fetcher', () => {
 
     it('Uses registered static fetcher', () => {
       Fetcher.registered.test = sandbox.stub();
-      Fetcher.createFetcher('test', 'abc', {});
-      assert.calledOnceWithExactly(Fetcher.registered.test, 'abc', {});
+      Fetcher.createFetcher('test', {});
+      assert.calledOnceWithExactly(Fetcher.registered.test, {});
     });
   });
 });

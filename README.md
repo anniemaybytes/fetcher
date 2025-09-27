@@ -125,6 +125,26 @@ Configuration is done via `config.json` file with the following schema:
       },
       "requied": ["username", "password", "m2m", "base_uri"]
     },
+    "webtorrent": {
+      "type": "object",
+      "properties": {
+        "max_conns": {
+          "description": "Maximum number of connections allowed (globally, not per torrent)",
+          "type": "integer",
+          "default": 25
+        },
+        "utp": {
+          "description": "Whether to enable uTP protocol",
+          "type": "boolean",
+          "default": false
+        },
+        "concurrency": {
+          "description": "Amount of downloads that can be active at once",
+          "type": "integer",
+          "default": 3
+        }
+      }
+    },
     "mktorrent": {
       "type": "object",
       "properties": {

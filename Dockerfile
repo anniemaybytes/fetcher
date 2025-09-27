@@ -15,7 +15,7 @@ COPY . .
 RUN pnpm build && pnpm prune --prod
 
 FROM base AS release
-ENV NODE_ENV production
+ENV NODE_ENV=production
 COPY --from=builder --chown=1000:1000 /app/node_modules ./node_modules
 COPY --from=builder --chown=1000:1000 /app/package.json .
 COPY --from=builder --chown=1000:1000 /app/dist ./dist

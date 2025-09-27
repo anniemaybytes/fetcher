@@ -1,3 +1,4 @@
+import path from 'path';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 const execAsync = promisify(execFile);
@@ -63,9 +64,9 @@ export class MediaInfo {
     return { audio, audiochannels, codec };
   }
 
-  public static async get(file: string, replacementPath: string): Promise<MediaInfoInfo> {
-    const text = (await execAsync('/usr/bin/env', ['mediainfo', file])).stdout.replace(file, replacementPath);
-    const json = JSON.parse((await execAsync('/usr/bin/env', ['mediainfo', '--output=JSON', file])).stdout);
+  public static async get(storagePath: string): Promise<MediaInfoInfo> {
+    const text = (await execAsync('/usr/bin/env', ['mediainfo', storagePath])).stdout.replace(storagePath, path.basename(storagePath));
+    const json = JSON.parse((await execAsync('/usr/bin/env', ['mediainfo', '--output=JSON', storagePath])).stdout);
     const mediaInfo = MediaInfo.parse(json);
     return { ...mediaInfo, text };
   }

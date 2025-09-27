@@ -31,9 +31,9 @@ export class Group {
     });
   }
 
-  public findShow(filename: string) {
+  public findShow(name: string) {
     for (const possibleShow of this.shows) {
-      if (possibleShow.releasers[this.key]?.regex.test(filename)) {
+      if (possibleShow.releasers[this.key]?.regex.test(name)) {
         return possibleShow;
       }
     }

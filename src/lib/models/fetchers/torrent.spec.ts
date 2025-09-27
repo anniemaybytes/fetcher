@@ -27,9 +27,8 @@ describe('TorrentFetcher', () => {
 
   describe('constructor', () => {
     it('Assigns relevant parameters', () => {
-      const fetcher = new TorrentFetcher('path', { uri: 'thing' });
-      expect(fetcher.uri).to.equal('thing');
-      expect(fetcher.path).to.equal('path');
+      const fetcher = new TorrentFetcher({ uri: 'magnet:?xt=urn:btih:ffffffffffffffffffffffffffffffffffffffff' });
+      expect(fetcher.uri).to.equal('magnet:?xt=urn:btih:ffffffffffffffffffffffffffffffffffffffff');
     });
   });
 
@@ -49,16 +48,17 @@ describe('TorrentFetcher', () => {
     let clock: any;
 
     beforeEach(() => {
-      sandbox.stub(Config, 'getConfig').returns({ storage: { transient_dir: '/test' } } as any);
+      sandbox.stub(Config, 'getConfig').returns({ storage: { persistent_dir: '/persistent', transient_dir: '/transient' } } as any);
       fakeTorrent = new EventEmitter();
       fakeTorrent.destroy = sandbox.stub();
       fakeTorrent.pause = sandbox.stub();
-      fakeTorrent.files = [{ path: '/torrentFileDownloadPath' }];
+      fakeTorrent.files = [{ path: 'filename.txt' }];
       fakeTorrent.length = 123;
       fakeClient.add.returns(fakeTorrent);
-      fetcher = new TorrentFetcher('/finalPath', { uri: 'torrentURI' });
+      fetcher = new TorrentFetcher({ uri: 'magnet:?xt=urn:btih:ffffffffffffffffffffffffffffffffffffffff' });
       mock({
-        '/torrentFileDownloadPath': 'data',
+        '/persistent': {},
+        '/transient': { 'filename.txt': 'data' },
       });
     });
 
@@ -69,7 +69,7 @@ describe('TorrentFetcher', () => {
 
     it('Calls client add with correct params', (done) => {
       fetcher.fetch().then(() => {
-        assert.calledOnceWithExactly(fakeClient.add, 'torrentURI', { path: '/test' });
+        assert.calledOnceWithExactly(fakeClient.add, 'magnet:?xt=urn:btih:ffffffffffffffffffffffffffffffffffffffff', { path: '/transient' });
         done();
       });
       fakeTorrent.emit('ready');
@@ -91,7 +91,7 @@ describe('TorrentFetcher', () => {
       fetcher.fetch().then(() => {
         assert.calledOnce(fakeTorrent.pause);
         assert.calledOnce(fakeTorrent.destroy);
-        readFile('/finalPath', (err, data) => {
+        readFile('/persistent/filename.txt', (err, data) => {
           // ensure file moved to final path
           expect(!!err).to.be.false;
           expect(data.toString()).to.equal('data'); // check file contents
@@ -150,7 +150,7 @@ describe('TorrentFetcher', () => {
     let fetcher: TorrentFetcher;
 
     beforeEach(() => {
-      fetcher = new TorrentFetcher('/finalPath', { uri: 'torrentURI' });
+      fetcher = new TorrentFetcher({ uri: 'magnet:?xt=urn:btih:ffffffffffffffffffffffffffffffffffffffff' });
     });
 
     it('Sets aborted on the fetcher', async () => {
