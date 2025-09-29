@@ -32,9 +32,14 @@ export class MediaInfo {
     if (Array.isArray(mediaInfoJSON)) throw new Error('Non-singular number of files ' + mediaInfoJSON.length);
     let audio = '';
     let audiochannels = '';
+    let dualaudio = false;
     let codec = '';
+    let extension = '';
+
     mediaInfoJSON.media.track.forEach((track: any) => {
-      if (track['@type'] === 'Video') {
+      if (track['@type'] === 'General') {
+        extension = track.FileExtension;
+      } else if (track['@type'] === 'Video') {
         if (codec) return; // handle first video stream only
 
         codec = track.Format;
@@ -49,7 +54,10 @@ export class MediaInfo {
 
         if (track.BitDepth === '10' && (codec === 'h264' || codec === 'h265')) codec += ' 10-bit';
       } else if (track['@type'] === 'Audio') {
-        if (audio && audiochannels) return; // handle first audio stream that can be fully parsed
+        if (audio && audiochannels) {
+          dualaudio = true; // assume dual-audio if more than one track present
+          return; // assume format/channels of first track
+        }
 
         audio = track.Format;
         audiochannels = MediaInfo.audioChannelsMap[track.Channels] || '';
@@ -61,7 +69,7 @@ export class MediaInfo {
     });
     if (!audio || !audiochannels) logger.warn(`MediaInfo couldn't parse audio information for ${mediaInfoJSON.media['@ref']}`);
     if (!codec) logger.warn(`MediaInfo couldn't parse codec information for ${mediaInfoJSON.media['@ref']}`);
-    return { audio, audiochannels, codec };
+    return { audio, audiochannels, dualaudio, codec, extension };
   }
 
   public static async get(storagePath: string): Promise<MediaInfoInfo> {

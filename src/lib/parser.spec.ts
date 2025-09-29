@@ -87,7 +87,6 @@ describe('Parser', () => {
         expect(episode.episode).to.equal(1);
         expect(episode.version).to.equal(1);
         expect(episode.resolution).to.equal('720p');
-        expect(episode.container).to.equal('mkv');
         expect(episode.crc).to.equal('123A4BC5');
       });
 
@@ -212,33 +211,6 @@ describe('Parser', () => {
       expect(episode).to.be.undefined;
     });
 
-    it('Should not match container with whitespaces', () => {
-      const title = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv v2';
-      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
-      expect(episode).to.be.undefined;
-    });
-
-    it('Should not match with missing container', () => {
-      const title = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5]';
-      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
-      expect(episode).to.be.undefined;
-    });
-
-    it('Should use default container from source if not found in title', () => {
-      fakeSource.defaults.container = 'mkv';
-      const title = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5]';
-      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for ${title} did not parse properly`);
-      expect(episode.container).to.equal('mkv');
-    });
-
-    it('Should not parse if discovered container is different from source expected container', () => {
-      fakeSource.defaults.container = 'mp4';
-      const title = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv';
-      const episode = Parser.parseWantedEpisode(title, fakeFetchOptions, fakeSource);
-      expect(episode).to.be.undefined;
-    });
-
     it('Should use default resolution from source if not found in title', () => {
       fakeSource.defaults.res = '1080p';
       const title = '[TerribleSubs] Some アニメ - 01 [123A4BC5].mkv';
@@ -282,13 +254,6 @@ describe('Parser', () => {
       Parser.parseWantedEpisode('bad', fakeFetchOptions, fakeSource);
       // ensure this was only called once, even though we called function twice with same inputs
       assert.calledOnce(fakeSource.group.findShow);
-    });
-
-    it('Trims .torrent off of provided title', () => {
-      const file = '[TerribleSubs] Some アニメ - 01 [720p][123A4BC5].mkv.torrent';
-      const episode = Parser.parseWantedEpisode(file, fakeFetchOptions, fakeSource);
-      if (!episode) expect.fail(`Episode for ${file} did not parse properly`);
-      expect(episode?.container).to.equal('mkv');
     });
   });
 });

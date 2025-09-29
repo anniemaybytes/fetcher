@@ -4,6 +4,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && \
     apt-get install --no-install-recommends -y ca-certificates mediainfo mktorrent && \
     rm -rf /var/lib/apt/lists/*
+ENV LANG=C.UTF-8 \
+    LC_ALL=C.UTF-8
 
 FROM base AS builder
 RUN corepack enable

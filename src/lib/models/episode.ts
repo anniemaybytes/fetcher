@@ -21,7 +21,6 @@ export class Episode {
   public episode: number;
   public version: number;
   public resolution: string;
-  public container: string;
   public crc?: string;
   public showName: string;
   public groupID: string;
@@ -108,32 +107,15 @@ export class Episode {
 
   public formattedName() {
     if (this.formattedEpisodeName) return this.formattedEpisodeName;
-    this.formattedEpisodeName = Episode.episodeFormattedName(
-      this.showName,
-      this.episode,
-      this.version,
-      this.resolution,
-      this.groupName,
-      this.container,
-      this.crc,
-    );
+    this.formattedEpisodeName = Episode.episodeFormattedName(this.showName, this.episode, this.version, this.resolution, this.groupName, this.crc);
     return this.formattedEpisodeName;
   }
 
-  public static episodeFormattedName(
-    showName: string,
-    episode: number,
-    version: number,
-    resolution: string,
-    groupName: string,
-    container: string,
-    crc?: string,
-  ) {
+  public static episodeFormattedName(showName: string, episode: number, version: number, resolution: string, groupName: string, crc?: string) {
     let formatted = `${showName} - ${episode.toString().padStart(2, '0')}`;
     if (version !== 1) formatted += `v${version}`;
     formatted += ` [${resolution}][${groupName}]`;
     if (crc) formatted += `[${crc}]`;
-    formatted += `.${container}`;
     return formatted;
   }
 
@@ -178,7 +160,6 @@ export class Episode {
       episode: this.episode,
       version: this.version,
       resolution: this.resolution,
-      container: this.container,
       crc: this.crc,
       groupID: this.groupID,
       media: this.media,
@@ -194,7 +175,6 @@ export class Episode {
     episode.episode = storageJSON.episode;
     episode.version = storageJSON.version;
     episode.resolution = storageJSON.resolution;
-    episode.container = storageJSON.container;
     episode.crc = storageJSON.crc;
     episode.showName = storageJSON.showName;
     episode.groupID = storageJSON.groupID;

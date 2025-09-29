@@ -3,6 +3,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 
+## v10.0.0
+### Changed
+- Use `pnpm` instead of `yarn`
+- Use `slim` (instead of `alpine`) Node images for official container
+- Allow dynamically configuring webtorrent settings (`max_conns`, `utp` and `concurrency`)
+- Disable uTP by default due to known issues and socket leaks
+- Use original filename provided by Fetcher when constructing torrent to be uploaded
+- Dynamically infer container of current episode
+- Support moving files between different mount points
+- Detect and mark Dual Audio episodes
+
 ## v9.0.0
 ### Changed
 - Bumped minimum supported Node version to v22.11.0

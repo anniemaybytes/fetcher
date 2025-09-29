@@ -102,6 +102,19 @@ describe('MediaInfo', () => {
         expect(result13.audiochannels).to.equal('7.1');
         expect(result14.audiochannels).to.equal('7.1');
       });
+      it('Handles multiple audio tracks', () => {
+        const result = MediaInfo.parse({
+          media: {
+            track: [
+              { '@type': 'Audio', Format: 'ac-3', Channels: '2.1' },
+              { '@type': 'Audio', Format: 'aac', Channels: '2.0' },
+            ],
+          },
+        });
+        expect(result.audio).to.equal('AC3');
+        expect(result.audiochannels).to.equal('2.1');
+        expect(result.dualaudio).to.equal(true);
+      });
     });
   });
 });

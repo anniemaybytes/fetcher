@@ -46,31 +46,6 @@ export class Parser {
     IRCManager.controlAnnounce(`WARN: ${msg}`);
   }
 
-  private static parseContainer(name: string, defaultContainer?: string) {
-    let container = defaultContainer;
-    const containerLocation = name.lastIndexOf('.');
-    const parsedContainer = name.substring(containerLocation + 1).toLowerCase();
-
-    // If container extension is missing or invalid
-    if (containerLocation === -1 || parsedContainer.includes(' ')) {
-      if (!defaultContainer) {
-        Parser.warn(`Release missing container: ${name}`);
-        return undefined;
-      }
-    } else {
-      if (defaultContainer && parsedContainer !== defaultContainer) {
-        Parser.warn(`Release has invalid extension (want ${defaultContainer}): ${name}`);
-        return undefined;
-      }
-      name = name.substring(0, containerLocation);
-      container = parsedContainer;
-    }
-
-    if (!container) return undefined;
-
-    return { container, name };
-  }
-
   private static parseResolution(name: string, defaultRes?: string) {
     for (const res of Parser.validResolutions) {
       const index = name.indexOf(res);
@@ -95,7 +70,6 @@ export class Parser {
   public static parseWantedEpisode(name: string, fetchOptions: FetchOptions, source: Source) {
     // Do pre-checks
     if (!name) return undefined;
-    if (name.endsWith('.torrent')) name = name.substring(0, name.length - 8);
 
     const originalName = name;
     if (Parser.unparseableCache[originalName]) return undefined;
@@ -114,15 +88,6 @@ export class Parser {
     episode.groupName = source.group.name;
     episode.fetchType = source.fetchType;
     episode.fetchOptions = fetchOptions;
-
-    // Parse container
-    const parsedContainer = Parser.parseContainer(name, source.defaults.container?.toLowerCase());
-    if (!parsedContainer) {
-      Parser.unparseableCache[originalName] = true;
-      return undefined;
-    }
-
-    episode.container = parsedContainer.container;
 
     // Parse resolution
     const resolutionParse = Parser.parseResolution(name, source.defaults.res);

@@ -65,16 +65,15 @@ describe('AnimeBytes', () => {
     let loggedInStub: SinonStub;
     let fetchStub: SinonStub;
     let fakeEpisode: Episode;
-    const fakeMediaInfo: any = { audio: 'audio', audiochannels: 'channels', codec: 'codec', text: 'text' };
+    const fakeMediaInfo: any = { audio: 'audio', audiochannels: 'channels', codec: 'codec', extension: 'extension', text: 'text' };
 
     beforeEach(() => {
-      sandbox.stub(Config, 'getConfig').returns({ torrent_dir: 'tdir' } as any);
+      sandbox.stub(Config, 'getConfig').returns({ torrent_dir: '/torrents' } as any);
       loggedInStub = sandbox.stub(ABClient, 'ensureLoggedIn');
       fetchStub = sandbox.stub(ABClient, 'got').resolves({ statusCode: 302, body: 'hi' });
       fakeEpisode = Episode.fromStorageJSON({
         episode: 1,
         resolution: 'resolution',
-        container: 'container',
         groupID: 'groupid',
         media: 'media',
         subbing: 'subbing',

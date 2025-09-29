@@ -53,7 +53,9 @@ export interface MediaInfoInfo {
   text: string;
   audio: string;
   audiochannels: string;
+  dualaudio: boolean;
   codec: string;
+  extension: string;
 }
 
 export interface ShowDef {
@@ -76,7 +78,6 @@ export interface Shows {
 
 export interface SourceDefaults {
   res?: string;
-  container?: string;
 }
 
 export interface ReleaserIRCOptions {

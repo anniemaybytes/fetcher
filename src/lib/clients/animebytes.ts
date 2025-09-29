@@ -86,18 +86,16 @@ export class ABClient {
 
   public static async upload(episode: Episode, mediaInfo: MediaInfoInfo, torrentPath: string) {
     if (!episode.groupID) throw new Error('Cannot upload without groupID');
-    const formData = {
+    const formData: Record<string, any> = {
       groupid: episode.groupID,
-      submit: 'true',
       form: 'anime',
       section: 'anime',
       add_format: '1',
-      CatID: '1',
       file_input: createReadStream(torrentPath),
-      downmultiplier: '0', // Airing episodes are freeleech
+      downmultiplier: '0', // airing episodes are freeleech
       upmultiplier: '1',
       media: episode.media,
-      containers: episode.container.toUpperCase(),
+      containers: mediaInfo.extension.toUpperCase(),
       codecs: mediaInfo.codec,
       resolution: episode.resolution,
       audio: mediaInfo.audio,
@@ -105,9 +103,9 @@ export class ABClient {
       sequence: episode.episode,
       release_group_name: episode.groupName,
       subbing: episode.subbing,
-      remaster: 'on',
       mediainfo_desc: mediaInfo.text,
     };
+    if (mediaInfo.dualaudio) formData.dual_audio = 'on';
     logger.info(`Uploading: ${episode.formattedName()} torrent to AnimeBytes`);
     await ABClient.ensureLoggedIn();
     const requestBody = new FormData();

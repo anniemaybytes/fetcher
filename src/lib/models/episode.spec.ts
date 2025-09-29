@@ -176,8 +176,7 @@ describe('Source', () => {
       episode.version = 1;
       episode.resolution = 'resolution';
       episode.groupName = 'groupName';
-      episode.container = 'mkv';
-      expect(episode.formattedName()).to.equal('showName - 02 [resolution][groupName].mkv');
+      expect(episode.formattedName()).to.equal('showName - 02 [resolution][groupName]');
     });
 
     it('Formats name with version if version > 1', () => {
@@ -187,8 +186,7 @@ describe('Source', () => {
       episode.version = 2;
       episode.resolution = 'resolution';
       episode.groupName = 'groupName';
-      episode.container = 'mkv';
-      expect(episode.formattedName()).to.equal('showName - 02v2 [resolution][groupName].mkv');
+      expect(episode.formattedName()).to.equal('showName - 02v2 [resolution][groupName]');
     });
 
     it('Formats name with crc if it exists', () => {
@@ -198,9 +196,8 @@ describe('Source', () => {
       episode.version = 1;
       episode.resolution = 'resolution';
       episode.groupName = 'groupName';
-      episode.container = 'mkv';
       episode.crc = 'crc';
-      expect(episode.formattedName()).to.equal('showName - 02 [resolution][groupName][crc].mkv');
+      expect(episode.formattedName()).to.equal('showName - 02 [resolution][groupName][crc]');
     });
 
     it('Saves formatted name for future use', () => {
@@ -210,9 +207,8 @@ describe('Source', () => {
       episode.version = 1;
       episode.resolution = 'resolution';
       episode.groupName = 'groupName';
-      episode.container = 'mkv';
       episode.formattedName();
-      expect(episode.formattedEpisodeName).to.equal('showName - 02 [resolution][groupName].mkv');
+      expect(episode.formattedEpisodeName).to.equal('showName - 02 [resolution][groupName]');
     });
   });
 
@@ -325,7 +321,6 @@ describe('Source', () => {
     episode.episode = 2;
     episode.version = 1;
     episode.resolution = 'resolution';
-    episode.container = 'container';
     episode.crc = 'crc';
     episode.showName = 'showName';
     episode.groupID = 'groupID';
@@ -339,7 +334,6 @@ describe('Source', () => {
       episode: 2,
       version: 1,
       resolution: 'resolution',
-      container: 'container',
       crc: 'crc',
       groupID: 'groupID',
       media: 'media',
@@ -357,7 +351,6 @@ describe('Source', () => {
         episode: 2,
         version: 1,
         resolution: 'resolution',
-        container: 'container',
         crc: 'crc',
         groupID: 'groupID',
         media: 'media',
@@ -370,7 +363,6 @@ describe('Source', () => {
       expect(episode.episode).to.equal(2);
       expect(episode.version).to.equal(1);
       expect(episode.resolution).to.equal('resolution');
-      expect(episode.container).to.equal('container');
       expect(episode.crc).to.equal('crc');
       expect(episode.groupID).to.equal('groupID');
       expect(episode.media).to.equal('media');
