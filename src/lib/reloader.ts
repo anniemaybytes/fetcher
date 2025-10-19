@@ -11,9 +11,11 @@ const sourcesRefreshPeriod = 1000 * 60 * 5; // 5 minutes
 
 export class Reloader {
   // All properties public for testing only
-  public static currentReloadTimer: NodeJS.Timeout | undefined = undefined;
-  public static currentRefreshTimer: NodeJS.Timeout | undefined = undefined;
   public static currentlyReloading = true;
+  // eslint-disable-next-line no-undef
+  public static currentReloadTimer: NodeJS.Timeout | undefined = undefined;
+  // eslint-disable-next-line no-undef
+  public static currentRefreshTimer: NodeJS.Timeout | undefined = undefined;
 
   public static async reloadShowsAndGroups() {
     // Ensure only one active timer for this function

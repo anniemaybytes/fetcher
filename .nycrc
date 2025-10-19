@@ -1,0 +1,14 @@
+{
+  "reporter": [
+    "html",
+    "text"
+  ],
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "src/**/*.spec.ts",
+    "src/**/*.d.ts"
+  ],
+  "all": true
+}

@@ -1,8 +1,0 @@
-webpack.config.cjs
-postcss.config.cjs
-
-# built artifacts
-dist/
-
-# package managers
-node_modules

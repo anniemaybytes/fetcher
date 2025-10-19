@@ -5,7 +5,7 @@
   "engines": {
     "node": ">=22.11.0"
   },
-  "packageManager": "pnpm@10.18.0+sha512.e804f889f1cecc40d572db084eec3e4881739f8dec69c0ff10d2d1beff9a4e309383ba27b5b750059d7f4c149535b6cd0d2cb1ed3aeb739239a4284a68f40cfa",
+  "packageManager": "pnpm@10.18.3+sha512.bbd16e6d7286fd7e01f6b3c0b3c932cda2965c06a908328f74663f10a9aea51f1129eea615134bf992831b009eabe167ecb7008b597f40ff9bc75946aadfb08d",
   "type": "module",
   "scripts": {
     "start-dev": "run-p -lr start-dev:*",
@@ -16,18 +16,18 @@
     "build:pug": "mkdir -p dist/views && cp -fr src/views dist",
     "build:frontend": "webpack --color",
     "lint": "run-p --aggregate-output --continue-on-error lint:*",
-    "lint:eslint": "eslint --format unix src/",
+    "lint:eslint": "eslint src/**/*.{ts,js} *.config.cjs",
     "lint:prettier": "prettier --check 'src/**/*.{ts,js}'",
     "lint:stylelint": "stylelint --color 'src/**/*.css'",
     "format": "prettier --write 'src/**/*.{ts,js}'",
-    "test": "NODE_ENV=test LOG_LEVEL=silent c8 --reporter=text --reporter=html mocha --require tsx --color 'src/**/*.spec.ts' --exit",
+    "test": "NODE_ENV=test LOG_LEVEL=silent c8 mocha --require tsx --color 'src/**/*.spec.ts' --exit",
     "clean": "rm -rf .nyc_output/ dist/"
   },
   "dependencies": {
     "chalk": "5.6.0",
     "express": "4.21.2",
     "form-data": "4.0.4",
-    "got": "14.4.9",
+    "got": "14.5.0",
     "irc-colors": "1.5.0",
     "irc-framework": "4.14.0",
     "level": "8.0.1",
@@ -41,21 +41,23 @@
     "webtorrent": "2.8.4"
   },
   "devDependencies": {
+    "@eslint/js": "9.38.0",
     "@types/chai": "5.2.2",
     "@types/express": "4.17.23",
     "@types/mocha": "10.0.10",
-    "@types/node": "22.18.8",
+    "@types/node": "22.18.10",
     "@types/sinon": "17.0.4",
     "@types/stream-buffers": "3.0.7",
     "@types/xml2js": "0.4.14",
-    "@typescript-eslint/eslint-plugin": "8.45.0",
-    "@typescript-eslint/parser": "8.45.0",
+    "@typescript-eslint/eslint-plugin": "8.46.1",
+    "@typescript-eslint/parser": "8.46.1",
     "c8": "10.1.3",
     "chai": "6.2.0",
     "css-loader": "7.1.2",
     "cssnano": "7.1.1",
-    "eslint": "8.57.1",
+    "eslint": "9.38.0",
     "eslint-config-prettier": "10.1.8",
+    "globals": "16.4.0",
     "jquery": "3.7.1",
     "mini-css-extract-plugin": "2.9.4",
     "mocha": "11.7.4",
@@ -66,88 +68,12 @@
     "prettier": "3.6.2",
     "sinon": "21.0.0",
     "stream-buffers": "3.0.3",
-    "stylelint": "16.24.0",
-    "stylelint-config-standard": "39.0.0",
+    "stylelint": "16.25.0",
+    "stylelint-config-standard": "39.0.1",
     "tsx": "4.20.6",
     "typescript": "5.9.3",
-    "webpack": "5.102.0",
+    "webpack": "5.102.1",
     "webpack-cli": "6.0.1",
     "webpack-manifest-plugin": "5.0.1"
-  },
-  "c8": {
-    "include": [
-      "src/**/*.ts"
-    ],
-    "exclude": [
-      "src/**/*.spec.ts",
-      "src/**/*.d.ts"
-    ],
-    "all": true
-  },
-  "prettier": {
-    "tabWidth": 2,
-    "semi": true,
-    "singleQuote": true,
-    "printWidth": 150
-  },
-  "eslintConfig": {
-    "extends": [
-      "eslint:recommended",
-      "prettier"
-    ],
-    "env": {
-      "browser": true,
-      "node": false,
-      "jquery": true,
-      "es6": true
-    },
-    "parserOptions": {
-      "sourceType": "module"
-    },
-    "rules": {
-      "no-console": "error",
-      "max-len": [
-        "error",
-        {
-          "code": 200
-        }
-      ]
-    },
-    "overrides": [
-      {
-        "files": [
-          "*.ts"
-        ],
-        "parser": "@typescript-eslint/parser",
-        "plugins": [
-          "@typescript-eslint"
-        ],
-        "extends": [
-          "plugin:@typescript-eslint/recommended"
-        ],
-        "parserOptions": {
-          "project": "./tsconfig.json"
-        },
-        "rules": {
-          "@typescript-eslint/no-explicit-any": "off",
-          "@typescript-eslint/explicit-module-boundary-types": "off",
-          "@typescript-eslint/no-empty-function": "off"
-        }
-      },
-      {
-        "files": [
-          "*.spec.ts"
-        ],
-        "rules": {
-          "@typescript-eslint/no-unused-expressions": "off"
-        }
-      }
-    ]
-  },
-  "stylelint": {
-    "extends": "stylelint-config-standard",
-    "rules": {
-      "media-feature-range-notation": "prefix"
-    }
   }
 }

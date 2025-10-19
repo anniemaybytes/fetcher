@@ -13,6 +13,7 @@ export class Utils {
   }
 
   public static async timeoutPromise(promise: Promise<any>, timeout: number, err: any) {
+    // eslint-disable-next-line no-undef
     let timer: NodeJS.Timeout;
     return Promise.race([
       new Promise((resolve, reject) => (timer = setTimeout(() => reject(err), timeout))),
