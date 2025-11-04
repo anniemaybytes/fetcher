@@ -28,7 +28,7 @@ downloads as well as to remove state information for specific episodes.
 
 ## Installation
 
-fetcher requires NodeJS v22.11 or later and [pnpm](https://pnpm.io/).
+fetcher requires NodeJS v24.11 or later and [pnpm](https://pnpm.io/).
 Additionally you need these external tools present in `PATH`:
 
 - `mktorrent` >= 1.1
