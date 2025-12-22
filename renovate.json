@@ -2,8 +2,6 @@
   "extends": [
     "config:best-practices",
     "docker:disableMajor",
-    "npm:unpublishSafe",
-    "security:openssf-scorecard",
     ":automergeTypes",
     ":automergeLinters",
     ":automergeDigest"

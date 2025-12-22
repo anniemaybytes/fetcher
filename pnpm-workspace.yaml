@@ -1,5 +1,6 @@
 strictPeerDependencies: true
 strictDepBuilds: true
+
 onlyBuiltDependencies:
   - bufferutil
   - classic-level
@@ -9,3 +10,9 @@ onlyBuiltDependencies:
   - utp-native
 ignoredBuiltDependencies:
   - core-js
+
+blockExoticSubdeps: true
+
+auditConfig:
+  ignoreCves:
+    - CVE-2024-29415

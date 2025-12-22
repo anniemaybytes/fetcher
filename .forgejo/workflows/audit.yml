@@ -1,0 +1,20 @@
+name: audit
+
+on:
+    pull_request:
+        branches:
+            - master
+        paths:
+            - pnpm-lock.yaml
+        types: [ opened, synchronize, reopened ]
+
+jobs:
+    pnpm:
+        runs-on: ubuntu-24.04
+        steps:
+            -   name: Checkout
+                uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+            -   name: Set up PNPM package manager
+                uses: pnpm/action-setup@41ff72655975bd51cab0327fa583b6e92b6d3061 # v4
+            -   name: Audit dependencies
+                run: pnpm audit
