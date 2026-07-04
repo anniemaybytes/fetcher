@@ -1,18 +1,28 @@
 strictPeerDependencies: true
 strictDepBuilds: true
 
-onlyBuiltDependencies:
-  - bufferutil
-  - classic-level
-  - esbuild
-  - node-datachannel
-  - utf-8-validate
-  - utp-native
-ignoredBuiltDependencies:
-  - core-js
-
+minimumReleaseAge: 4320
+trustPolicy: no-downgrade
 blockExoticSubdeps: true
 
+allowBuilds:
+  bufferutil: true
+  classic-level: true
+  esbuild: true
+  node-datachannel: true
+  utf-8-validate: true
+  utp-native: true
+  core-js: false
+  ip-set: false
+
+trustPolicyExclude:
+  - 'chokidar@4.0.3'
+
+overrides:
+  "irc-framework>lodash@<4.18.0": "^4.18.1"
+  "mocha>serialize-javascript@<7.0.5": "^7.0.5"
+
 auditConfig:
-  ignoreCves:
-    - CVE-2024-29415
+  ignoreGhsas:
+    - GHSA-2p57-rm9w-gvfp
+    - GHSA-73rr-hh4g-fpgx

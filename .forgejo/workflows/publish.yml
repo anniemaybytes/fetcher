@@ -15,6 +15,10 @@ on:
         types:
             - published
 
+concurrency:
+    group: ${{ forge.workflow }}-${{ forge.ref }}
+    cancel-in-progress: false
+
 env:
     REGISTRY: ${{ vars.DOCKER_REGISTRY }}
     IMAGE_NAME: ${{ forge.repository }}
@@ -24,19 +28,19 @@ jobs:
         runs-on: ubuntu-24.04
         steps:
             -   name: Checkout
-                uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6
+                uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
             -   name: Login to registry
                 if: forge.event_name != 'pull_request'
-                uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3
+                uses: docker/login-action@af1e73f918a031802d376d3c8bbc3fe56130a9b0 # v4
                 with:
                     registry: ${{ env.REGISTRY }}
                     username: ${{ secrets.DOCKER_USERNAME }}
                     password: ${{ secrets.DOCKER_PASSWORD }}
             -   name: Set up Docker Buildx
-                uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+                uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4
             -   name: Gather metadata
                 id: meta
-                uses: docker/metadata-action@c299e40c65443455700f0fdfc63efafe5b349051 # v5
+                uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6
                 with:
                     images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
                     tags: |
@@ -45,7 +49,7 @@ jobs:
                         type=semver,pattern={{version}}
                         type=semver,pattern={{major}}.{{minor}}
             -   name: Build and publish
-                uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6
+                uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7
                 with:
                     context: .
                     push: ${{ forge.event_name != 'pull_request' }}

@@ -1,39 +1,22 @@
 {
   "compilerOptions": {
+    "strict": false,
     "target": "es2022",
-    "outDir": "./dist/",
-    "rootDir": "./src/",
     "module": "nodenext",
-    "declaration": false,
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "importHelpers": true,
-    "listFiles": false,
-    "traceResolution": false,
     "strictNullChecks": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noImplicitThis": true,
+    "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": false,
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "emitDecoratorMetadata": true,
     "allowUnreachableCode": false,
-    "resolveJsonModule": true,
-    "allowJs": false,
     "sourceMap": true,
-    "types": [
-      "node",
-      "mocha"
-    ]
+    "rootDir": "./src/",
+    "types": ["node", "mocha"]
   },
-  "include": [
-    "**/*.ts"
-  ],
-  "exclude": [
-    "node_modules/**"
-  ],
-  "compileOnSave": false
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules/**"]
 }

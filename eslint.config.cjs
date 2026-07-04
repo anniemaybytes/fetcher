@@ -13,6 +13,7 @@ module.exports = [
 
       // overrides
       'max-len': ['error', { code: 200 }],
+      'preserve-caught-error': 'off',
     },
   },
   {

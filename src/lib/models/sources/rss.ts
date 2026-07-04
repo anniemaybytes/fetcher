@@ -28,8 +28,8 @@ export class RSSSource extends Source {
       const feed = await parser.parseURL(this.url);
 
       feed.items?.forEach((item) => {
-        let link = '';
-        let title = '';
+        let link;
+        let title;
         if (!item.enclosure) {
           if (!item.title || !item.link) return;
           link = item.link;
